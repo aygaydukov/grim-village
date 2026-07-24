@@ -1,0 +1,255 @@
+import { ageLabel, childrenOf, isAdult, isChild } from "./agent";
+import { countByProfession, professionLabel, taskLabel } from "./jobs";
+import { SEX_LABELS, STATE_LABELS } from "./names";
+import type { Agent, Profession, World } from "./types";
+
+export interface VillageReport {
+  name: string;
+  day: number;
+  phase: string;
+  alive: number;
+  dead: number;
+  births: number;
+  children: number;
+  adults: number;
+  elders: number;
+  men: number;
+  women: number;
+  pregnant: number;
+  hungry: number;
+  sleeping: number;
+  working: number;
+  couples: number;
+  barnFood: number;
+  barnCapacity: number;
+  wildFood: number;
+  forestTiles: number;
+  hutCount: number;
+  carriedFood: number;
+  avgHunger: number;
+  avgEnergy: number;
+  professions: Record<Profession, number>;
+  outlook: string;
+  chronicle: string;
+}
+
+export function timePhase(world: World): string {
+  const t = world.stats.timeOfDay;
+  if (t < 0.2 || t > 0.8) return "ночь";
+  if (t < 0.28) return "утро";
+  if (t > 0.72) return "сумерки";
+  return "день";
+}
+
+/** Часы суток: 0.0 = 00:00, 0.5 = 12:00 */
+export function formatClock(timeOfDay: number): string {
+  const totalMinutes = Math.floor(((timeOfDay % 1) + 1) % 1 * 24 * 60);
+  const h = Math.floor(totalMinutes / 60) % 24;
+  const m = totalMinutes % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+export function timeOfDayNote(world: World): string {
+  const phase = timePhase(world);
+  switch (phase) {
+    case "ночь":
+      return "холод · еда почти не растёт · спят в хижинах";
+    case "утро":
+      return "светлеет · пора к работе";
+    case "сумерки":
+      return "темнеет · пора к дому";
+    default:
+      return "тепло · сбор и рост еды";
+  }
+}
+
+export function collectVillageReport(world: World): VillageReport {
+  const alive = world.agents.filter((a) => a.alive);
+  let children = 0;
+  let adults = 0;
+  let elders = 0;
+  let men = 0;
+  let women = 0;
+  let pregnant = 0;
+  let hungry = 0;
+  let sleeping = 0;
+  let working = 0;
+  let hungerSum = 0;
+  let energySum = 0;
+  let carriedFood = 0;
+  const seenCouples = new Set<string>();
+
+  for (const a of alive) {
+    if (a.sex === "male") men += 1;
+    else women += 1;
+    if (isChild(a)) children += 1;
+    else if (a.age >= 65) elders += 1;
+    else if (isAdult(a)) adults += 1;
+    else adults += 1;
+
+    if (a.pregnant > 0) pregnant += 1;
+    if (a.hunger > 70) hungry += 1;
+    if (a.state === "sleep") sleeping += 1;
+    if (a.state === "seekGather" || a.state === "gather" || a.state === "deposit" || a.task === "gather")
+      working += 1;
+    hungerSum += a.hunger;
+    energySum += a.energy;
+    carriedFood += a.carriedFood;
+
+    if (a.spouseId != null) {
+      const lo = Math.min(a.id, a.spouseId);
+      const hi = Math.max(a.id, a.spouseId);
+      seenCouples.add(`${lo}:${hi}`);
+    }
+  }
+
+  let wildFood = 0;
+  let forestTiles = 0;
+  let hutCount = 0;
+  let barnCapacity = 220;
+  for (const tile of world.tiles) {
+    if (tile.kind === "forest") {
+      forestTiles += 1;
+      wildFood += tile.food;
+    } else if (tile.kind === "grass") {
+      wildFood += tile.food;
+    } else if (tile.kind === "hut") {
+      hutCount += 1;
+    } else if (tile.kind === "barn") {
+      barnCapacity = tile.maxFood;
+    }
+  }
+
+  const barnFood = world.stats.barnFood;
+  const n = Math.max(1, alive.length);
+  const avgHunger = hungerSum / n;
+  const avgEnergy = energySum / n;
+  const professions = countByProfession(world);
+
+  let outlook: string;
+  if (alive.length === 0) outlook = "Деревня мертва. Остались только следы ног в грязи.";
+  else if (barnFood < 8 && wildFood < 15) outlook = "Запасы на исходе. Голод уже смотрит в окна.";
+  else if (hungry > alive.length * 0.4) outlook = "Многие ходят на пустой желудок. Зима ещё не пришла — а уже пахнет бедой.";
+  else if (barnFood > 80) outlook = "Амбар тяжёлый. Пока земля кормит — люди живут.";
+  else outlook = "Деревня дышит ровно. Пока ровно.";
+
+  const jobsLine = `Роли: сборщики ${professions.gatherer}, батраки ${professions.laborer}, сторожа ${professions.keeper}, старцы ${professions.elder}, дети ${professions.child}.`;
+
+  const chronicle = [
+    `Поселение стоит ${world.stats.day} ${dayWord(world.stats.day)}.`,
+    hutCount > 0 ? `Хижин: ${hutCount}.` : "Крова почти нет.",
+    `В амбаре ${barnFood} из ${barnCapacity} мер еды.`,
+    `В лесу и на лугах ещё ${wildFood} дикой пищи.`,
+    jobsLine,
+    world.stats.births > 0
+      ? `За память деревни родилось ${world.stats.births}.`
+      : "Новых жизней пока не было.",
+    world.stats.dead > 0
+      ? `Земля приняла ${world.stats.dead}.`
+      : "Смерть пока молчит.",
+  ].join(" ");
+
+  return {
+    name: "Безымянная деревня",
+    day: world.stats.day,
+    phase: timePhase(world),
+    alive: alive.length,
+    dead: world.stats.dead,
+    births: world.stats.births,
+    children,
+    adults,
+    elders,
+    men,
+    women,
+    pregnant,
+    hungry,
+    sleeping,
+    working,
+    couples: seenCouples.size,
+    barnFood,
+    barnCapacity,
+    wildFood,
+    forestTiles,
+    hutCount,
+    carriedFood,
+    avgHunger,
+    avgEnergy,
+    professions,
+    outlook,
+    chronicle,
+  };
+}
+
+function dayWord(n: number): string {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return "день";
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "дня";
+  return "дней";
+}
+
+/** Короткий «текст о жителе» для карточки */
+export function agentChronicle(agent: Agent, world: World): string {
+  const sex = SEX_LABELS[agent.sex];
+  const age = ageLabel(agent.age);
+  const state = STATE_LABELS[agent.state] ?? agent.state;
+  const kids = childrenOf(world, agent.id).filter((k) => k.alive);
+  const spouse = agent.spouseId != null ? world.agents.find((a) => a.id === agent.spouseId) : null;
+
+  const lines: string[] = [];
+
+  if (!agent.alive) {
+    lines.push(
+      `${agent.name} — ${sex}, ${age}. Больше не ходит по земле.`,
+      agent.deathCause ? `Причина: ${agent.deathCause}.` : "Причина смерти неизвестна.",
+    );
+    return lines.join(" ");
+  }
+
+  lines.push(
+    `${agent.name} — ${sex}, ${age} (${agent.age.toFixed(0)} лет), ${professionLabel(agent.profession)}. Сейчас ${taskLabel(agent.task)} (${state}).`,
+  );
+
+  if (spouse?.alive) {
+    lines.push(`Супруг(а): ${spouse.name}.`);
+  } else if (agent.spouseId != null) {
+    lines.push("Супруг(а) похоронен(а).");
+  } else if (isAdult(agent)) {
+    lines.push("Пары нет — или ещё не нашёл(а).");
+  }
+
+  if (kids.length > 0) {
+    lines.push(`Живых детей: ${kids.map((k) => k.name).join(", ")}.`);
+  }
+
+  if (agent.motherId != null || agent.fatherId != null) {
+    const m = agent.motherId != null ? world.agents.find((a) => a.id === agent.motherId) : null;
+    const f = agent.fatherId != null ? world.agents.find((a) => a.id === agent.fatherId) : null;
+    const parents = [m?.name, f?.name].filter(Boolean).join(" и ");
+    if (parents) lines.push(`Родители: ${parents}.`);
+  }
+
+  if (agent.pregnant > 0) {
+    lines.push("Носит ребёнка. Шаги тяжелее обычного.");
+  }
+
+  if (agent.hunger > 80) lines.push("Голод грызёт изнутри.");
+  else if (agent.hunger > 55) lines.push("Уже поглядывает на амбар.");
+  else if (agent.hunger < 25) lines.push("Сыт(а) — редкая удача.");
+
+  if (agent.energy < 25) lines.push("Силы на исходе.");
+  else if (agent.energy > 80) lines.push("Ещё может таскать мешки.");
+
+  if (agent.carriedFood > 0) {
+    lines.push(`Несёт ${agent.carriedFood} ед. еды в амбар.`);
+  }
+
+  return lines.join(" ");
+}
+
+export function healthLabel(hunger: number, energy: number): string {
+  if (hunger > 85 || energy < 15) return "на грани";
+  if (hunger > 65 || energy < 35) return "плохо";
+  if (hunger > 45 || energy < 55) return "терпимо";
+  return "крепко";
+}

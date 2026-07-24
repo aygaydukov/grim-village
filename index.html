@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Мрачная деревня</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="stage">
+        <canvas id="game"></canvas>
+      </div>
+      <aside id="map-legend" aria-label="Легенда карты">
+        <h2>Легенда</h2>
+        <div class="legend-section">
+          <h3>Земля</h3>
+          <ul>
+            <li><i class="swatch" style="background:#2a3324"></i><span><b>Трава</b> — луг, иногда ягоды</span></li>
+            <li><i class="swatch" style="background:#3a3024"></i><span><b>Грязь</b> — площадь деревни</span></li>
+            <li><i class="swatch forest" style="background:#1a2418"></i><span><b>Лес</b> — основная дикая еда</span></li>
+            <li><i class="swatch" style="background:#1a2430"></i><span><b>Вода</b> — непроходима</span></li>
+            <li><i class="swatch hut" style="background:#4a3428"></i><span><b>Хижина</b> — дом и сон</span></li>
+            <li><i class="swatch barn" style="background:#5a4028"></i><span><b>Амбар</b> — общий склад еды (жёлтая заливка = запас)</span></li>
+          </ul>
+        </div>
+        <div class="legend-section">
+          <h3>Знаки</h3>
+          <ul>
+            <li><i class="swatch dots"></i><span><b>Точки внизу клетки</b> — еда на земле</span></li>
+            <li><i class="swatch ring"></i><span><b>Кольцо у амбара</b> — выбрана деревня</span></li>
+            <li><i class="swatch ring-soft"></i><span><b>Кольцо у человека</b> — выбран житель</span></li>
+          </ul>
+        </div>
+        <div class="legend-section">
+          <h3>Люди</h3>
+          <ul>
+            <li><i class="dot" style="background:#8a6a48"></i><span><b>Мужчина</b></span></li>
+            <li><i class="dot" style="background:#7a5858"></i><span><b>Женщина</b></span></li>
+            <li><i class="dot" style="background:#9a8870"></i><span><b>Ребёнок</b></span></li>
+            <li><i class="dot" style="background:#4a5a68"></i><span><b>Спит</b></span></li>
+            <li><i class="dot" style="background:#8a3030"></i><span><b>Голоден</b></span></li>
+            <li><i class="dot flat" style="background:#3a3030"></i><span><b>Труп</b></span></li>
+            <li><i class="carry"></i><span><b>Жёлтые точки сбоку</b> — несёт еду в амбар</span></li>
+          </ul>
+        </div>
+        <p class="legend-hint">Клик: житель · амбар/площадь · Esc снять выбор</p>
+      </aside>
+      <aside id="hud">
+        <header class="hud-brand">
+          <h1>Мрачная деревня</h1>
+          <p class="hud-sub">Наблюдай. Не вмешивайся. Земля сама решит.</p>
+        </header>
+        <section class="hud-stats" id="stats">
+          <div><span>Жители</span><strong id="stat-alive">0</strong></div>
+          <div><span>Умерло</span><strong id="stat-dead">0</strong></div>
+          <div><span>День</span><strong id="stat-day">1</strong></div>
+          <div><span>Амбар</span><strong id="stat-barn">0</strong></div>
+        </section>
+        <section class="hud-tod" id="time-of-day" aria-label="Время суток">
+          <div class="tod-head">
+            <span class="tod-label">Время суток</span>
+            <strong id="stat-clock">00:00</strong>
+          </div>
+          <div class="tod-phase-row">
+            <strong id="stat-time">—</strong>
+            <span id="stat-tod-note" class="tod-note">—</span>
+          </div>
+          <div class="tod-track" title="Ход суток">
+            <i id="stat-tod-bar" class="tod-fill" style="width:0%"></i>
+            <span id="stat-tod-marker" class="tod-marker" style="left:0%"></span>
+          </div>
+          <div class="tod-scale">
+            <span>ночь</span>
+            <span>утро</span>
+            <span>день</span>
+            <span>вечер</span>
+            <span>ночь</span>
+          </div>
+        </section>
+        <section class="hud-controls">
+          <p>WASD — камера · колёсико — зум · клик по жителю / амбару</p>
+          <div class="btn-row">
+            <button type="button" id="btn-village">Деревня</button>
+            <button type="button" id="btn-pause" title="Пауза">Пауза</button>
+            <button type="button" id="btn-speed-1" data-speed="1">×1</button>
+            <button type="button" id="btn-speed-2" data-speed="2">×2</button>
+            <button type="button" id="btn-speed-4" data-speed="4">×4</button>
+          </div>
+        </section>
+        <section class="hud-inspector" id="inspector">
+          <h2 id="inspector-title">Инспектор</h2>
+          <p class="muted" id="inspector-empty">Кликни по крестьянину или выбери деревню.</p>
+          <div id="inspector-body" hidden></div>
+        </section>
+      </aside>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
