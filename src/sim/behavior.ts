@@ -7,12 +7,14 @@ import {
   MAX_CARRY,
   moveToward,
 } from "./agent";
+import { recordDaySnapshot } from "./history";
 import {
   anchorPoint,
   findWorkFood,
   isBeyondLeash,
   maybeReassignProfession,
   planWorkTask,
+  rebalanceVillageLabor,
   setLocalTarget,
 } from "./jobs";
 import {
@@ -81,22 +83,26 @@ function applyWorkPlan(world: World, agent: Agent): void {
   }
 }
 
+function hungryThreshold(agent: Agent): number {
+  return agent.pregnant > 0 ? 55 : 68;
+}
+
 function decideState(world: World, agent: Agent): void {
-  const hungryThreshold = agent.pregnant > 0 ? 55 : 68;
+  const eatAt = hungryThreshold(agent);
 
   if (agent.carriedFood > 0) {
     setTask(agent, "deposit", "deposit");
     return;
   }
 
-  // Сорвался с участка — домой/к амбару (кроме критического голода)
-  if (isBeyondLeash(world, agent) && agent.hunger < 85) {
-    setTask(agent, "returnHome", "returnHome");
+  if (agent.hunger > eatAt) {
+    setTask(agent, "eat", "seekFood");
     return;
   }
 
-  if (agent.hunger > hungryThreshold) {
-    setTask(agent, "eat", "seekFood");
+  // Сорвался с участка — домой/к амбару (только если голод ещё терпимый)
+  if (isBeyondLeash(world, agent) && agent.hunger < eatAt - 8) {
+    setTask(agent, "returnHome", "returnHome");
     return;
   }
 
@@ -179,6 +185,8 @@ function tickNeeds(world: World, agent: Agent): void {
 function birth(world: World, mother: Agent): void {
   const sex = chance(world.rng, 0.5) ? "male" : "female";
   const fatherId = mother.spouseId;
+  const father = fatherId != null ? world.agents.find((a) => a.id === fatherId) : null;
+  const surname = father?.surname ?? mother.surname;
   const child = createAgent(world, {
     x: mother.x + (world.rng() - 0.5) * 0.4,
     y: mother.y + (world.rng() - 0.5) * 0.4,
@@ -189,6 +197,7 @@ function birth(world: World, mother: Agent): void {
     motherId: mother.id,
     fatherId,
     profession: "child",
+    surname,
   });
   child.hunger = 12;
   child.energy = 70;
@@ -567,7 +576,7 @@ function tickAgent(world: World, agent: Agent): void {
 
   if (!busy.includes(agent.state)) {
     decideState(world, agent);
-  } else if (agent.hunger > 85 && agent.state !== "eat" && agent.state !== "seekFood") {
+  } else if (agent.hunger > hungryThreshold(agent) && agent.state !== "eat" && agent.state !== "seekFood") {
     if (agent.state === "gather" || agent.state === "deposit" || agent.state === "seekGather") {
       if (agent.carriedFood > 0 && agent.hunger > 92) {
         agent.hunger = clamp(agent.hunger - agent.carriedFood * 10, 0, 100);
@@ -585,7 +594,7 @@ function tickAgent(world: World, agent: Agent): void {
     agent.state !== "sleep" &&
     agent.state !== "court" &&
     agent.state !== "seekMate" &&
-    agent.hunger < 85
+    agent.hunger < hungryThreshold(agent) - 8
   ) {
     if (agent.carriedFood > 0) setTask(agent, "deposit", "deposit");
     else setTask(agent, "returnHome", "returnHome");
@@ -637,6 +646,8 @@ export function simulateTick(world: World): void {
   world.stats.timeOfDay = (world.tick % world.dayLength) / world.dayLength;
   if (world.tick % world.dayLength === 0) {
     world.stats.day += 1;
+    rebalanceVillageLabor(world);
+    recordDaySnapshot(world);
   }
 
   regenerateFood(world);

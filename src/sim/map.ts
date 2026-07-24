@@ -78,7 +78,6 @@ export function generateMap(
       const y = cy + dy;
       if (x < 1 || y < 1 || x >= width - 1 || y >= height - 1) continue;
       const t = tiles[y * width + x]!;
-      if (t.kind === "water") continue;
       const d = Math.hypot(dx, dy);
       if (d < 7) {
         t.kind = "dirt";
@@ -118,6 +117,7 @@ export function generateMap(
     t.food = 0;
     t.maxFood = 0;
     hutSpots.push({ x, y });
+    carvePath(tiles, width, x, y, barn.x, barn.y);
     for (const [ax, ay] of [
       [0, 1],
       [1, 0],
@@ -136,6 +136,32 @@ export function generateMap(
   }
 
   return { tiles, hutSpots, barn };
+}
+
+/** Грязная тропа от хижины к амбару — чтобы не тонуть в воде по дороге за едой */
+function carvePath(
+  tiles: Tile[],
+  width: number,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+): void {
+  let x = x0;
+  let y = y0;
+  const dx = Math.sign(x1 - x0);
+  const dy = Math.sign(y1 - y0);
+
+  while (x !== x1 || y !== y1) {
+    const tile = tiles[y * width + x];
+    if (tile && tile.kind !== "hut" && tile.kind !== "barn") {
+      tile.kind = "dirt";
+      tile.food = 0;
+      tile.maxFood = 0;
+    }
+    if (x !== x1) x += dx;
+    else if (y !== y1) y += dy;
+  }
 }
 
 export function regenerateFood(world: World): void {

@@ -34,7 +34,15 @@ npm run dev
 ## Архитектура
 
 См. [md/ARCHITECTURE.md](md/ARCHITECTURE.md).  
-Долги и планы: [md/TECHNICAL_DEBT.md](md/TECHNICAL_DEBT.md).
+Долги и планы: [md/TECHNICAL_DEBT.md](md/TECHNICAL_DEBT.md), [md/DEVELOPMENT_PLAN.md](md/DEVELOPMENT_PLAN.md).
+
+## Проверка симуляции
+
+```bash
+npm run simulate      # 10 дней, seed 2026
+npm run simulate 10 1337
+npm test              # smoke-тесты стабильности
+```
 
 ## Репозиторий
 
