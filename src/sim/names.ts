@@ -16,6 +16,21 @@ const MALE = [
   "Морд",
 ];
 
+const SURNAMES = [
+  "Гриммсон",
+  "Туманный",
+  "Заречный",
+  "Лесной",
+  "Каменный",
+  "Серый",
+  "Волчий",
+  "Северный",
+  "Пепельный",
+  "Ржаной",
+  "Болотный",
+  "Старый",
+];
+
 const FEMALE = [
   "Сигр",
   "Хельга",
@@ -37,6 +52,14 @@ const FEMALE = [
 export function randomName(sex: "male" | "female", rng: () => number): string {
   const pool = sex === "male" ? MALE : FEMALE;
   return pool[Math.floor(rng() * pool.length)]!;
+}
+
+export function randomSurname(rng: () => number): string {
+  return SURNAMES[Math.floor(rng() * SURNAMES.length)]!;
+}
+
+export function fullName(agent: { name: string; surname: string }): string {
+  return `${agent.name} ${agent.surname}`;
 }
 
 export const STATE_LABELS: Record<string, string> = {

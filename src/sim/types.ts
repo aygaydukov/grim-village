@@ -45,9 +45,22 @@ export interface Tile {
   maxFood: number;
 }
 
+export interface DaySnapshot {
+  day: number;
+  alive: number;
+  dead: number;
+  births: number;
+  barnFood: number;
+  wildFood: number;
+  avgHunger: number;
+  avgEnergy: number;
+  professions: Record<Profession, number>;
+}
+
 export interface Agent {
   id: number;
   name: string;
+  surname: string;
   sex: AgentSex;
   x: number;
   y: number;
@@ -98,5 +111,6 @@ export interface World {
   barnX: number;
   barnY: number;
   stats: WorldStats;
+  dayHistory: DaySnapshot[];
   rng: () => number;
 }

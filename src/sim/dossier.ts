@@ -1,6 +1,6 @@
 import { ageLabel, childrenOf, isAdult, isChild } from "./agent";
 import { countByProfession, professionLabel, taskLabel } from "./jobs";
-import { SEX_LABELS, STATE_LABELS } from "./names";
+import { fullName, SEX_LABELS, STATE_LABELS } from "./names";
 import type { Agent, Profession, World } from "./types";
 
 export interface VillageReport {
@@ -200,18 +200,18 @@ export function agentChronicle(agent: Agent, world: World): string {
 
   if (!agent.alive) {
     lines.push(
-      `${agent.name} — ${sex}, ${age}. Больше не ходит по земле.`,
+      `${fullName(agent)} — ${sex}, ${age}. Больше не ходит по земле.`,
       agent.deathCause ? `Причина: ${agent.deathCause}.` : "Причина смерти неизвестна.",
     );
     return lines.join(" ");
   }
 
   lines.push(
-    `${agent.name} — ${sex}, ${age} (${agent.age.toFixed(0)} лет), ${professionLabel(agent.profession)}. Сейчас ${taskLabel(agent.task)} (${state}).`,
+    `${fullName(agent)} — ${sex}, ${age} (${agent.age.toFixed(0)} лет), ${professionLabel(agent.profession)}. Сейчас ${taskLabel(agent.task)} (${state}).`,
   );
 
   if (spouse?.alive) {
-    lines.push(`Супруг(а): ${spouse.name}.`);
+    lines.push(`Супруг(а): ${fullName(spouse)}.`);
   } else if (agent.spouseId != null) {
     lines.push("Супруг(а) похоронен(а).");
   } else if (isAdult(agent)) {
@@ -219,13 +219,13 @@ export function agentChronicle(agent: Agent, world: World): string {
   }
 
   if (kids.length > 0) {
-    lines.push(`Живых детей: ${kids.map((k) => k.name).join(", ")}.`);
+    lines.push(`Живых детей: ${kids.map((k) => fullName(k)).join(", ")}.`);
   }
 
   if (agent.motherId != null || agent.fatherId != null) {
     const m = agent.motherId != null ? world.agents.find((a) => a.id === agent.motherId) : null;
     const f = agent.fatherId != null ? world.agents.find((a) => a.id === agent.fatherId) : null;
-    const parents = [m?.name, f?.name].filter(Boolean).join(" и ");
+    const parents = [m ? fullName(m) : null, f ? fullName(f) : null].filter(Boolean).join(" и ");
     if (parents) lines.push(`Родители: ${parents}.`);
   }
 

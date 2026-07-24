@@ -1,5 +1,5 @@
 import { pickProfessionForNew } from "./jobs";
-import { randomName } from "./names";
+import { fullName, randomName, randomSurname } from "./names";
 import type { Agent, AgentSex, Profession, World } from "./types";
 import { chance, clamp } from "./util";
 
@@ -21,6 +21,7 @@ export function createAgent(
     fatherId?: number | null;
     spouseId?: number | null;
     profession?: Profession;
+    surname?: string;
   },
 ): Agent {
   const sex = opts.sex ?? (chance(world.rng, 0.5) ? "male" : "female");
@@ -30,6 +31,7 @@ export function createAgent(
   return {
     id,
     name: randomName(sex, world.rng),
+    surname: opts.surname ?? randomSurname(world.rng),
     sex,
     x: opts.x,
     y: opts.y,
@@ -112,36 +114,30 @@ export function moveToward(
   }
 
   const step = Math.min(speed, d);
-  const nx = agent.x + (dx / d) * step;
-  const ny = agent.y + (dy / d) * step;
+  const ndx = dx / d;
+  const ndy = dy / d;
+  const candidates = [
+    { x: agent.x + ndx * step, y: agent.y + ndy * step },
+    { x: agent.x + ndx * step, y: agent.y },
+    { x: agent.x, y: agent.y + ndy * step },
+    { x: agent.x + Math.sign(dx) * step, y: agent.y },
+    { x: agent.x, y: agent.y + Math.sign(dy) * step },
+  ];
 
-  const tileX = Math.floor(nx);
-  const tileY = Math.floor(ny);
-  const tile = world.tiles[tileY * world.width + tileX];
-  if (!tile || tile.kind === "water") {
-    const ox = agent.x + (dx / d) * step;
-    const oy = agent.y;
-    const tileH = world.tiles[Math.floor(oy) * world.width + Math.floor(ox)];
-    if (tileH && tileH.kind !== "water") {
-      agent.x = ox;
-      return false;
-    }
-    const vx = agent.x;
-    const vy = agent.y + (dy / d) * step;
-    const tileV = world.tiles[Math.floor(vy) * world.width + Math.floor(vx)];
-    if (tileV && tileV.kind !== "water") {
-      agent.y = vy;
-      return false;
-    }
-    agent.targetX = null;
-    agent.targetY = null;
-    agent.state = "idle";
-    agent.task = "idle";
-    return false;
+  for (const c of candidates) {
+    const tileX = Math.floor(c.x);
+    const tileY = Math.floor(c.y);
+    const tile = world.tiles[tileY * world.width + tileX];
+    if (!tile || tile.kind === "water") continue;
+    agent.x = c.x;
+    agent.y = c.y;
+    return Math.hypot(tx - agent.x, ty - agent.y) < 0.15;
   }
 
-  agent.x = nx;
-  agent.y = ny;
+  agent.targetX = null;
+  agent.targetY = null;
+  agent.state = "idle";
+  agent.task = "idle";
   return false;
 }
 
@@ -179,6 +175,7 @@ export function spawnInitialPopulation(
     spotIndex += 1;
     const homeX = hut.x + 0.5;
     const homeY = hut.y + 0.5;
+    const surname = randomSurname(world.rng);
 
     const father = createAgent(world, {
       x: homeX + (world.rng() - 0.5),
@@ -187,6 +184,7 @@ export function spawnInitialPopulation(
       age: 22 + Math.floor(world.rng() * 28),
       homeX,
       homeY,
+      surname,
     });
     const mother = createAgent(world, {
       x: homeX + (world.rng() - 0.5),
@@ -195,6 +193,7 @@ export function spawnInitialPopulation(
       age: 20 + Math.floor(world.rng() * 26),
       homeX,
       homeY,
+      surname,
     });
     father.spouseId = mother.id;
     mother.spouseId = father.id;
@@ -212,6 +211,7 @@ export function spawnInitialPopulation(
         homeY,
         motherId: mother.id,
         fatherId: father.id,
+        surname,
       });
       world.agents.push(child);
       spawned += 1;
@@ -243,7 +243,7 @@ export function agentNameById(world: World, id: number | null): string {
   if (id == null) return "—";
   const a = world.agents.find((x) => x.id === id);
   if (!a) return "† неизвестно";
-  return a.alive ? a.name : `${a.name} †`;
+  return a.alive ? fullName(a) : `${fullName(a)} †`;
 }
 
 export function childrenOf(world: World, parentId: number): Agent[] {

@@ -17,7 +17,7 @@ function isAdultAge(age: number): boolean {
 export function leashRadius(agent: Agent): number {
   switch (agent.profession) {
     case "child":
-      return 4.5;
+      return 6;
     case "elder":
       return 5.5;
     case "keeper":
@@ -215,4 +215,71 @@ export function countByProfession(world: World): Record<Profession, number> {
     out[a.profession] += 1;
   }
   return out;
+}
+
+function workingAdults(world: World): Agent[] {
+  return world.agents.filter(
+    (a) =>
+      a.alive &&
+      isAdultAge(a.age) &&
+      a.age < 65 &&
+      (a.profession === "gatherer" || a.profession === "keeper" || a.profession === "laborer"),
+  );
+}
+
+function gathererScore(agent: Agent): number {
+  let score = agent.energy * 0.6 - agent.hunger * 0.4;
+  if (agent.pregnant > 0) score -= 40;
+  if (agent.carriedFood > 0) score -= 25;
+  if (agent.cooldown > 0) score -= 10;
+  return score;
+}
+
+/** Целевые квоты профессий от запасов амбара */
+export function laborTargets(
+  world: World,
+): { gatherer: number; keeper: number; laborer: number } {
+  const adults = world.agents.filter((a) => a.alive && isAdultAge(a.age) && a.age < 65);
+  const n = Math.max(1, adults.length);
+  const stock = barnStock(world);
+
+  let gatherRatio = 0.42;
+  let keeperRatio = 0.18;
+  if (stock < 25) {
+    gatherRatio = 0.58;
+    keeperRatio = 0.14;
+  } else if (stock < 50) {
+    gatherRatio = 0.5;
+    keeperRatio = 0.16;
+  } else if (stock > 140) {
+    gatherRatio = 0.3;
+    keeperRatio = 0.24;
+  } else if (stock > 90) {
+    gatherRatio = 0.36;
+    keeperRatio = 0.2;
+  }
+
+  const gatherer = Math.max(1, Math.round(n * gatherRatio));
+  const keeper = Math.max(1, Math.min(Math.round(n * keeperRatio), n - gatherer - 1));
+  const laborer = Math.max(0, n - gatherer - keeper);
+  return { gatherer, keeper, laborer };
+}
+
+/**
+ * Ежедневная перебалансировка: при низком амбаре больше сборщиков,
+ * при избытке — батраки и сторожа.
+ */
+export function rebalanceVillageLabor(world: World): void {
+  const workers = workingAdults(world);
+  if (workers.length < 3) return;
+
+  const targets = laborTargets(world);
+  const ranked = workers.slice().sort((a, b) => gathererScore(b) - gathererScore(a));
+
+  for (let i = 0; i < ranked.length; i++) {
+    const agent = ranked[i]!;
+    if (i < targets.gatherer) agent.profession = "gatherer";
+    else if (i < targets.gatherer + targets.keeper) agent.profession = "keeper";
+    else agent.profession = "laborer";
+  }
 }

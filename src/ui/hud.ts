@@ -9,7 +9,7 @@ import {
   type VillageReport,
 } from "../sim/dossier";
 import { professionLabel, taskLabel } from "../sim/jobs";
-import { SEX_LABELS, STATE_LABELS } from "../sim/names";
+import { fullName, SEX_LABELS, STATE_LABELS } from "../sim/names";
 import type { Agent, World } from "../sim/types";
 
 export type Selection =
@@ -215,11 +215,11 @@ function renderAgent(agent: Agent, world: World): string {
       ? "—"
       : kids
           .slice(0, 6)
-          .map((k) => (k.alive ? k.name : `${k.name} †`))
+          .map((k) => (k.alive ? fullName(k) : `${fullName(k)} †`))
           .join(", ") + (kids.length > 6 ? ` (+${kids.length - 6})` : "");
 
   return `
-    <div class="name">${escapeHtml(agent.name)}</div>
+    <div class="name">${escapeHtml(fullName(agent))}</div>
     <p class="chronicle" id="live-chronicle">${escapeHtml(agentChronicle(agent, world))}</p>
     <div class="section-title">Показатели</div>
     <div class="row"><span>Состояние</span><span id="live-health">${escapeHtml(healthLabel(agent.hunger, agent.energy))}</span></div>
@@ -255,7 +255,7 @@ function renderResidentList(world: World): string {
     .map(
       (a) =>
         `<button type="button" class="resident-btn" data-agent-id="${a.id}">` +
-        `<span>${escapeHtml(a.name)}</span>` +
+        `<span>${escapeHtml(fullName(a))}</span>` +
         `<span class="res-meta">${escapeHtml(professionLabel(a.profession))} · ${taskLabel(a.task)}</span>` +
         `</button>`,
     )
