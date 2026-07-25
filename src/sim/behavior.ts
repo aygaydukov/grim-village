@@ -8,6 +8,7 @@ import {
   moveToward,
 } from "./agent";
 import { recordDaySnapshot } from "./history";
+import { recordBirth, recordDeath } from "./events";
 import {
   anchorPoint,
   findWorkFood,
@@ -159,18 +160,21 @@ function tickNeeds(world: World, agent: Agent): void {
   if (agent.hunger >= 100) {
     killAgent(agent, "голод");
     world.stats.dead += 1;
+    recordDeath(world, agent, "голод");
     return;
   }
 
   if (agent.energy <= 0 && night) {
     killAgent(agent, "холод и истощение");
     world.stats.dead += 1;
+    recordDeath(world, agent, "холод и истощение");
     return;
   }
 
   if (agent.age >= MAX_AGE + world.rng() * 8) {
     killAgent(agent, "старость");
     world.stats.dead += 1;
+    recordDeath(world, agent, "старость");
     return;
   }
 
@@ -205,6 +209,7 @@ function birth(world: World, mother: Agent): void {
   child.task = "idle";
   world.agents.push(child);
   world.stats.births += 1;
+  recordBirth(world, child);
   mother.cooldown = world.dayLength * 10;
   mother.energy = clamp(mother.energy - 22, 5, 100);
   mother.hunger = clamp(mother.hunger + 18, 0, 100);

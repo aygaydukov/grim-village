@@ -47,6 +47,15 @@ export interface Tile {
 
 export type Season = "spring" | "summer" | "autumn" | "winter";
 
+/** Именованное событие игрового дня для летописи */
+export type DayEventKind = "birth" | "death" | "profession";
+
+export interface DayEvent {
+  kind: DayEventKind;
+  name: string;
+  detail?: string;
+}
+
 export interface DaySnapshot {
   day: number;
   alive: number;
@@ -64,6 +73,8 @@ export interface DaySnapshot {
   avgHunger: number;
   avgEnergy: number;
   professions: Record<Profession, number>;
+  /** Именованные события дня (рождения, смерти, смена профессий) */
+  events?: DayEvent[];
 }
 
 export interface Agent {
@@ -121,5 +132,9 @@ export interface World {
   barnY: number;
   stats: WorldStats;
   dayHistory: DaySnapshot[];
+  /** Seed генерации карты и начального PRNG */
+  seed: number;
+  /** Буфер событий текущего игрового дня (сбрасывается в снимке) */
+  pendingDayEvents: DayEvent[];
   rng: () => number;
 }

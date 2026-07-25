@@ -1,6 +1,7 @@
 import { countByProfession } from "./jobs";
 import { barnStock } from "./map";
 import { seasonForDay } from "./season";
+import { takeDayEvents } from "./events";
 import type { DaySnapshot, World } from "./types";
 
 export const MAX_DAY_HISTORY = 30;
@@ -44,6 +45,7 @@ export function recordDaySnapshot(world: World): void {
     avgHunger: hungerSum / n,
     avgEnergy: energySum / n,
     professions: countByProfession(world),
+    events: takeDayEvents(world),
   };
 
   world.dayHistory.push(snapshot);

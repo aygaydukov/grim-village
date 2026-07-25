@@ -1,4 +1,5 @@
 import { barnPos, barnStock, findNearestWildFood } from "./map";
+import { recordProfessionChange } from "./events";
 import type { Agent, Profession, TaskKind, World } from "./types";
 import { chance, clamp, dist } from "./util";
 
@@ -278,8 +279,14 @@ export function rebalanceVillageLabor(world: World): void {
 
   for (let i = 0; i < ranked.length; i++) {
     const agent = ranked[i]!;
-    if (i < targets.gatherer) agent.profession = "gatherer";
-    else if (i < targets.gatherer + targets.keeper) agent.profession = "keeper";
-    else agent.profession = "laborer";
+    const prev = agent.profession;
+    let next: Profession;
+    if (i < targets.gatherer) next = "gatherer";
+    else if (i < targets.gatherer + targets.keeper) next = "keeper";
+    else next = "laborer";
+    if (next !== prev) {
+      agent.profession = next;
+      recordProfessionChange(world, agent, prev, next);
+    }
   }
 }
