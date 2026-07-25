@@ -1,6 +1,7 @@
 import { ageLabel, childrenOf, isAdult, isChild } from "./agent";
 import { countByProfession, professionLabel, taskLabel } from "./jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "./names";
+import { seasonForDay, seasonNote } from "./season";
 import type { Agent, Profession, World } from "./types";
 
 export interface VillageReport {
@@ -51,15 +52,16 @@ export function formatClock(timeOfDay: number): string {
 
 export function timeOfDayNote(world: World): string {
   const phase = timePhase(world);
+  const season = seasonNote(seasonForDay(world.stats.day));
   switch (phase) {
     case "ночь":
-      return "холод · еда почти не растёт · спят в хижинах";
+      return `${season} · холод · еда почти не растёт · спят в хижинах`;
     case "утро":
-      return "светлеет · пора к работе";
+      return `${season} · светлеет · пора к работе`;
     case "сумерки":
-      return "темнеет · пора к дому";
+      return `${season} · темнеет · пора к дому`;
     default:
-      return "тепло · сбор и рост еды";
+      return `${season} · тепло · сбор и рост еды`;
   }
 }
 

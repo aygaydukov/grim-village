@@ -45,11 +45,20 @@ export interface Tile {
   maxFood: number;
 }
 
+export type Season = "spring" | "summer" | "autumn" | "winter";
+
 export interface DaySnapshot {
   day: number;
   alive: number;
   dead: number;
   births: number;
+  /** Смерти за прошедший игровой день (дельта к предыдущему снимку) */
+  deathsToday: number;
+  /** Рождения за прошедший игровой день */
+  birthsToday: number;
+  /** Жители с голодом > 70 */
+  highHunger: number;
+  season: Season;
   barnFood: number;
   wildFood: number;
   avgHunger: number;

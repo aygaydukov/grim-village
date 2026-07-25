@@ -429,6 +429,57 @@ body {
   color: #e0d2b8;
 }
 
+.hud-stats .hud-season {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0.1rem 0.5rem;
+  align-items: baseline;
+}
+
+.hud-stats .hud-season > span:first-child {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.hud-stats .hud-season > strong {
+  grid-column: 2;
+  grid-row: 1;
+  text-transform: capitalize;
+}
+
+.hud-stats .season-note {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  font-size: 0.68rem;
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+.chronicle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+.chronicle-entry {
+  font-size: 0.72rem;
+  line-height: 1.38;
+  color: #a89880;
+  padding: 0.35rem 0.45rem;
+  background: rgba(0, 0, 0, 0.22);
+  border-left: 2px solid rgba(138, 74, 50, 0.55);
+}
+
+.chronicle-entry:first-child {
+  color: #c8b8a0;
+  border-left-color: var(--accent);
+}
+
 .hud-controls {
   font-size: 0.72rem;
   color: var(--muted);
