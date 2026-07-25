@@ -1,3 +1,4 @@
+import { foodRegenShockFactor } from "./shocks";
 import { seasonFoodFactor } from "./season";
 import type { Tile, TileKind, World } from "./types";
 import { chance, createRng } from "./util";
@@ -174,7 +175,8 @@ export function regenerateFood(world: World): void {
     // Лес кормит лучше травы; сезон — мягкий множитель (см. season.ts)
     const kindFactor = tile.kind === "forest" ? 1.35 : 1;
     const seasonFactor = seasonFoodFactor(world.stats.day);
-    if (world.rng() < 0.0055 * dayFactor * kindFactor * seasonFactor) {
+    const shockFactor = foodRegenShockFactor(world);
+    if (world.rng() < 0.0055 * dayFactor * kindFactor * seasonFactor * shockFactor) {
       tile.food = Math.min(tile.maxFood, tile.food + 1);
     }
   }

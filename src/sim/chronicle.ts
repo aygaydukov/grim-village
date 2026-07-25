@@ -14,6 +14,11 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
   const namedBirths = events.filter((e) => e.kind === "birth");
   const namedDeaths = events.filter((e) => e.kind === "death");
   const namedProf = events.filter((e) => e.kind === "profession");
+  const namedShocks = events.filter((e) => e.kind === "shock");
+
+  if (namedShocks.length > 0) {
+    parts.push(formatShocks(namedShocks));
+  }
 
   if (namedBirths.length > 0) {
     parts.push(formatNamedList("родился", namedBirths.map((e) => e.name)));
@@ -87,6 +92,14 @@ function formatDeaths(events: DayEvent[]): string {
     .slice(0, 2)
     .map((e) => e.name)
     .join(", ")} и ещё ${events.length - 2}.`;
+}
+
+function formatShocks(events: DayEvent[]): string {
+  if (events.length === 1) {
+    const e = events[0]!;
+    return e.detail ? `${e.name}: ${e.detail}.` : `${e.name}.`;
+  }
+  return events.map((e) => (e.detail ? `${e.name} — ${e.detail}` : e.name)).join("; ") + ".";
 }
 
 function formatProfessionChanges(events: DayEvent[]): string {

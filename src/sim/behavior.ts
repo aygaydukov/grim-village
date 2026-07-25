@@ -8,6 +8,7 @@ import {
   moveToward,
 } from "./agent";
 import { recordDaySnapshot } from "./history";
+import { tickDailyShocks } from "./shocks";
 import { recordBirth, recordDeath } from "./events";
 import {
   anchorPoint,
@@ -651,6 +652,7 @@ export function simulateTick(world: World): void {
   world.stats.timeOfDay = (world.tick % world.dayLength) / world.dayLength;
   if (world.tick % world.dayLength === 0) {
     world.stats.day += 1;
+    tickDailyShocks(world);
     rebalanceVillageLabor(world);
     recordDaySnapshot(world);
   }

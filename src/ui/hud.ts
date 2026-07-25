@@ -11,6 +11,7 @@ import {
 } from "../sim/dossier";
 import { professionLabel, taskLabel } from "../sim/jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "../sim/names";
+import { shockLabel } from "../sim/shocks";
 import { seasonNote, seasonForDay } from "../sim/season";
 import type { Agent, World } from "../sim/types";
 
@@ -35,7 +36,10 @@ export function updateHud(world: World, paused: boolean, speed: number, selectio
 
   const season = seasonForDay(world.stats.day);
   el<HTMLElement>("stat-season").textContent = currentSeasonLabel(world);
-  el<HTMLElement>("stat-season-note").textContent = seasonNote(season);
+  const shock = shockLabel(world);
+  el<HTMLElement>("stat-season-note").textContent = shock
+    ? `${seasonNote(season)} · ${shock}`
+    : seasonNote(season);
 
   const phase = timePhase(world);
   const tod = world.stats.timeOfDay;

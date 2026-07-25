@@ -1,8 +1,8 @@
-import type { Agent, DayEvent, DaySnapshot, Tile, World, WorldStats } from "./types";
+import type { ActiveShock, Agent, DayEvent, DaySnapshot, Tile, World, WorldStats } from "./types";
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -22,6 +22,7 @@ export interface WorldSave {
   stats: WorldStats;
   dayHistory: DaySnapshot[];
   pendingDayEvents: DayEvent[];
+  activeShock: ActiveShock | null;
 }
 
 export function serializeWorld(world: World): WorldSave {
@@ -45,11 +46,12 @@ export function serializeWorld(world: World): WorldSave {
       events: s.events ? [...s.events] : undefined,
     })),
     pendingDayEvents: [...world.pendingDayEvents],
+    activeShock: world.activeShock ? { ...world.activeShock } : null,
   };
 }
 
 export function deserializeWorld(data: WorldSave): World {
-  if (data.version !== SAVE_VERSION) {
+  if (data.version !== SAVE_VERSION && data.version !== 1) {
     throw new Error(`Неподдерживаемая версия сохранения: ${data.version}`);
   }
   const world: World = {
@@ -66,6 +68,7 @@ export function deserializeWorld(data: WorldSave): World {
     dayHistory: data.dayHistory,
     seed: data.seed,
     pendingDayEvents: data.pendingDayEvents ?? [],
+    activeShock: data.activeShock ?? null,
     rng: createRng(data.seed),
   };
   restoreRng(world, data.rngState);

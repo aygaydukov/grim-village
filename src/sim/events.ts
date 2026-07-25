@@ -14,6 +14,11 @@ export function recordDeath(world: World, agent: Agent, cause: string): void {
   pushEvent(world, { kind: "death", name: fullName(agent), detail: cause });
 }
 
+/** Записать сезонный шок (неурожай и т.п.) */
+export function recordShock(world: World, name: string, detail: string): void {
+  pushEvent(world, { kind: "shock", name, detail });
+}
+
 /** Записать смену профессии (только если реально изменилась) */
 export function recordProfessionChange(
   world: World,

@@ -47,8 +47,16 @@ export interface Tile {
 
 export type Season = "spring" | "summer" | "autumn" | "winter";
 
+/** Активный сезонный шок (неурожай и т.п.) */
+export interface ActiveShock {
+  kind: "crop_failure";
+  daysLeft: number;
+  /** Множитель регена дикой еды (0.5–0.6 при неурожае) */
+  regenFactor: number;
+}
+
 /** Именованное событие игрового дня для летописи */
-export type DayEventKind = "birth" | "death" | "profession";
+export type DayEventKind = "birth" | "death" | "profession" | "shock";
 
 export interface DayEvent {
   kind: DayEventKind;
@@ -136,5 +144,7 @@ export interface World {
   seed: number;
   /** Буфер событий текущего игрового дня (сбрасывается в снимке) */
   pendingDayEvents: DayEvent[];
+  /** Сезонный шок, влияющий на реген еды */
+  activeShock: ActiveShock | null;
   rng: () => number;
 }
