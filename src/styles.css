@@ -493,6 +493,15 @@ body {
   margin-top: 0.55rem;
 }
 
+.btn-row-secondary {
+  margin-top: 0.35rem;
+}
+
+.btn-row-secondary button {
+  font-size: 0.72rem;
+  opacity: 0.92;
+}
+
 button {
   appearance: none;
   border: 1px solid var(--panel-edge);

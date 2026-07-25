@@ -2,6 +2,7 @@ import { spawnInitialPopulation } from "./agent";
 import { simulateTick } from "./behavior";
 import { recordDaySnapshot } from "./history";
 import { generateMap, syncBarnStat } from "./map";
+import type { Rng } from "./util";
 import type { World, WorldConfig } from "./types";
 import { createRng } from "./util";
 
@@ -13,6 +14,7 @@ export const DEFAULT_CONFIG: WorldConfig = {
 
 export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): World {
   const { tiles, hutSpots, barn } = generateMap(config.width, config.height, seed);
+  const rng = createRng(seed);
   const world: World = {
     width: config.width,
     height: config.height,
@@ -32,7 +34,9 @@ export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): Wo
       barnFood: 0,
     },
     dayHistory: [],
-    rng: createRng(seed),
+    seed,
+    pendingDayEvents: [],
+    rng,
   };
 
   spawnInitialPopulation(world, hutSpots, config.initialPopulation);
@@ -46,4 +50,14 @@ export function stepWorld(world: World, steps = 1): void {
   for (let i = 0; i < steps; i++) {
     simulateTick(world);
   }
+}
+
+/** Текущее состояние PRNG для сериализации */
+export function rngState(world: World): number {
+  return (world.rng as Rng).state;
+}
+
+/** Восстановить PRNG после десериализации */
+export function restoreRng(world: World, state: number): void {
+  world.rng = createRng(world.seed, state);
 }

@@ -1,5 +1,5 @@
 import { SEASON_LABELS, seasonForDay } from "./season";
-import type { DaySnapshot, World } from "./types";
+import type { DayEvent, DaySnapshot, World } from "./types";
 
 export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
   const season = SEASON_LABELS[snap.season];
@@ -9,12 +9,26 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
 
   const birthsToday = snap.birthsToday ?? (prev ? snap.births - prev.births : 0);
   const deathsToday = snap.deathsToday ?? (prev ? snap.dead - prev.dead : 0);
+  const events = snap.events ?? [];
 
-  if (birthsToday > 0) {
+  const namedBirths = events.filter((e) => e.kind === "birth");
+  const namedDeaths = events.filter((e) => e.kind === "death");
+  const namedProf = events.filter((e) => e.kind === "profession");
+
+  if (namedBirths.length > 0) {
+    parts.push(formatNamedList("родился", namedBirths.map((e) => e.name)));
+  } else if (birthsToday > 0) {
     parts.push(birthWord(birthsToday));
   }
-  if (deathsToday > 0) {
+
+  if (namedDeaths.length > 0) {
+    parts.push(formatDeaths(namedDeaths));
+  } else if (deathsToday > 0) {
     parts.push(deathWord(deathsToday));
+  }
+
+  if (namedProf.length > 0) {
+    parts.push(formatProfessionChanges(namedProf));
   }
 
   if (snap.highHunger >= Math.max(3, Math.ceil(snap.alive * 0.45))) {
@@ -28,7 +42,7 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
   else if (barnDelta <= -10 && snap.barnFood < 20) parts.push("запасы тают.");
 
   const gatherers = snap.professions.gatherer;
-  if (prev && gatherers > prev.professions.gatherer + 1) {
+  if (prev && gatherers > prev.professions.gatherer + 1 && namedProf.length === 0) {
     parts.push("на сбор ушло больше рук.");
   }
 
@@ -53,6 +67,37 @@ export function buildVillageChronicle(world: World, maxEntries = 12): string[] {
 
 export function currentSeasonLabel(world: World): string {
   return SEASON_LABELS[seasonForDay(world.stats.day)];
+}
+
+function formatNamedList(verb: string, names: string[]): string {
+  if (names.length === 1) return `${verb} ${names[0]}.`;
+  if (names.length <= 3) return `${verb} ${names.join(", ")}.`;
+  return `${verb} ${names.slice(0, 2).join(", ")} и ещё ${names.length - 2}.`;
+}
+
+function formatDeaths(events: DayEvent[]): string {
+  if (events.length === 1) {
+    const e = events[0]!;
+    return e.detail ? `умер ${e.name} (${e.detail}).` : `умер ${e.name}.`;
+  }
+  if (events.length <= 3) {
+    return events.map((e) => (e.detail ? `${e.name} (${e.detail})` : e.name)).join(", ") + " — земля приняла.";
+  }
+  return `умерло ${events.length}: ${events
+    .slice(0, 2)
+    .map((e) => e.name)
+    .join(", ")} и ещё ${events.length - 2}.`;
+}
+
+function formatProfessionChanges(events: DayEvent[]): string {
+  if (events.length === 1) {
+    const e = events[0]!;
+    return e.detail ? `${e.name}: ${e.detail}.` : `${e.name} сменил занятие.`;
+  }
+  if (events.length <= 2) {
+    return events.map((e) => (e.detail ? `${e.name} — ${e.detail}` : e.name)).join("; ") + ".";
+  }
+  return `перераспределение труда: ${events.length} человек.`;
 }
 
 function birthWord(n: number): string {

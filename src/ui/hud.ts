@@ -354,6 +354,9 @@ export function bindHudControls(opts: {
   onSpeed: (speed: number) => void;
   onVillage: () => void;
   onSelectAgent: (id: number) => void;
+  onSave: () => void;
+  onLoad: () => void;
+  onNewWorld: () => void;
 }): void {
   onSelectAgentCb = opts.onSelectAgent;
   el<HTMLButtonElement>("btn-pause").addEventListener("click", opts.onPause);
@@ -361,6 +364,10 @@ export function bindHudControls(opts: {
   for (const s of [1, 2, 4]) {
     el<HTMLButtonElement>(`btn-speed-${s}`).addEventListener("click", () => opts.onSpeed(s));
   }
+
+  el<HTMLButtonElement>("btn-save").addEventListener("click", opts.onSave);
+  el<HTMLButtonElement>("btn-load").addEventListener("click", opts.onLoad);
+  el<HTMLButtonElement>("btn-new").addEventListener("click", opts.onNewWorld);
 
   el<HTMLElement>("inspector-body").addEventListener("click", (e) => {
     const target = (e.target as HTMLElement).closest<HTMLElement>(".resident-btn");

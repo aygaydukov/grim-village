@@ -1,6 +1,28 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { deserializeWorld, serializeWorld } from "../src/sim/persist.ts";
 import { runModulation } from "../src/sim/modulate.ts";
+import { stepWorld } from "../src/sim/world.ts";
+
+describe("сохранение мира", () => {
+  it("roundtrip serialize/deserialize сохраняет состояние", () => {
+    const { world: original } = runModulation(3, 4242);
+    const saved = serializeWorld(original);
+    const loaded = deserializeWorld(saved);
+
+    assert.equal(loaded.seed, original.seed);
+    assert.equal(loaded.tick, original.tick);
+    assert.equal(loaded.stats.day, original.stats.day);
+    assert.equal(loaded.stats.alive, original.stats.alive);
+    assert.equal(loaded.agents.length, original.agents.length);
+    assert.equal(loaded.dayHistory.length, original.dayHistory.length);
+
+    stepWorld(loaded, loaded.dayLength);
+    stepWorld(original, original.dayLength);
+    assert.equal(loaded.stats.alive, original.stats.alive);
+    assert.equal(loaded.stats.day, original.stats.day);
+  });
+});
 
 describe("стабильность деревни", () => {
   const seeds = [1337, 2026, 4242, 777, 9001];

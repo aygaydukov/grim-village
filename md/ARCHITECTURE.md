@@ -54,10 +54,12 @@ src/
 
 ## История и модуляция
 
-- `dayHistory` — до 30 снимков (`history.ts`): население, амбар, дикая еда, профессии, **дельты дня** (`birthsToday`, `deathsToday`), **сезон**, **highHunger**.
-- `chronicle.ts` — текстовые записи летописи для UI.
+- `dayHistory` — до 30 снимков (`history.ts`): население, амбар, дикая еда, профессии, **дельты дня** (`birthsToday`, `deathsToday`), **сезон**, **highHunger**, **именованные события** (`events`).
+- `events.ts` — буфер событий дня: рождения, смерти (с причиной), смена профессий при `rebalanceVillageLabor`.
+- `chronicle.ts` — текстовые записи летописи для UI (имена, не только счётчики).
+- `persist.ts` — сериализация `World` в JSON, localStorage, восстановление PRNG state.
 - `season.ts` — цикл весна/лето/осень/зима (8 дней), множитель regen еды.
-- Headless-прогон: `npm run simulate` (10 дней по умолчанию), `npm test` — smoke на нескольких seed.
+- Headless-прогон: `npm run simulate` (10 дней по умолчанию), `npm test` — smoke на нескольких seed + roundtrip save/load.
 - Модуль `modulate.ts`: критерии стабильности для CI и cloud-агента.
 
 ## Дальнейший апгрейд графики
