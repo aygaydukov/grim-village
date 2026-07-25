@@ -9,6 +9,12 @@ import {
 import { pickAgentAt, renderWorld, resizeCanvas } from "./render/renderer";
 import { initWorld, stepWorld } from "./sim/world";
 import {
+  clearWorldStorage,
+  hasSavedWorld,
+  loadWorldFromStorage,
+  saveWorldToStorage,
+} from "./sim/persist";
+import {
   bindHudControls,
   isVillageClick,
   refreshInspectorLive,
@@ -22,7 +28,13 @@ const canvas = document.getElementById("game") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d");
 if (!ctx) throw new Error("Canvas 2D недоступен");
 
-const world = initWorld({ width: 64, height: 48, initialPopulation: 22 }, 2026);
+const DEFAULT_SEED = 2026;
+
+function createFreshWorld(seed = DEFAULT_SEED) {
+  return initWorld({ width: 64, height: 48, initialPopulation: 22 }, seed);
+}
+
+let world = hasSavedWorld() ? (loadWorldFromStorage() ?? createFreshWorld()) : createFreshWorld();
 const input = createInput(canvas);
 
 let viewW = 0;
@@ -102,6 +114,26 @@ bindHudControls({
   },
   onVillage: selectVillage,
   onSelectAgent: selectAgent,
+  onSave: () => {
+    saveWorldToStorage(world);
+  },
+  onLoad: () => {
+    const loaded = loadWorldFromStorage();
+    if (!loaded) return;
+    world = loaded;
+    paused = false;
+    acc = 0;
+    liveAcc = 0;
+    applySelection({ kind: "village" });
+  },
+  onNewWorld: () => {
+    clearWorldStorage();
+    world = createFreshWorld(DEFAULT_SEED + Math.floor(Math.random() * 9000));
+    paused = false;
+    acc = 0;
+    liveAcc = 0;
+    applySelection({ kind: "village" });
+  },
 });
 
 window.addEventListener("keydown", (e) => {
