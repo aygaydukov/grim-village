@@ -1,5 +1,6 @@
 import { countByProfession } from "./jobs";
 import { barnStock } from "./map";
+import { seasonForDay } from "./season";
 import type { DaySnapshot, World } from "./types";
 
 export const MAX_DAY_HISTORY = 30;
@@ -17,17 +18,27 @@ export function recordDaySnapshot(world: World): void {
   const alive = world.agents.filter((a) => a.alive);
   let hungerSum = 0;
   let energySum = 0;
+  let highHunger = 0;
   for (const a of alive) {
     hungerSum += a.hunger;
     energySum += a.energy;
+    if (a.hunger > 70) highHunger += 1;
   }
   const n = Math.max(1, alive.length);
+
+  const prev = world.dayHistory[world.dayHistory.length - 1];
+  const deathsToday = prev ? world.stats.dead - prev.dead : 0;
+  const birthsToday = prev ? world.stats.births - prev.births : 0;
 
   const snapshot: DaySnapshot = {
     day: world.stats.day,
     alive: alive.length,
     dead: world.stats.dead,
     births: world.stats.births,
+    deathsToday: Math.max(0, deathsToday),
+    birthsToday: Math.max(0, birthsToday),
+    highHunger,
+    season: seasonForDay(world.stats.day),
     barnFood: barnStock(world),
     wildFood: wildFoodTotal(world),
     avgHunger: hungerSum / n,

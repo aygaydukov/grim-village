@@ -1,3 +1,4 @@
+import { buildVillageChronicle, currentSeasonLabel } from "../sim/chronicle";
 import { ageLabel, agentNameById, childrenOf } from "../sim/agent";
 import {
   agentChronicle,
@@ -10,6 +11,7 @@ import {
 } from "../sim/dossier";
 import { professionLabel, taskLabel } from "../sim/jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "../sim/names";
+import { seasonNote, seasonForDay } from "../sim/season";
 import type { Agent, World } from "../sim/types";
 
 export type Selection =
@@ -30,6 +32,10 @@ export function updateHud(world: World, paused: boolean, speed: number, selectio
   el<HTMLElement>("stat-dead").textContent = String(world.stats.dead);
   el<HTMLElement>("stat-day").textContent = String(world.stats.day);
   el<HTMLElement>("stat-barn").textContent = String(world.stats.barnFood);
+
+  const season = seasonForDay(world.stats.day);
+  el<HTMLElement>("stat-season").textContent = currentSeasonLabel(world);
+  el<HTMLElement>("stat-season-note").textContent = seasonNote(season);
 
   const phase = timePhase(world);
   const tod = world.stats.timeOfDay;
@@ -171,6 +177,15 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setWidth("live-v-hunger-bar", hungerPct);
   setWidth("live-v-energy-bar", energyPct);
 
+  const chronicleList = elOptional("live-v-chronicle-list");
+  if (chronicleList) {
+    const dayKey = String(world.stats.day);
+    if (chronicleList.dataset.day !== dayKey) {
+      chronicleList.dataset.day = dayKey;
+      chronicleList.innerHTML = renderChronicleList(world);
+    }
+  }
+
   // список жителей — только если состав изменился
   const list = elOptional("live-resident-list");
   if (list) {
@@ -262,6 +277,16 @@ function renderResidentList(world: World): string {
     .join("");
 }
 
+function renderChronicleList(world: World): string {
+  const lines = buildVillageChronicle(world, 10);
+  if (lines.length === 0) return `<p class="muted">Летопись пуста.</p>`;
+  return lines
+    .slice()
+    .reverse()
+    .map((line) => `<p class="chronicle-entry">${escapeHtml(line)}</p>`)
+    .join("");
+}
+
 function renderVillage(r: VillageReport, world: World): string {
   const barnPct = Math.round((r.barnFood / Math.max(1, r.barnCapacity)) * 100);
   const hungerPct = Math.round(r.avgHunger);
@@ -307,6 +332,9 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="bar hunger"><i id="live-v-hunger-bar" style="width:${hungerPct}%"></i></div>
     <div id="live-v-energy-label">Средние силы ${energyPct}</div>
     <div class="bar energy"><i id="live-v-energy-bar" style="width:${energyPct}%"></i></div>
+
+    <div class="section-title">Летопись</div>
+    <div class="chronicle-list" id="live-v-chronicle-list" data-day="${r.day}">${renderChronicleList(world)}</div>
 
     <div class="section-title">Жители</div>
     <div class="resident-list" id="live-resident-list" data-ids="${ids}">${listHtml}</div>
