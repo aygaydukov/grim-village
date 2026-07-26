@@ -24,6 +24,11 @@ export function recordConstruction(world: World, detail: string): void {
   pushEvent(world, { kind: "construction", name: "хижина", detail });
 }
 
+/** Записать событие управления (казна, староста) */
+export function recordGovernment(world: World, name: string, detail: string): void {
+  pushEvent(world, { kind: "government", name, detail });
+}
+
 /** Записать смену профессии (только если реально изменилась) */
 export function recordProfessionChange(
   world: World,

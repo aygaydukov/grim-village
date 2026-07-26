@@ -68,6 +68,10 @@ function selectVillage(): void {
   applySelection({ kind: "village" });
 }
 
+function selectChangelog(): void {
+  applySelection({ kind: "changelog" });
+}
+
 function onResize(): void {
   resizeCanvas(canvas);
   viewW = canvas.clientWidth;
@@ -113,6 +117,7 @@ bindHudControls({
     paused = false;
   },
   onVillage: selectVillage,
+  onChangelog: selectChangelog,
   onSelectAgent: selectAgent,
   onSave: () => {
     saveWorldToStorage(world);
@@ -145,6 +150,7 @@ window.addEventListener("keydown", (e) => {
   if (e.code === "Digit2") speed = 2;
   if (e.code === "Digit4") speed = 4;
   if (e.code === "KeyV") selectVillage();
+  if (e.code === "KeyH") selectChangelog();
   if (e.code === "Escape") applySelection({ kind: "none" });
 });
 

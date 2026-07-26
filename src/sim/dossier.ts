@@ -1,4 +1,5 @@
 import { ageLabel, childrenOf, isAdult, isChild } from "./agent";
+import { starostaName } from "./government";
 import { countByProfession, professionLabel, taskLabel } from "./jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "./names";
 import { seasonForDay, seasonNote } from "./season";
@@ -27,6 +28,8 @@ export interface VillageReport {
   forestTiles: number;
   hutCount: number;
   carriedFood: number;
+  treasury: number;
+  starosta: string | null;
   avgHunger: number;
   avgEnergy: number;
   professions: Record<Profession, number>;
@@ -136,11 +139,14 @@ export function collectVillageReport(world: World): VillageReport {
   else outlook = "Деревня дышит ровно. Пока ровно.";
 
   const jobsLine = `Роли: сборщики ${professions.gatherer}, батраки ${professions.laborer}, сторожа ${professions.keeper}, старцы ${professions.elder}, дети ${professions.child}.`;
+  const starosta = starostaName(world);
 
   const chronicle = [
     `Поселение стоит ${world.stats.day} ${dayWord(world.stats.day)}.`,
     hutCount > 0 ? `Хижин: ${hutCount}.` : "Крова почти нет.",
     `В амбаре ${barnFood} из ${barnCapacity} мер еды.`,
+    world.treasury > 0 ? `В казне старосты ${world.treasury} мер.` : "Казна пуста — десятина ещё не накопилась.",
+    starosta ? `Староста: ${starosta}.` : "Старосту пока не назначили.",
     `В лесу и на лугах ещё ${wildFood} дикой пищи.`,
     jobsLine,
     world.stats.births > 0
@@ -174,6 +180,8 @@ export function collectVillageReport(world: World): VillageReport {
     forestTiles,
     hutCount,
     carriedFood,
+    treasury: world.treasury,
+    starosta,
     avgHunger,
     avgEnergy,
     professions,

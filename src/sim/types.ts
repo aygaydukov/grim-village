@@ -59,7 +59,13 @@ export interface ActiveShock {
 }
 
 /** Именованное событие игрового дня для летописи */
-export type DayEventKind = "birth" | "death" | "profession" | "shock" | "construction";
+export type DayEventKind =
+  | "birth"
+  | "death"
+  | "profession"
+  | "shock"
+  | "construction"
+  | "government";
 
 export interface BuildProject {
   x: number;
@@ -161,5 +167,9 @@ export interface World {
   buildProject: BuildProject | null;
   /** День завершения последней хижины (кулдаун) */
   lastHutBuiltDay: number;
+  /** Казна старосты (десятина и резерв) */
+  treasury: number;
+  /** id жителя-старосты */
+  starostaId: number | null;
   rng: () => number;
 }

@@ -48,7 +48,10 @@
       </aside>
       <aside id="hud">
         <header class="hud-brand">
-          <h1>Мрачная деревня</h1>
+          <div class="hud-brand-row">
+            <h1>Мрачная деревня</h1>
+            <span id="game-version" class="game-version" title="Версия игры">v0.2.0</span>
+          </div>
           <p class="hud-sub">Наблюдай. Не вмешивайся. Земля сама решит.</p>
         </header>
         <section class="hud-stats" id="stats">
@@ -83,6 +86,7 @@
           <p>WASD — камера · колёсико — зум · клик по жителю / амбару</p>
           <div class="btn-row">
             <button type="button" id="btn-village">Деревня</button>
+            <button type="button" id="btn-changelog" title="История версий">Версии</button>
             <button type="button" id="btn-pause" title="Пауза">Пауза</button>
             <button type="button" id="btn-speed-1" data-speed="1">×1</button>
             <button type="button" id="btn-speed-2" data-speed="2">×2</button>

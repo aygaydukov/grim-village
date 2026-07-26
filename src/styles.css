@@ -229,6 +229,21 @@ body {
   color: #d4c4a8;
 }
 
+.hud-brand-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.game-version {
+  font-size: 0.72rem;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
 .hud-sub {
   margin-top: 0.35rem;
   font-size: 0.78rem;
@@ -582,6 +597,66 @@ button.active {
 #inspector-body .dead {
   color: #a85848;
   margin-top: 0.5rem;
+}
+
+.inspector-tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.65rem;
+}
+
+.inspector-tab {
+  flex: 1;
+  font-size: 0.72rem;
+  padding: 0.3rem 0.45rem;
+}
+
+.inspector-tab.active {
+  border-color: var(--accent);
+  color: #e8d8c0;
+  background: #2a1a14;
+}
+
+.changelog-current {
+  margin-bottom: 0.55rem;
+}
+
+.changelog-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 42vh;
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+.changelog-entry {
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(42, 34, 24, 0.65);
+}
+
+.changelog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  color: #dccbb0;
+}
+
+.changelog-head time {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.changelog-list {
+  margin-left: 1rem;
+  font-size: 0.78rem;
+  color: #b8a890;
+}
+
+.changelog-list li {
+  margin-bottom: 0.2rem;
 }
 
 @media (max-width: 800px) {

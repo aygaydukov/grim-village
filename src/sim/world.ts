@@ -1,5 +1,6 @@
 import { spawnInitialPopulation } from "./agent";
 import { simulateTick } from "./behavior";
+import { tickDailyGovernment } from "./government";
 import { recordDaySnapshot } from "./history";
 import { generateMap, syncBarnStat } from "./map";
 import type { Rng } from "./util";
@@ -39,12 +40,15 @@ export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): Wo
     activeShock: null,
     buildProject: null,
     lastHutBuiltDay: 0,
+    treasury: 0,
+    starostaId: null,
     rng,
   };
 
   spawnInitialPopulation(world, hutSpots, config.initialPopulation);
   world.stats.alive = world.agents.filter((a) => a.alive).length;
   syncBarnStat(world);
+  tickDailyGovernment(world);
   recordDaySnapshot(world);
   return world;
 }

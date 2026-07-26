@@ -15,8 +15,10 @@ import {
   shouldLaborerBuild,
   tickBuildProject,
 } from "./housing";
+import { mayTakeFromBarn, applyDepositTithe } from "./government";
 import { recordDaySnapshot } from "./history";
 import { tickDailyShocks } from "./shocks";
+import { tickDailyGovernment } from "./government";
 import { recordBirth, recordDeath } from "./events";
 import {
   anchorPoint,
@@ -234,7 +236,7 @@ function pickFoodTarget(world: World, agent: Agent): { x: number; y: number } | 
   const wild = findWorkFood(world, agent) ?? findNearestWildFood(world, agent.x, agent.y, 12);
   const dBarn = dist(agent.x, agent.y, barn.x, barn.y);
 
-  if (stock > 0) {
+  if (stock > 0 && mayTakeFromBarn(world, agent)) {
     if (!wild) return barn;
     const dWild = dist(agent.x, agent.y, wild.x, wild.y);
     if (dBarn <= dWild + 3 || agent.hunger > 80) return barn;
@@ -397,7 +399,8 @@ function actDeposit(world: World, agent: Agent): void {
 
   const space = barnTile.maxFood - barnTile.food;
   const put = Math.min(agent.carriedFood, space);
-  barnTile.food += put;
+  const netPut = applyDepositTithe(world, put);
+  barnTile.food += netPut;
   agent.carriedFood -= put;
   if (agent.carriedFood > 0) {
     agent.hunger = clamp(agent.hunger - agent.carriedFood * 8, 0, 100);
@@ -725,6 +728,7 @@ export function simulateTick(world: World): void {
   if (world.tick % world.dayLength === 0) {
     world.stats.day += 1;
     tickDailyShocks(world);
+    tickDailyGovernment(world);
     maybeStartHutBuild(world);
     rebalanceVillageLabor(world);
     recordDaySnapshot(world);

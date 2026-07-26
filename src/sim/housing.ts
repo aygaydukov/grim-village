@@ -1,4 +1,5 @@
 import { recordConstruction } from "./events";
+import { barnCostForBuild } from "./government";
 import { barnStock, getBarnTile, getTile, placeHut } from "./map";
 import type { Agent, World } from "./types";
 
@@ -72,8 +73,9 @@ export function maybeStartHutBuild(world: World): void {
   if (!site) return;
 
   const barn = getBarnTile(world);
-  if (!barn || barn.food < BUILD_FOOD_COST) return;
-  barn.food -= BUILD_FOOD_COST;
+  const barnPay = barnCostForBuild(world, BUILD_FOOD_COST);
+  if (!barn || barn.food < barnPay) return;
+  barn.food -= barnPay;
 
   world.buildProject = {
     x: site.x,

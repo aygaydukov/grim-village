@@ -1,3 +1,4 @@
+import { GAME_VERSION, CHANGELOG } from "../version";
 import { buildVillageChronicle, currentSeasonLabel } from "../sim/chronicle";
 import { ageLabel, agentNameById, childrenOf } from "../sim/agent";
 import {
@@ -18,7 +19,8 @@ import type { Agent, World } from "../sim/types";
 export type Selection =
   | { kind: "none" }
   | { kind: "agent"; id: number }
-  | { kind: "village" };
+  | { kind: "village" }
+  | { kind: "changelog" };
 
 function el<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id);
@@ -29,6 +31,7 @@ function el<T extends HTMLElement>(id: string): T {
 let onSelectAgentCb: ((id: number) => void) | null = null;
 
 export function updateHud(world: World, paused: boolean, speed: number, selection: Selection): void {
+  el<HTMLElement>("game-version").textContent = `v${GAME_VERSION}`;
   el<HTMLElement>("stat-alive").textContent = String(world.stats.alive);
   el<HTMLElement>("stat-dead").textContent = String(world.stats.dead);
   el<HTMLElement>("stat-day").textContent = String(world.stats.day);
@@ -62,6 +65,7 @@ export function updateHud(world: World, paused: boolean, speed: number, selectio
   }
 
   el<HTMLButtonElement>("btn-village").classList.toggle("active", selection.kind === "village");
+  el<HTMLButtonElement>("btn-changelog").classList.toggle("active", selection.kind === "changelog");
 }
 
 export function resolveSelectedAgent(selection: Selection, world: World): Agent | null {
@@ -72,6 +76,17 @@ export function resolveSelectedAgent(selection: Selection, world: World): Agent 
 export function selectionKey(selection: Selection): string {
   if (selection.kind === "agent") return `agent:${selection.id}`;
   return selection.kind;
+}
+
+function renderInspectorTabs(selection: Selection): string {
+  const villageActive = selection.kind === "village" ? " active" : "";
+  const changelogActive = selection.kind === "changelog" ? " active" : "";
+  return `
+    <div class="inspector-tabs" role="tablist">
+      <button type="button" class="inspector-tab${villageActive}" data-tab="village" role="tab">Деревня</button>
+      <button type="button" class="inspector-tab${changelogActive}" data-tab="changelog" role="tab">История версий</button>
+    </div>
+  `;
 }
 
 /** Полная перерисовка карточки (при смене выбора) */
@@ -90,12 +105,20 @@ export function updateInspector(selection: Selection, world: World): void {
     return;
   }
 
+  if (selection.kind === "changelog") {
+    title.textContent = "История версий";
+    empty.hidden = true;
+    body.hidden = false;
+    body.innerHTML = renderChangelogPanel();
+    return;
+  }
+
   empty.hidden = true;
   body.hidden = false;
 
   if (selection.kind === "village") {
     title.textContent = "Деревня";
-    body.innerHTML = renderVillage(collectVillageReport(world), world);
+    body.innerHTML = renderInspectorTabs(selection) + renderVillage(collectVillageReport(world), world);
     return;
   }
 
@@ -172,6 +195,8 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-barn-label", `Амбар ${r.barnFood} / ${r.barnCapacity}`);
   setText("live-v-wild", String(r.wildFood));
   setText("live-v-carry", String(r.carriedFood));
+  setText("live-v-treasury", String(r.treasury));
+  setText("live-v-starosta", r.starosta ?? "—");
   const barnPct = Math.round((r.barnFood / Math.max(1, r.barnCapacity)) * 100);
   const hungerPct = Math.round(r.avgHunger);
   const energyPct = Math.round(r.avgEnergy);
@@ -324,6 +349,10 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="row"><span>Старцы</span><span id="live-v-eld">${r.professions.elder}</span></div>
     <div class="row"><span>Дети</span><span id="live-v-ch">${r.professions.child}</span></div>
 
+    <div class="section-title">Управление</div>
+    <div class="row"><span>Казна</span><span id="live-v-treasury">${r.treasury}</span></div>
+    <div class="row"><span>Староста</span><span id="live-v-starosta">${escapeHtml(r.starosta ?? "—")}</span></div>
+
     <div class="section-title">Ресурсы</div>
     <div class="row"><span>День · время</span><span id="live-v-day">${r.day} · ${r.phase}</span></div>
     <div class="row"><span>Хижины</span><span>${r.hutCount}</span></div>
@@ -345,6 +374,28 @@ function renderVillage(r: VillageReport, world: World): string {
   `;
 }
 
+function renderChangelogPanel(): string {
+  const entries = CHANGELOG.map(
+    (entry) => `
+      <article class="changelog-entry">
+        <header class="changelog-head">
+          <strong>v${escapeHtml(entry.version)}</strong>
+          <time>${escapeHtml(entry.date)}</time>
+        </header>
+        <ul class="changelog-list">
+          ${entry.changes.map((c) => `<li>${escapeHtml(c)}</li>`).join("")}
+        </ul>
+      </article>
+    `,
+  ).join("");
+
+  return `
+    ${renderInspectorTabs({ kind: "changelog" })}
+    <p class="muted changelog-current">Текущая версия: <strong>v${escapeHtml(GAME_VERSION)}</strong></p>
+    <div class="changelog-scroll">${entries}</div>
+  `;
+}
+
 function escapeHtml(s: string): string {
   return s
     .replaceAll("&", "&amp;")
@@ -357,6 +408,7 @@ export function bindHudControls(opts: {
   onPause: () => void;
   onSpeed: (speed: number) => void;
   onVillage: () => void;
+  onChangelog: () => void;
   onSelectAgent: (id: number) => void;
   onSave: () => void;
   onLoad: () => void;
@@ -365,6 +417,7 @@ export function bindHudControls(opts: {
   onSelectAgentCb = opts.onSelectAgent;
   el<HTMLButtonElement>("btn-pause").addEventListener("click", opts.onPause);
   el<HTMLButtonElement>("btn-village").addEventListener("click", opts.onVillage);
+  el<HTMLButtonElement>("btn-changelog").addEventListener("click", opts.onChangelog);
   for (const s of [1, 2, 4]) {
     el<HTMLButtonElement>(`btn-speed-${s}`).addEventListener("click", () => opts.onSpeed(s));
   }
@@ -374,6 +427,16 @@ export function bindHudControls(opts: {
   el<HTMLButtonElement>("btn-new").addEventListener("click", opts.onNewWorld);
 
   el<HTMLElement>("inspector-body").addEventListener("click", (e) => {
+    const tab = (e.target as HTMLElement).closest<HTMLElement>(".inspector-tab");
+    if (tab?.dataset.tab === "village") {
+      opts.onVillage();
+      return;
+    }
+    if (tab?.dataset.tab === "changelog") {
+      opts.onChangelog();
+      return;
+    }
+
     const target = (e.target as HTMLElement).closest<HTMLElement>(".resident-btn");
     if (!target || !onSelectAgentCb) return;
     const id = Number(target.dataset.agentId);
