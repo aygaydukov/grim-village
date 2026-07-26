@@ -47,10 +47,18 @@ npm run dev
 ```bash
 npm run simulate      # 10 дней, seed 2026
 npm run simulate 10 1337
+npm run village:status  # обновить docs/status.json для GitHub Pages
 npm test              # smoke-тесты стабильности
 ```
 
+## Публичная витрина
+
+Автономная летопись общества (метрики, хроника, changelog агента):  
+**https://aygaydukov.github.io/grim-village/**
+
+Как устроено: [md/AUTOMATION.md](md/AUTOMATION.md).
+
 ## Репозиторий
 
-Отдельный GitHub: [aygaydukov/grim-village](https://github.com/aygaydukov/grim-village).  
-Ветка авто-агента: `auto/society`.
+Отдельный GitHub: [aygaydukov/grim-village](https://github.com/aygaydukov/grim-village) (public).  
+CI: Pages из `docs/` · CD игры на сервер через Actions (secrets `DEPLOY_*`).

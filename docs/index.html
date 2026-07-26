@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Мрачная деревня — автономный мир</title>
+    <meta
+      name="description"
+      content="Публичная летопись автономной средневековой симуляции: дни жизни, амбар, население, история изменений агента."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,700&family=Source+Sans+3:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg0: #1a2218;
+        --bg1: #243024;
+        --mud: #3d3428;
+        --moss: #6b8f71;
+        --wheat: #c4a574;
+        --ash: #c9c2b4;
+        --ink: #e8e2d6;
+        --danger: #b85c4a;
+        --ok: #7fa87a;
+        --line: rgba(196, 165, 116, 0.28);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "Source Sans 3", system-ui, sans-serif;
+        background:
+          radial-gradient(ellipse 90% 60% at 20% -10%, #2f3d2c 0%, transparent 55%),
+          radial-gradient(ellipse 70% 50% at 100% 20%, #3a3024 0%, transparent 50%),
+          linear-gradient(180deg, var(--bg1), var(--bg0) 55%, #12160f);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.07;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+
+      main {
+        position: relative;
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 3.5rem 1.25rem 4rem;
+      }
+
+      .brand {
+        font-family: Literata, Georgia, serif;
+        font-size: clamp(2.4rem, 7vw, 3.6rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+        margin: 0 0 0.6rem;
+        animation: rise 0.9s ease both;
+      }
+
+      .tagline {
+        max-width: 36rem;
+        margin: 0 0 1.75rem;
+        color: var(--ash);
+        font-size: 1.05rem;
+        line-height: 1.45;
+        animation: rise 0.9s ease 0.08s both;
+      }
+
+      .cta {
+        display: inline-flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 2.5rem;
+        animation: rise 0.9s ease 0.14s both;
+      }
+
+      .cta a {
+        color: var(--bg0);
+        background: var(--wheat);
+        text-decoration: none;
+        padding: 0.55rem 1rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+      }
+
+      .cta a.ghost {
+        color: var(--wheat);
+        background: transparent;
+        border-color: var(--line);
+      }
+
+      .pulse {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.85rem;
+        margin-bottom: 2.25rem;
+        animation: rise 0.9s ease 0.2s both;
+      }
+
+      @media (min-width: 640px) {
+        .pulse {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+
+      .stat {
+        padding: 1rem 0.9rem;
+        border-top: 1px solid var(--line);
+        background: rgba(26, 34, 24, 0.45);
+      }
+
+      .stat b {
+        display: block;
+        font-family: Literata, Georgia, serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--wheat);
+        line-height: 1.1;
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 0.35rem;
+        font-size: 0.82rem;
+        color: var(--ash);
+        text-transform: lowercase;
+      }
+
+      section {
+        margin-bottom: 2.4rem;
+        animation: rise 0.9s ease 0.28s both;
+      }
+
+      h2 {
+        font-family: Literata, Georgia, serif;
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin: 0 0 0.85rem;
+        color: var(--moss);
+      }
+
+      .badge {
+        display: inline-block;
+        margin-left: 0.5rem;
+        padding: 0.15rem 0.5rem;
+        font-family: "Source Sans 3", sans-serif;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        vertical-align: middle;
+      }
+
+      .badge.ok {
+        background: rgba(127, 168, 122, 0.2);
+        color: var(--ok);
+      }
+
+      .badge.bad {
+        background: rgba(184, 92, 74, 0.22);
+        color: var(--danger);
+      }
+
+      .chronicle,
+      .log {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .chronicle li,
+      .log li {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--line);
+        color: var(--ash);
+        line-height: 1.45;
+      }
+
+      .log code {
+        color: var(--wheat);
+        font-size: 0.85em;
+      }
+
+      .meta {
+        color: rgba(201, 194, 180, 0.7);
+        font-size: 0.85rem;
+      }
+
+      .err {
+        color: var(--danger);
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 class="brand" id="name">Мрачная деревня</h1>
+      <p class="tagline" id="tagline">Загрузка летописи…</p>
+      <div class="cta">
+        <a id="repo" href="https://github.com/aygaydukov/grim-village">Репозиторий</a>
+        <a class="ghost" href="https://github.com/aygaydukov/grim-village/commits/main"
+          >История коммитов</a
+        >
+      </div>
+
+      <div class="pulse" id="pulse" aria-live="polite"></div>
+
+      <section>
+        <h2>
+          Последний прогон
+          <span class="badge" id="stableBadge"></span>
+        </h2>
+        <p class="meta" id="modMeta"></p>
+        <pre
+          id="report"
+          style="
+            white-space: pre-wrap;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.9rem;
+            color: var(--ash);
+            margin: 0.75rem 0 0;
+          "
+        ></pre>
+      </section>
+
+      <section>
+        <h2>Летопись дней</h2>
+        <ul class="chronicle" id="chronicle"></ul>
+      </section>
+
+      <section>
+        <h2>Что менял агент</h2>
+        <ul class="log" id="changelog"></ul>
+      </section>
+
+      <p class="meta" id="updated"></p>
+    </main>
+    <script>
+      async function boot() {
+        const res = await fetch("./status.json", { cache: "no-store" });
+        if (!res.ok) throw new Error("status.json недоступен");
+        const data = await res.json();
+
+        document.getElementById("name").textContent = data.project.name;
+        document.getElementById("tagline").textContent = data.project.tagline;
+        document.getElementById("repo").href = data.project.repo;
+
+        const pulse = document.getElementById("pulse");
+        const cards = [
+          ["Дней смоделировано", data.lifetime.daysSimulated],
+          ["Прогонов агента", data.lifetime.runs],
+          ["Живы сейчас", data.village.alive],
+          ["Амбар", data.village.barnFood],
+        ];
+        pulse.innerHTML = cards
+          .map(
+            ([label, value]) =>
+              `<div class="stat"><b>${value}</b><span>${label}</span></div>`,
+          )
+          .join("");
+
+        const badge = document.getElementById("stableBadge");
+        const ok = data.modulation.stable;
+        badge.textContent = ok ? "стабильно" : "риск";
+        badge.className = "badge " + (ok ? "ok" : "bad");
+
+        document.getElementById("modMeta").textContent =
+          `Сезон: ${data.village.season} · день мира ${data.village.day} · seed ${data.modulation.seed} · ${data.modulation.days} игровых дней`;
+        document.getElementById("report").textContent = data.modulation.reportText;
+
+        document.getElementById("chronicle").innerHTML = (data.chronicle || [])
+          .map((line) => `<li>${escapeHtml(line)}</li>`)
+          .join("");
+
+        document.getElementById("changelog").innerHTML = (data.changelog || [])
+          .map(
+            (c) =>
+              `<li><code>${escapeHtml(c.hash)}</code> · ${escapeHtml(c.date)} — ${escapeHtml(c.subject)}</li>`,
+          )
+          .join("");
+
+        document.getElementById("updated").textContent =
+          `Обновлено: ${new Date(data.updatedAt).toLocaleString("ru-RU")} · ${data.project.playHint}`;
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      boot().catch((err) => {
+        document.getElementById("tagline").innerHTML =
+          `<span class="err">Не удалось загрузить status.json: ${escapeHtml(err.message)}</span>`;
+      });
+    </script>
+  </body>
+</html>

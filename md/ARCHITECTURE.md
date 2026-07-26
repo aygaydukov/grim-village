@@ -67,6 +67,7 @@ src/
 - `src/version.ts` — `GAME_VERSION`, `CHANGELOG` для UI.
 - Headless-прогон: `npm run simulate` (10 дней по умолчанию), `npm test` — smoke на нескольких seed + roundtrip save/load.
 - Модуль `modulate.ts`: критерии стабильности для CI и cloud-агента.
+- Витрина: `npm run village:status` → `docs/status.json` + `docs/index.html` (GitHub Pages).
 
 ## Дальнейший апгрейд графики
 

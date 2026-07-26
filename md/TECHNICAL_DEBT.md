@@ -28,9 +28,11 @@
 
 ## Automation (Cursor)
 
-- Ежедневный cloud-агент (**Medieval Society Daily**, ~6:00 UTC): развитие симуляции, планы на будущее + оценка целесообразности, прогон модуляции на 10 дней, коммиты в `main` / `auto/society`.
-- Репозиторий: `https://github.com/aygaydukov/grim-village` (отдельный от `virtuhome/frontend`).
-- Деплой пока выключен.
+- Ежедневный cloud-агент (**Medieval Society Daily**): развитие симуляции, планы + оценка целесообразности, прогон 10 дней, обновление витрины (`npm run village:status` → `docs/status.json`), коммиты в `main`.
+- Репозиторий: `https://github.com/aygaydukov/grim-village` (**public**).
+- Витрина GitHub Pages: https://aygaydukov.github.io/grim-village/
+- CI/CD: Pages (`docs/`) + deploy `dist/` на сервер (secrets `DEPLOY_*`).
+- Инструкция для промпта: [md/AUTOMATION.md](AUTOMATION.md)
 - План развития: [md/DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
 
 ## Бэклог
@@ -42,6 +44,7 @@
 - [x] Неурожай (сезонный шок regen в `shocks.ts`)
 - [x] Государство — десятина, казна, староста (`government.ts`)
 - [x] Версия игры и вкладка changelog (`src/version.ts`)
+- [ ] Дописать CD: заполнить `DEPLOY_HOST` / `DEPLOY_USER` / `DEPLOY_PATH` / `DEPLOY_SSH_KEY`
 - [ ] Болезни / эпидемии (отдельный шок смертности)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
