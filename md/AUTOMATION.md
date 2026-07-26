@@ -24,4 +24,8 @@ npm run village:status
 ## CI/CD
 
 - `.github/workflows/pages.yml` — деплой `docs/` на GitHub Pages
-- `.github/workflows/deploy-server.yml` — `npm test` + `npm run build` + SCP `dist/` на сервер (нужны secrets)
+- `.github/workflows/deploy-server.yml` — `npm test` + `npm run build` + SCP `dist/` → `45.131.42.53:/var/www/grim-village`
+- Подробности сервера: [DEPLOY.md](DEPLOY.md)
+
+Игра: http://45.131.42.53/  
+Витрина: https://aygaydukov.github.io/grim-village/

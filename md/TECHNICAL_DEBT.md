@@ -44,7 +44,7 @@
 - [x] Неурожай (сезонный шок regen в `shocks.ts`)
 - [x] Государство — десятина, казна, староста (`government.ts`)
 - [x] Версия игры и вкладка changelog (`src/version.ts`)
-- [ ] Дописать CD: заполнить `DEPLOY_HOST` / `DEPLOY_USER` / `DEPLOY_PATH` / `DEPLOY_SSH_KEY`
+- [x] Дописать CD: secrets `DEPLOY_*` → `45.131.42.53:/var/www/grim-village` (см. [DEPLOY.md](DEPLOY.md); один раз поднять nginx на сервере)
 - [ ] Болезни / эпидемии (отдельный шок смертности)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
