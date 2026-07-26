@@ -202,6 +202,22 @@
         font-size: 0.85rem;
       }
 
+      .snap {
+        margin: 0;
+        border-top: 1px solid var(--line);
+        background: rgba(26, 34, 24, 0.45);
+        padding: 0.75rem;
+        overflow: auto;
+      }
+
+      .snap img {
+        display: block;
+        width: 100%;
+        max-width: 720px;
+        height: auto;
+        image-rendering: pixelated;
+      }
+
       .err {
         color: var(--danger);
       }
@@ -231,6 +247,14 @@
       </p>
 
       <div class="pulse" id="pulse" aria-live="polite"></div>
+
+      <section>
+        <h2>Settlement snapshot</h2>
+        <p class="meta" id="snapMeta">Latest post-simulation map (after ~10 in-game days).</p>
+        <figure class="snap">
+          <img id="settlementSnap" alt="Settlement map snapshot" hidden />
+        </figure>
+      </section>
 
       <section>
         <h2>
@@ -285,6 +309,15 @@
               `<div class="stat"><b>${value}</b><span>${label}</span></div>`,
           )
           .join("");
+
+        const img = document.getElementById("settlementSnap");
+        const snapMeta = document.getElementById("snapMeta");
+        const snapPath = data.settlementSnapshot || "settlements/v1/snapshot.svg";
+        img.hidden = false;
+        img.src = "./" + snapPath + "?t=" + Date.now();
+        snapMeta.textContent = data.settlementVersion
+          ? `Settlement v${data.settlementVersion} · ${snapPath}`
+          : `Map preview · ${snapPath}`;
 
         const badge = document.getElementById("stableBadge");
         const ok = data.modulation.stable;

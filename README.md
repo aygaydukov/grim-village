@@ -61,7 +61,7 @@ npm run village:daemon
 ```
 
 Fatal collapse → drop current settlement → start `settlement-vN+1` → snapshot SVG.  
-Browser localStorage saves remain optional for interactive watching.
+Browser watches the server world (`/data/current.json`); headless daemon owns persistence.
 
 ## Automation (Cursor)
 

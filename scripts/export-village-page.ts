@@ -3,7 +3,7 @@
  * Накапливает lifetime (число прогонов и суммарные дни).
  */
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildVillageChronicle, currentSeasonLabel } from "../src/sim/chronicle.ts";
@@ -64,6 +64,23 @@ interface VillageStatus {
   };
   chronicle: string[];
   changelog: ChangelogEntry[];
+  settlementSnapshot?: string | null;
+  settlementVersion?: number | null;
+}
+
+function latestSettlementSnapshot(): { path: string; version: number } | null {
+  const base = join(docsDir, "settlements");
+  if (!existsSync(base)) return null;
+  const versions = readdirSync(base)
+    .filter((n) => /^v\d+$/.test(n))
+    .map((n) => Number(n.slice(1)))
+    .filter((n) => Number.isFinite(n))
+    .sort((a, b) => b - a);
+  for (const v of versions) {
+    const rel = `settlements/v${v}/snapshot.svg`;
+    if (existsSync(join(docsDir, rel))) return { path: rel, version: v };
+  }
+  return null;
 }
 
 function loadPrevLifetime(): Lifetime | null {
@@ -107,6 +124,7 @@ const lifetime: Lifetime = {
 };
 
 const alive = world.agents.filter((a) => a.alive).length;
+const snap = latestSettlementSnapshot();
 
 const status: VillageStatus = {
   updatedAt: now,
@@ -143,6 +161,8 @@ const status: VillageStatus = {
   },
   chronicle: buildVillageChronicle(world, 14),
   changelog: recentChangelog(14),
+  settlementSnapshot: snap?.path ?? null,
+  settlementVersion: snap?.version ?? null,
 };
 
 mkdirSync(docsDir, { recursive: true });

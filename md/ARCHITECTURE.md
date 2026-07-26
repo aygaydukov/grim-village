@@ -63,7 +63,7 @@ src/
 - `dayHistory` — до 30 снимков (`history.ts`): население, амбар, дикая еда, профессии, **дельты дня** (`birthsToday`, `deathsToday`), **сезон**, **highHunger**, **именованные события** (`events`).
 - `events.ts` — буфер событий дня: рождения, смерти (с причиной), смена профессий при `rebalanceVillageLabor`.
 - `chronicle.ts` — текстовые записи летописи для UI (имена, не только счётчики).
-- `persist.ts` — сериализация `World` в JSON, localStorage, восстановление PRNG state.
+- `persist.ts` — JSON serialize/deserialize `World` (+ PRNG state) for server saves / tests (no browser save UI).
 - `season.ts` — цикл весна/лето/осень/зима (8 дней), множитель regen еды.
 - `shocks.ts` — редкий сезонный шок «неурожай» (осень/зима, низкий амбар): множитель regen 0.52–0.60 на 2–4 дня, запись в летопись.
 - `pathfind.ts` — A* по сетке (8-связность), кэш waypoints на агента; при блокировке прямого шага в `moveToward`.

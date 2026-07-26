@@ -7,14 +7,8 @@ import {
   zoomCamera,
 } from "./render/camera";
 import { pickAgentAt, renderWorld, resizeCanvas } from "./render/renderer";
+import { deserializeWorld } from "./sim/persist";
 import { initWorld, stepWorld } from "./sim/world";
-import {
-  clearWorldStorage,
-  deserializeWorld,
-  hasSavedWorld,
-  loadWorldFromStorage,
-  saveWorldToStorage,
-} from "./sim/persist";
 import {
   bindHudControls,
   isVillageClick,
@@ -64,12 +58,6 @@ async function loadPreferredWorld() {
     }
   } catch {
     /* offline / no daemon mirror */
-  }
-  if (hasSavedWorld()) {
-    world = loadWorldFromStorage() ?? createFreshWorld();
-    cam = createCamera(800, 600, world.width, world.height);
-    onResize();
-    return "local";
   }
   world = createFreshWorld();
   return "fresh";
@@ -145,26 +133,6 @@ bindHudControls({
   onVillage: selectVillage,
   onChangelog: selectChangelog,
   onSelectAgent: selectAgent,
-  onSave: () => {
-    saveWorldToStorage(world);
-  },
-  onLoad: () => {
-    const loaded = loadWorldFromStorage();
-    if (!loaded) return;
-    world = loaded;
-    paused = false;
-    acc = 0;
-    liveAcc = 0;
-    applySelection({ kind: "village" });
-  },
-  onNewWorld: () => {
-    clearWorldStorage();
-    world = createFreshWorld(DEFAULT_SEED + Math.floor(Math.random() * 9000));
-    paused = false;
-    acc = 0;
-    liveAcc = 0;
-    applySelection({ kind: "village" });
-  },
 });
 
 window.addEventListener("keydown", (e) => {
