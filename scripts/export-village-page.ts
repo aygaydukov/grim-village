@@ -111,10 +111,11 @@ const alive = world.agents.filter((a) => a.alive).length;
 const status: VillageStatus = {
   updatedAt: now,
   project: {
-    name: "Мрачная деревня",
-    tagline: "Автономный средневековый мир: агент каждый день чинит и усложняет общество",
+    name: "Grim Village",
+    tagline:
+      "Autonomous medieval life sandbox — AI agents evolve the code; villagers eat, work, breed, and die without a player hero",
     repo: "https://github.com/aygaydukov/grim-village",
-    playHint: "Игра деплоится отдельно; здесь — пульс общества и летопись прогонов",
+    playHint: "Play http://45.131.42.53/ · Releases live in-game (History tab), not on this chronicle page",
   },
   lifetime,
   modulation: {

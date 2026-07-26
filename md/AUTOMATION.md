@@ -1,31 +1,46 @@
 # Automation: Medieval Society Daily
 
-Ежедневный cloud-агент обновляет симуляцию и **публичную витрину** GitHub Pages.
+Cloud agent evolves the **neural/agent-based life sandbox**, updates the public chronicle, and keeps the headless settlement healthy.
 
-Витрина: https://aygaydukov.github.io/grim-village/  
-Репо: https://github.com/aygaydukov/grim-village
+- Play: http://45.131.42.53/
+- Chronicle (Pages): https://aygaydukov.github.io/grim-village/
+- **Game releases / changelog:** in-game tab only (`src/version.ts` → «История версий»). Do **not** duplicate full release notes on GitHub Pages.
 
-## Добавить в промпт automation
+## Prompt additions (paste into Cursor Automation)
 
-После модуляции на 10 дней и перед коммитом:
+You maintain an autonomous medieval village simulation.
 
-1. Выполни `npm run village:status` (обновит `docs/status.json`).
-2. Убедись, что `docs/index.html` на месте; при необходимости улучши тексты витрины, не ломая разметку.
-3. Закоммить и запушь в `main` вместе с кодом симуляции: изменения в `docs/` триггерят публикацию Pages.
-4. В коммите кратко укажи итог прогона (стабильно/нет, живые, амбар).
+After code changes:
 
-## Локально
+1. Run `npm test` and `npm run simulate` (10-day smoke). If unstable, fix balance before finishing.
+2. Run `npm run village:status` to refresh `docs/status.json` (chronicle metrics — not release notes).
+3. Update `src/version.ts` CHANGELOG + `GAME_VERSION` when you ship a player-visible feature (this powers the in-game Releases tab).
+4. Commit and push to `main`.
+
+### Settlements & fatal drops
+
+- Headless world lives in `GRIM_DATA_DIR` (`current.json` + `registry.json`). Overwrite saves is OK.
+- If the settlement is **fatally doomed** (extinction / population collapse), you **may drop** the current settlement DB/save and regenerate a new world.
+- Each drop **must** create a new settlement version (`settlement-vN`):
+  - archive previous entry in `data/registry.json` with `endReason`
+  - write SVG snapshot via settlement tools (`scripts/settlement-snapshot.ts` / `startNewSettlement`)
+  - copy snapshot into `docs/settlements/vN/snapshot.svg` (and note it in the commit)
+- After each **release** (version bump), ensure a settlement snapshot exists for the current version (`docs/settlements/v{N}/snapshot.svg`).
+
+### Do not
+
+- Put long release changelogs on the GitHub Pages landing page.
+- Block forever on a dead village — drop and restart with a new settlement version.
+
+## Local / server daemon
 
 ```bash
-npm run village:status
-# открыть docs/index.html через любой static server, либо после push — Pages
+npm run village:daemon
 ```
+
+Server: see [DEPLOY.md](DEPLOY.md) systemd unit.
 
 ## CI/CD
 
-- `.github/workflows/pages.yml` — деплой `docs/` на GitHub Pages
-- `.github/workflows/deploy-server.yml` — `npm test` + `npm run build` + SCP `dist/` → `45.131.42.53:/var/www/grim-village`
-- Подробности сервера: [DEPLOY.md](DEPLOY.md)
-
-Игра: http://45.131.42.53/  
-Витрина: https://aygaydukov.github.io/grim-village/
+- Pages: `docs/` chronicle
+- Deploy: static game to `45.131.42.53` + keep daemon running with shared `data/`

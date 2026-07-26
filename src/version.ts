@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "0.3.0";
+export const GAME_VERSION = "0.3.1";
 
 export interface VersionEntry {
   version: string;
@@ -7,8 +7,18 @@ export interface VersionEntry {
   changes: string[];
 }
 
-/** История изменений по версиям (новые сверху) */
+/** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "0.3.1",
+    date: "2026-07-26",
+    changes: [
+      "Headless daemon: деревня живёт и сохраняется без открытой вкладки",
+      "Версии поселения: фатальный коллапс → drop → settlement-vN + SVG-снимок",
+      "Браузер подхватывает /data/current.json с сервера при наличии",
+      "Релизы только во вкладке «История версий»; GitHub Pages — летопись метрик",
+    ],
+  },
   {
     version: "0.3.0",
     date: "2026-07-26",

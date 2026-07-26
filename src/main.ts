@@ -10,6 +10,7 @@ import { pickAgentAt, renderWorld, resizeCanvas } from "./render/renderer";
 import { initWorld, stepWorld } from "./sim/world";
 import {
   clearWorldStorage,
+  deserializeWorld,
   hasSavedWorld,
   loadWorldFromStorage,
   saveWorldToStorage,
@@ -34,7 +35,7 @@ function createFreshWorld(seed = DEFAULT_SEED) {
   return initWorld({ width: 64, height: 48, initialPopulation: 22 }, seed);
 }
 
-let world = hasSavedWorld() ? (loadWorldFromStorage() ?? createFreshWorld()) : createFreshWorld();
+let world = createFreshWorld();
 const input = createInput(canvas);
 
 let viewW = 0;
@@ -48,6 +49,31 @@ let liveAcc = 0;
 let acc = 0;
 const TICK_MS = 1000 / 30; // = TICKS_PER_REAL_SECOND из sim/time.ts
 const LIVE_MS = 250;
+
+async function loadPreferredWorld() {
+  try {
+    const res = await fetch("/data/current.json", { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      world = deserializeWorld(data);
+      cam = createCamera(800, 600, world.width, world.height);
+      onResize();
+      applySelection({ kind: "village" });
+      updateHud(world, paused, speed, selection);
+      return "server";
+    }
+  } catch {
+    /* offline / no daemon mirror */
+  }
+  if (hasSavedWorld()) {
+    world = loadWorldFromStorage() ?? createFreshWorld();
+    cam = createCamera(800, 600, world.width, world.height);
+    onResize();
+    return "local";
+  }
+  world = createFreshWorld();
+  return "fresh";
+}
 
 function applySelection(next: Selection): void {
   selection = next;
@@ -198,4 +224,9 @@ function frame(now: number): void {
 lastSelKey = selectionKey(selection);
 updateHud(world, paused, speed, selection);
 updateInspector(selection, world);
+void loadPreferredWorld().then((src) => {
+  console.info(`[grim-village] world source: ${src}`);
+  updateHud(world, paused, speed, selection);
+  updateInspector(selection, world);
+});
 requestAnimationFrame(frame);

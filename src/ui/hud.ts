@@ -409,7 +409,7 @@ function renderChangelogPanel(): string {
 
   return `
     ${renderInspectorTabs({ kind: "changelog" })}
-    <p class="muted changelog-current">Текущая версия: <strong>v${escapeHtml(GAME_VERSION)}</strong></p>
+    <p class="muted changelog-current">Релизы живут здесь, в игре (не на GitHub Pages). Текущая версия: <strong>v${escapeHtml(GAME_VERSION)}</strong></p>
     <div class="changelog-scroll">${entries}</div>
   `;
 }

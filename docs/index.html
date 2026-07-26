@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Мрачная деревня — автономный мир</title>
+    <title>Grim Village — autonomous medieval life sandbox</title>
     <meta
       name="description"
-      content="Публичная летопись автономной средневековой симуляции: дни жизни, амбар, население, история изменений агента."
+      content="Live chronicle of an agent-based medieval village simulation: population, barn stores, seasons, and daily AI-driven evolution. Sandbox ALife — no win condition."
+    />
+    <meta
+      name="keywords"
+      content="agent-based simulation, medieval village sandbox, artificial life, autonomous NPC, ALife, Cursor automation, Malthusian dynamics"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -216,20 +220,21 @@
   </head>
   <body>
     <main>
-      <h1 class="brand" id="name">Мрачная деревня</h1>
-      <p class="tagline" id="tagline">Загрузка летописи…</p>
+      <h1 class="brand" id="name">Grim Village</h1>
+      <p class="tagline" id="tagline">Loading chronicle…</p>
       <div class="cta">
-        <a id="repo" href="https://github.com/aygaydukov/grim-village">Репозиторий</a>
-        <a class="ghost" href="https://github.com/aygaydukov/grim-village/commits/main"
-          >История коммитов</a
-        >
+        <a id="play" href="http://45.131.42.53/">Play live</a>
+        <a id="repo" class="ghost" href="https://github.com/aygaydukov/grim-village">Repository</a>
       </div>
+      <p class="meta">
+        Game releases live in the playable app tab «История версий» — not on this page.
+      </p>
 
       <div class="pulse" id="pulse" aria-live="polite"></div>
 
       <section>
         <h2>
-          Последний прогон
+          Latest modulation
           <span class="badge" id="stableBadge"></span>
         </h2>
         <p class="meta" id="modMeta"></p>
@@ -246,12 +251,12 @@
       </section>
 
       <section>
-        <h2>Летопись дней</h2>
+        <h2>Day chronicle</h2>
         <ul class="chronicle" id="chronicle"></ul>
       </section>
 
       <section>
-        <h2>Что менял агент</h2>
+        <h2>Recent agent commits</h2>
         <ul class="log" id="changelog"></ul>
       </section>
 
@@ -260,7 +265,7 @@
     <script>
       async function boot() {
         const res = await fetch("./status.json", { cache: "no-store" });
-        if (!res.ok) throw new Error("status.json недоступен");
+        if (!res.ok) throw new Error("status.json missing");
         const data = await res.json();
 
         document.getElementById("name").textContent = data.project.name;
@@ -269,10 +274,10 @@
 
         const pulse = document.getElementById("pulse");
         const cards = [
-          ["Дней смоделировано", data.lifetime.daysSimulated],
-          ["Прогонов агента", data.lifetime.runs],
-          ["Живы сейчас", data.village.alive],
-          ["Амбар", data.village.barnFood],
+          ["Days simulated", data.lifetime.daysSimulated],
+          ["Agent runs", data.lifetime.runs],
+          ["Alive now", data.village.alive],
+          ["Barn stock", data.village.barnFood],
         ];
         pulse.innerHTML = cards
           .map(
@@ -283,11 +288,11 @@
 
         const badge = document.getElementById("stableBadge");
         const ok = data.modulation.stable;
-        badge.textContent = ok ? "стабильно" : "риск";
+        badge.textContent = ok ? "stable" : "at risk";
         badge.className = "badge " + (ok ? "ok" : "bad");
 
         document.getElementById("modMeta").textContent =
-          `Сезон: ${data.village.season} · день мира ${data.village.day} · seed ${data.modulation.seed} · ${data.modulation.days} игровых дней`;
+          `Season: ${data.village.season} · world day ${data.village.day} · seed ${data.modulation.seed} · ${data.modulation.days} in-game days`;
         document.getElementById("report").textContent = data.modulation.reportText;
 
         document.getElementById("chronicle").innerHTML = (data.chronicle || [])
@@ -302,7 +307,7 @@
           .join("");
 
         document.getElementById("updated").textContent =
-          `Обновлено: ${new Date(data.updatedAt).toLocaleString("ru-RU")} · ${data.project.playHint}`;
+          `Updated: ${new Date(data.updatedAt).toLocaleString("en-GB")} · ${data.project.playHint}`;
       }
 
       function escapeHtml(s) {
@@ -315,7 +320,7 @@
 
       boot().catch((err) => {
         document.getElementById("tagline").innerHTML =
-          `<span class="err">Не удалось загрузить status.json: ${escapeHtml(err.message)}</span>`;
+          `<span class="err">Failed to load status.json: ${escapeHtml(err.message)}</span>`;
       });
     </script>
   </body>

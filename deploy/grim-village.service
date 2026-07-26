@@ -1,0 +1,18 @@
+[Unit]
+Description=Grim Village headless settlement daemon
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/grim-village
+Environment=NODE_ENV=production
+Environment=GRIM_DATA_DIR=/var/lib/grim-village
+Environment=GRIM_PUBLIC_DATA_DIR=/var/www/grim-village/data
+Environment=GRIM_SPEED=4
+Environment=GRIM_SAVE_MS=30000
+ExecStart=/usr/bin/npm run village:daemon
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

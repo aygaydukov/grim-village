@@ -1,69 +1,79 @@
-# Мрачная деревня
+# Grim Village
 
-Браузерная песочница с видом сверху: средневековая деревня живёт сама — крестьяне едят, спят, собирают в амбар, плодятся и умирают. Игрок только наблюдает.
+**Autonomous medieval life sandbox** driven by agent-based simulation (and daily Cursor cloud agents that evolve the code). Peasants eat, sleep, gather, build, breed, pay tithe, starve, and die — without a player protagonist.
 
-Шкала времени: **~3 года** жизни деревни за **1 реальные сутки** при скорости ×1 (см. `src/sim/time.ts`).
+**Play:** http://45.131.42.53/  
+**Live chronicle (metrics):** https://aygaydukov.github.io/grim-village/  
+**Releases / changelog:** in-game tab **«История версий»** (not on GitHub Pages).
 
-## Стек
+## Discoverability / topics
+
+Useful search phrases for similar projects and research:
+
+- agent-based medieval village simulation
+- autonomous NPC life sandbox (no win condition)
+- artificial society / artificial life (ALife) food–labor loop
+- Malthusian population dynamics in games
+- headless world simulation with autosave
+- Cursor Automations evolving a game daily
+
+## References
+
+- [Red Blob Games — A* pathfinding](https://www.redblobgames.com/pathfinding/a-star/introduction.html)
+- [Might & Fealty — economy loop](https://mightandfealty.com/en/manual/economy)
+- [Manorialism (Britannica)](https://www.britannica.com/topic/manorialism)
+- [Crop calendar (Wikipedia)](https://en.wikipedia.org/wiki/Crop_calendar)
+- [FAO — famine dynamics](https://www.fao.org/emergencies/crisis/famine/en/)
+- Classic sandboxes to study: *Dwarf Fortress*, *RimWorld*, *Banished*, *Oxygen Not Included* (logistics & survival pressure)
+
+## Stack
 
 - TypeScript + Vite
 - HTML5 Canvas 2D
-- Симуляция отделена от отрисовки (`src/sim` / `src/render`)
+- Simulation separated from render (`src/sim` / `src/render`)
+- Headless daemon for 24/7 world ticks + disk autosave
 
-## Запуск
+## Time scale
+
+At speed **×1**, roughly **3 years of character age pass per real day**.  
+Game day/night cycles stay short (~40s) for hunger/work pacing; years/seasons/pregnancy use `src/sim/time.ts`.
+
+## Run locally
 
 ```bash
-cd /Users/machome_user/Desktop/Dev/My/game
 npm install
-npm run dev
+npm run dev          # http://localhost:5173
+npm test
+npm run simulate     # 10 in-game days smoke
+npm run village:status
+npm run village:daemon   # headless autosave loop
 ```
 
-Открой URL из терминала (обычно `http://localhost:5173`).
+## Headless settlement (no browser required)
 
-## Управление
-
-| Действие | Клавиши / мышь |
-|----------|----------------|
-| Камера | WASD / стрелки |
-| Зум | колёсико мыши |
-| Карточка жителя | клик по крестьянину |
-| Сводка деревни | клик по амбару/площади, кнопка «Деревня», V |
-| История версий | кнопка «Версии», H — changelog по версиям |
-| Версия игры | правый верх HUD — `v0.2.0` |
-| Летопись | в инспекторе «Деревня» — последние 10 дней (с именами и шоками) |
-| Сохранить / загрузить | кнопки в HUD — localStorage браузера |
-| Новый мир | кнопка «Новый мир» — сброс сохранения |
-| Легенда карты | верхний левый угол экрана |
-| Стройплощадка | пунктирная рамка + полоса прогресса на карте |
-| Снять выбор | Esc / клик по пустому полю |
-| Пауза | Space или кнопка |
-| Скорость | 1 / 2 / 4 |
-
-## Архитектура
-
-См. [md/ARCHITECTURE.md](md/ARCHITECTURE.md).  
-Долги и планы: [md/TECHNICAL_DEBT.md](md/TECHNICAL_DEBT.md), [md/DEVELOPMENT_PLAN.md](md/DEVELOPMENT_PLAN.md).
-
-## Проверка симуляции
+The daemon simulates the village, overwrites `data/current.json`, archives fatal collapses as new **settlement versions**, and writes SVG snapshots.
 
 ```bash
-npm run simulate      # 10 дней, seed 2026
-npm run simulate 10 1337
-npm run village:status  # обновить docs/status.json для GitHub Pages
-npm test              # smoke-тесты стабильности
+GRIM_DATA_DIR=./data \
+GRIM_PUBLIC_DATA_DIR=./dist/data \
+GRIM_SPEED=4 \
+npm run village:daemon
 ```
 
-## Публичная витрина
+Fatal collapse → drop current settlement → start `settlement-vN+1` → snapshot SVG.  
+Browser localStorage saves remain optional for interactive watching.
 
-Автономная летопись общества (метрики, хроника, changelog агента):  
-**https://aygaydukov.github.io/grim-village/**
+## Automation (Cursor)
 
-Игра на сервере (после CD): **http://45.131.42.53/**  
-Настройка деплоя: [md/DEPLOY.md](md/DEPLOY.md).
+Daily cloud agent evolves systems, runs stability checks, updates chronicle JSON, may drop a doomed settlement and start a new version (with snapshot). See [md/AUTOMATION.md](md/AUTOMATION.md).
 
-Как устроено automation: [md/AUTOMATION.md](md/AUTOMATION.md).
+## Docs
 
-## Репозиторий
+- [md/ARCHITECTURE.md](md/ARCHITECTURE.md)
+- [md/DEVELOPMENT_PLAN.md](md/DEVELOPMENT_PLAN.md)
+- [md/TECHNICAL_DEBT.md](md/TECHNICAL_DEBT.md)
+- [md/DEPLOY.md](md/DEPLOY.md)
 
-Отдельный GitHub: [aygaydukov/grim-village](https://github.com/aygaydukov/grim-village) (public).  
-CI: Pages из `docs/` · CD: `dist/` → `/var/www/grim-village` на `45.131.42.53`.
+## Repository
+
+https://github.com/aygaydukov/grim-village (public)
