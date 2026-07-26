@@ -9,6 +9,9 @@ import {
   AGENT_MALE,
   AGENT_SLEEP,
   BARN_FILL,
+  BUILD_SITE_FILL,
+  BUILD_SITE_FRAME,
+  BUILD_SITE_PROGRESS,
   CARRY_DOT,
   DUSK_OVERLAY,
   FOOD_DOT,
@@ -100,6 +103,31 @@ export function renderWorld(
         }
       }
     }
+  }
+
+  // Стройплощадка хижины
+  const build = world.buildProject;
+  if (build) {
+    const px = build.x * TILE_SIZE;
+    const py = build.y * TILE_SIZE;
+    const progress = build.progress / Math.max(1, build.required);
+
+    ctx.fillStyle = BUILD_SITE_FILL;
+    ctx.fillRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+
+    ctx.strokeStyle = BUILD_SITE_FRAME;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 2]);
+    ctx.strokeRect(px + 2, py + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+    ctx.setLineDash([]);
+
+    const barW = TILE_SIZE - 6;
+    const barH = 3;
+    const barY = py + TILE_SIZE - 6;
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.fillRect(px + 3, barY, barW, barH);
+    ctx.fillStyle = BUILD_SITE_PROGRESS;
+    ctx.fillRect(px + 3, barY, Math.max(1, barW * progress), barH);
   }
 
   if (villageSelected) {

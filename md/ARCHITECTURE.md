@@ -61,6 +61,8 @@ src/
 - `persist.ts` — сериализация `World` в JSON, localStorage, восстановление PRNG state.
 - `season.ts` — цикл весна/лето/осень/зима (8 дней), множитель regen еды.
 - `shocks.ts` — редкий сезонный шок «неурожай» (осень/зима, низкий амбар): множитель regen 0.52–0.60 на 2–4 дня, запись в летопись.
+- `pathfind.ts` — A* по сетке (8-связность), кэш waypoints на агента; при блокировке прямого шага в `moveToward`.
+- `housing.ts` — постройка хижин батраками при перенаселении, визуал стройплощадки в `render/renderer.ts`.
 - Headless-прогон: `npm run simulate` (10 дней по умолчанию), `npm test` — smoke на нескольких seed + roundtrip save/load.
 - Модуль `modulate.ts`: критерии стабильности для CI и cloud-агента.
 

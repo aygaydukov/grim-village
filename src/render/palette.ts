@@ -33,3 +33,8 @@ export const CARRY_DOT = "#c4a050";
 
 export const NIGHT_OVERLAY = "rgba(8, 10, 18, 0.45)";
 export const DUSK_OVERLAY = "rgba(40, 24, 16, 0.2)";
+
+/** Стройплощадка хижины */
+export const BUILD_SITE_FILL = "rgba(90, 72, 48, 0.55)";
+export const BUILD_SITE_FRAME = "rgba(196, 168, 120, 0.75)";
+export const BUILD_SITE_PROGRESS = "#8a6a38";

@@ -1,5 +1,6 @@
 import { pickProfessionForNew } from "./jobs";
 import { fullName, randomName, randomSurname } from "./names";
+import { clearAgentPath, stepAlongPath } from "./pathfind";
 import type { Agent, AgentSex, Profession, World } from "./types";
 import { chance, clamp } from "./util";
 
@@ -110,6 +111,7 @@ export function moveToward(
   if (d < 0.15) {
     agent.x = tx;
     agent.y = ty;
+    clearAgentPath(agent.id);
     return true;
   }
 
@@ -131,13 +133,21 @@ export function moveToward(
     if (!tile || tile.kind === "water") continue;
     agent.x = c.x;
     agent.y = c.y;
-    return Math.hypot(tx - agent.x, ty - agent.y) < 0.15;
+    if (Math.hypot(tx - agent.x, ty - agent.y) < 0.15) {
+      clearAgentPath(agent.id);
+      return true;
+    }
+    return false;
   }
 
-  agent.targetX = null;
-  agent.targetY = null;
-  agent.state = "idle";
-  agent.task = "idle";
+  // Прямой путь заблокирован — A* вокруг воды
+  const moved = stepAlongPath(world, agent.id, agent.x, agent.y, tx, ty, speed);
+  agent.x = moved.x;
+  agent.y = moved.y;
+  if (moved.arrived) {
+    clearAgentPath(agent.id);
+    return true;
+  }
   return false;
 }
 
