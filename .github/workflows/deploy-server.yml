@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "src/**"
+      - "scripts/**"
+      - "deploy/**"
       - "index.html"
       - "package.json"
       - "package-lock.json"
@@ -28,9 +30,6 @@ jobs:
       - run: npm test
       - run: npm run build
 
-      # Secrets (Settings → Secrets and variables → Actions):
-      #   DEPLOY_HOST, DEPLOY_USER, DEPLOY_PATH, DEPLOY_SSH_KEY
-      # Optional var: DEPLOY_PORT (default 22) as repository Variable
       - name: Detect deploy config
         id: cfg
         env:
@@ -44,7 +43,16 @@ jobs:
             echo "DEPLOY_HOST / DEPLOY_SSH_KEY not set — build only."
           fi
 
-      - name: Deploy dist via SCP
+      - name: Pack release bundle
+        if: steps.cfg.outputs.enabled == 'true'
+        run: |
+          mkdir -p bundle/www bundle/app
+          cp -R dist/. bundle/www/
+          cp -R src scripts deploy package.json package-lock.json tsconfig.json bundle/app/
+          chmod +x bundle/app/deploy/remote-bootstrap.sh
+          tar -czf grim-bundle.tgz -C bundle .
+
+      - name: Upload bundle
         if: steps.cfg.outputs.enabled == 'true'
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -52,6 +60,25 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ vars.DEPLOY_PORT || 22 }}
-          source: "dist/*"
-          target: ${{ secrets.DEPLOY_PATH }}
-          strip_components: 1
+          source: "grim-bundle.tgz"
+          target: "/tmp"
+
+      - name: Bootstrap & restart on server
+        if: steps.cfg.outputs.enabled == 'true'
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ vars.DEPLOY_PORT || 22 }}
+          script: |
+            set -euo pipefail
+            # scp may place file at /tmp/grim-bundle.tgz
+            test -f /tmp/grim-bundle.tgz
+            apt-get update -y >/dev/null
+            apt-get install -y rsync >/dev/null
+            tar -tzf /tmp/grim-bundle.tgz >/dev/null
+            # extract bootstrap first if app not present yet
+            mkdir -p /tmp/grim-unpack /opt/grim-village
+            tar -xzf /tmp/grim-bundle.tgz -C /tmp/grim-unpack
+            bash /tmp/grim-unpack/app/deploy/remote-bootstrap.sh /tmp/grim-bundle.tgz

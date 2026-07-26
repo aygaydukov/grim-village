@@ -13,8 +13,10 @@
     "settlement:new": "tsx scripts/settlement-cli.ts new",
     "test": "tsx --test tests/stability.test.ts"
   },
+  "dependencies": {
+    "tsx": "^4.19.4"
+  },
   "devDependencies": {
-    "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"
   }

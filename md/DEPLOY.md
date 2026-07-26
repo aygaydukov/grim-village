@@ -1,76 +1,39 @@
-# Deploy — Selectel VPS
+# Deploy — fully automatic via GitHub Actions
 
 **Play:** http://45.131.42.53/  
-**Static root:** `/var/www/grim-village`  
-**Daemon data:** `/var/lib/grim-village`  
-**SSH:** `root@45.131.42.53` with `~/.ssh/id_ed25519_selectel`
+**You do not need to SSH for routine updates.** Every push to `main` (relevant paths) runs CI:
 
-Chronicle Pages: https://aygaydukov.github.io/grim-village/  
-Releases: in-game tab only.
+1. `npm test` + `npm run build`
+2. Upload release bundle
+3. Remote bootstrap: nginx, Node, static files, headless daemon restart
 
-## Nginx (`/data/` for live save mirror)
+Secrets already on the repo: `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_PATH`, `DEPLOY_SSH_KEY`.
 
-```bash
-mkdir -p /var/www/grim-village/data /var/lib/grim-village /opt/grim-village
-
-cat >/etc/nginx/sites-available/grim-village <<'EOF'
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    server_name _;
-    root /var/www/grim-village;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    location /data/ {
-        default_type application/json;
-        add_header Cache-Control "no-store";
-        try_files $uri =404;
-    }
-}
-EOF
-
-ln -sf /etc/nginx/sites-available/grim-village /etc/nginx/sites-enabled/grim-village
-rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl reload nginx
-```
-
-## App files + Node daemon
-
-On the server (once):
-
-```bash
-# Node 22 if missing
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-apt-get install -y nodejs
-
-# sync repo or at least package.json + src + scripts
-mkdir -p /opt/grim-village
-# after CI deploy of dist/, also keep a git checkout or rsync of sources for the daemon:
-#   git clone https://github.com/aygaydukov/grim-village.git /opt/grim-village
-cd /opt/grim-village && npm ci
-
-cp deploy/grim-village.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable --now grim-village
-systemctl status grim-village
-```
-
-Daemon overwrites `/var/lib/grim-village/current.json` and mirrors to `/var/www/grim-village/data/` for the browser.
-
-## GitHub Actions secrets
-
-Already set: `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_PATH=/var/www/grim-village`, `DEPLOY_SSH_KEY`.
+Manual re-run:
 
 ```bash
 gh workflow run "Build & deploy game to server" --repo aygaydukov/grim-village
+gh run watch --repo aygaydukov/grim-village
 ```
+
+## What lands where
+
+| Path | Purpose |
+|------|---------|
+| `/var/www/grim-village` | Static game + `/data/` mirror |
+| `/opt/grim-village` | App sources for daemon |
+| `/var/lib/grim-village` | Persistent settlement saves |
+
+## First deploy / recovery
+
+If the VPS is empty, the same workflow still bootstraps nginx + Node + systemd (`deploy/remote-bootstrap.sh`). No hand steps required beyond working SSH secrets.
+
+## Chronicle Pages
+
+Separate workflow publishes `docs/` to https://aygaydukov.github.io/grim-village/
 
 ## Security backlog
 
-- Prefer non-root `deploy` user + dedicated key
-- HTTPS when a domain exists
-- fail2ban / disable password SSH
+- Prefer non-root deploy user
+- HTTPS + domain
+- fail2ban / key-only SSH
