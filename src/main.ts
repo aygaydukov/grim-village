@@ -46,7 +46,7 @@ let selection: Selection = { kind: "village" };
 let lastSelKey = "";
 let liveAcc = 0;
 let acc = 0;
-const TICK_MS = 1000 / 30;
+const TICK_MS = 1000 / 30; // = TICKS_PER_REAL_SECOND из sim/time.ts
 const LIVE_MS = 250;
 
 function applySelection(next: Selection): void {

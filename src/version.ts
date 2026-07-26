@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "0.2.0";
+export const GAME_VERSION = "0.3.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "0.3.0",
+    date: "2026-07-26",
+    changes: [
+      "Шкала времени: 3 года возраста за 1 реальные сутки при ×1 (src/sim/time.ts)",
+      "Сезон ≈ 180 игровых дней (год = 720 дней)",
+      "Беременность ≈ 9 месяцев, пауза после родов ≈ 1 год",
+      "В HUD — шкала времени и прошедшие годы деревни",
+    ],
+  },
   {
     version: "0.2.0",
     date: "2026-07-26",

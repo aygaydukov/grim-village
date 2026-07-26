@@ -39,6 +39,12 @@ import {
   syncBarnStat,
 } from "./map";
 import type { Agent, TaskKind, World } from "./types";
+import {
+  AGE_PER_GAME_DAY,
+  BIRTH_COOLDOWN_GAME_DAYS,
+  MATE_COOLDOWN_GAME_DAYS,
+  PREGNANCY_GAME_DAYS,
+} from "./time";
 import { chance, clamp, dist } from "./util";
 
 const HUNGER_RATE = 0.032;
@@ -167,7 +173,7 @@ function tickNeeds(world: World, agent: Agent): void {
   if (agent.cooldown > 0) agent.cooldown -= 1;
 
   if (world.tick % world.dayLength === 0) {
-    agent.age += 0.25;
+    agent.age += AGE_PER_GAME_DAY;
     maybeReassignProfession(world, agent);
   }
 
@@ -224,7 +230,7 @@ function birth(world: World, mother: Agent): void {
   world.agents.push(child);
   world.stats.births += 1;
   recordBirth(world, child);
-  mother.cooldown = world.dayLength * 10;
+  mother.cooldown = Math.floor(world.dayLength * BIRTH_COOLDOWN_GAME_DAYS);
   mother.energy = clamp(mother.energy - 22, 5, 100);
   mother.hunger = clamp(mother.hunger + 18, 0, 100);
 }
@@ -614,9 +620,9 @@ function actCourt(world: World, agent: Agent): void {
 
     const mother = agent.sex === "female" ? agent : mate.sex === "female" ? mate : null;
     if (mother && mother.pregnant <= 0 && world.stats.alive < SOFT_POP_CAP + 8) {
-      mother.pregnant = Math.floor(world.dayLength * 2.5);
-      agent.cooldown = world.dayLength * 6;
-      mate.cooldown = world.dayLength * 6;
+      mother.pregnant = Math.floor(world.dayLength * PREGNANCY_GAME_DAYS);
+      agent.cooldown = Math.floor(world.dayLength * MATE_COOLDOWN_GAME_DAYS);
+      mate.cooldown = Math.floor(world.dayLength * MATE_COOLDOWN_GAME_DAYS);
       agent.energy = clamp(agent.energy - 10, 0, 100);
       mate.energy = clamp(mate.energy - 10, 0, 100);
     }

@@ -1,7 +1,9 @@
-/** Четыре сезона по календарю деревни (цикл без привязки к реальному году). */
+import { DAYS_PER_SEASON as DAYS_PER_SEASON_FROM_TIME } from "./time";
+
+/** Четыре сезона по календарю деревни (год = 4 сезона из time.ts). */
 export type Season = "spring" | "summer" | "autumn" | "winter";
 
-export const DAYS_PER_SEASON = 8;
+export const DAYS_PER_SEASON = DAYS_PER_SEASON_FROM_TIME;
 
 export const SEASON_LABELS: Record<Season, string> = {
   spring: "весна",

@@ -6,6 +6,7 @@ import { generateMap, syncBarnStat } from "./map";
 import type { Rng } from "./util";
 import type { World, WorldConfig } from "./types";
 import { createRng } from "./util";
+import { DEFAULT_DAY_LENGTH } from "./time";
 
 export const DEFAULT_CONFIG: WorldConfig = {
   width: 64,
@@ -23,7 +24,7 @@ export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): Wo
     agents: [],
     nextId: 1,
     tick: 0,
-    dayLength: 1200,
+    dayLength: DEFAULT_DAY_LENGTH,
     barnX: barn.x,
     barnY: barn.y,
     stats: {

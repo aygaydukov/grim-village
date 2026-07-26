@@ -14,6 +14,12 @@ import { professionLabel, taskLabel } from "../sim/jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "../sim/names";
 import { shockLabel } from "../sim/shocks";
 import { seasonNote, seasonForDay } from "../sim/season";
+import {
+  AGE_PER_GAME_DAY,
+  formatTimeScaleRu,
+  GAME_DAYS_PER_YEAR,
+  YEARS_PER_REAL_DAY,
+} from "../sim/time";
 import type { Agent, World } from "../sim/types";
 
 export type Selection =
@@ -43,6 +49,10 @@ export function updateHud(world: World, paused: boolean, speed: number, selectio
   el<HTMLElement>("stat-season-note").textContent = shock
     ? `${seasonNote(season)} · ${shock}`
     : seasonNote(season);
+
+  const yearsElapsed = (world.stats.day - 1) * AGE_PER_GAME_DAY;
+  el<HTMLElement>("stat-timescale").textContent =
+    `${formatTimeScaleRu(speed)} · прошло ~${yearsElapsed.toFixed(2)} лет`;
 
   const phase = timePhase(world);
   const tod = world.stats.timeOfDay;
@@ -250,6 +260,12 @@ function setWidth(id: string, pct: number): void {
   if (n) n.style.width = `${pct}%`;
 }
 
+function formatPregnancy(ticksLeft: number, world: World): string {
+  const daysLeft = ticksLeft / Math.max(1, world.dayLength);
+  const monthsLeft = (daysLeft / GAME_DAYS_PER_YEAR) * 12;
+  return `~${monthsLeft.toFixed(1)} мес. (${Math.ceil(daysLeft)} дн.)`;
+}
+
 function renderAgent(agent: Agent, world: World): string {
   const hungerPct = Math.round(agent.hunger);
   const energyPct = Math.round(agent.energy);
@@ -284,7 +300,7 @@ function renderAgent(agent: Agent, world: World): string {
     <div class="row" id="live-carry" ${agent.carriedFood > 0 ? "" : "hidden"}>
       <span>Несёт</span><span class="val">${agent.carriedFood} ед. еды</span>
     </div>
-    ${agent.pregnant > 0 ? `<div class="row"><span>Беременность</span><span>${agent.pregnant} тиков</span></div>` : ""}
+    ${agent.pregnant > 0 ? `<div class="row"><span>Беременность</span><span>${formatPregnancy(agent.pregnant, world)}</span></div>` : ""}
     ${!agent.alive ? `<p class="dead">Мёртв · ${escapeHtml(agent.deathCause ?? "неизвестно")}</p>` : ""}
   `;
 }
@@ -355,6 +371,8 @@ function renderVillage(r: VillageReport, world: World): string {
 
     <div class="section-title">Ресурсы</div>
     <div class="row"><span>День · время</span><span id="live-v-day">${r.day} · ${r.phase}</span></div>
+    <div class="row"><span>Лет деревни</span><span>~${((r.day - 1) * AGE_PER_GAME_DAY).toFixed(2)} (год = ${Math.round(GAME_DAYS_PER_YEAR)} дн.)</span></div>
+    <div class="row"><span>Реальное время</span><span>${YEARS_PER_REAL_DAY} лет / сутки при ×1</span></div>
     <div class="row"><span>Хижины</span><span>${r.hutCount}</span></div>
     <div class="row"><span>Лесных клеток</span><span>${r.forestTiles}</span></div>
     <div id="live-v-barn-label">Амбар ${r.barnFood} / ${r.barnCapacity}</div>
