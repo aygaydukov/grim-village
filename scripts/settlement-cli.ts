@@ -1,89 +1,117 @@
 #!/usr/bin/env tsx
-import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+/**
+ * settlement-cli.ts new
+ * settlement-cli.ts snapshot-after-sim [days=10]
+ *
+ * snapshot-after-sim: load/create current settlement → run N days → SVG snapshot → docs/
+ */
+import { copyFileSync, mkdirSync, existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { GAME_VERSION } from "../src/version.ts";
-import { runModulation } from "../src/sim/modulate.ts";
+import { stepWorld } from "../src/sim/world.ts";
+import { formatStabilityReport, evaluateStability } from "../src/sim/modulate.ts";
 import { renderSettlementSvg } from "./settlement-snapshot.ts";
 import {
   startNewSettlement,
   defaultDataDir,
   loadRegistry,
   loadCurrentWorld,
+  saveCurrentWorld,
   saveRegistry,
+  writeSettlementPublicMirror,
 } from "./settlement-store.ts";
 
-const cmd = process.argv[2] ?? "snapshot";
+const cmd = process.argv[2] ?? "help";
 const dir = defaultDataDir();
 
-function stamp(): string {
-  return new Date().toISOString().replaceAll(":", "-").replace(/\.\d+Z$/, "Z");
-}
-
-function publishDocsSnapshot(version: number, svg: string, label: string): void {
+function publishDocsSnapshot(version: number, fromAbs: string, label: string): string {
   const docsDir = join(process.cwd(), "docs", "settlements", `v${version}`);
   mkdirSync(docsDir, { recursive: true });
-  writeFileSync(join(docsDir, "snapshot.svg"), svg, "utf8");
-  writeFileSync(join(docsDir, `snapshot-${label}.svg`), svg, "utf8");
-  console.log(`docs snapshot -> docs/settlements/v${version}/snapshot.svg`);
-  console.log(`docs archive  -> docs/settlements/v${version}/snapshot-${label}.svg`);
+  const dest = join(docsDir, "snapshot.svg");
+  copyFileSync(fromAbs, dest);
+  const metaPath = join(docsDir, "meta.json");
+  writeFileSync(
+    metaPath,
+    `${JSON.stringify(
+      {
+        version,
+        label,
+        gameVersion: GAME_VERSION,
+        capturedAt: new Date().toISOString(),
+        source: fromAbs,
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  console.log(`docs snapshot -> ${dest} (${label})`);
+  return dest;
 }
 
 if (cmd === "new") {
   const { meta } = startNewSettlement(dir, Date.now() % 1_000_000, GAME_VERSION, "manual_new");
   if (meta.snapshotPath) {
     const from = join(dir, meta.snapshotPath);
-    if (existsSync(from)) {
-      publishDocsSnapshot(meta.version, readFileSync(from, "utf8"), stamp());
-    }
+    if (existsSync(from)) publishDocsSnapshot(meta.version, from, "spawn");
   }
   console.log(JSON.stringify(meta, null, 2));
   process.exit(0);
 }
 
-if (cmd === "snapshot") {
-  let world = loadCurrentWorld(dir);
+if (cmd === "snapshot-after-sim") {
+  const days = Number(process.argv[3] ?? 10);
   let registry = loadRegistry(dir);
-  if (!world || registry.currentVersion < 1) {
-    const started = startNewSettlement(dir, Date.now() % 1_000_000, GAME_VERSION, "snapshot_bootstrap");
+  let world = loadCurrentWorld(dir);
+  let version = registry.currentVersion;
+  let settlementId = registry.settlements.find((s) => s.version === version)?.id;
+
+  if (!world || version < 1) {
+    const started = startNewSettlement(dir, Date.now() % 1_000_000, GAME_VERSION, "snapshot_boot");
     world = started.world;
+    version = started.meta.version;
+    settlementId = started.meta.id;
     registry = started.registry;
   }
 
-  if (world.stats.day <= 2) {
-    world = runModulation(3, world.seed).world;
-  }
+  const initialAlive = world.agents.filter((a) => a.alive).length;
+  console.log(
+    `[snapshot-after-sim] settlement-v${version} day=${world.stats.day} → +${days} days`,
+  );
+  stepWorld(world, days * world.dayLength);
+  const report = evaluateStability(world, initialAlive);
+  report.seed = world.seed;
+  report.days = days;
+  console.log(formatStabilityReport(report));
 
-  const version = Math.max(1, registry.currentVersion);
-  const svg = renderSettlementSvg(world);
-  const dataDir = join(dir, "settlements", `v${version}`);
-  mkdirSync(dataDir, { recursive: true });
-  writeFileSync(join(dataDir, "snapshot.svg"), svg, "utf8");
-
-  const label = stamp();
-  publishDocsSnapshot(version, svg, label);
+  const snapRel = `settlements/v${version}/snapshot-after-${days}d.svg`;
+  const snapAbs = join(dir, snapRel);
+  mkdirSync(join(dir, "settlements", `v${version}`), { recursive: true });
+  writeFileSync(snapAbs, renderSettlementSvg(world), "utf8");
 
   const meta = registry.settlements.find((s) => s.version === version);
   if (meta) {
-    meta.snapshotPath = `settlements/v${version}/snapshot.svg`;
+    meta.snapshotPath = snapRel;
     meta.gameVersion = GAME_VERSION;
+    meta.finalAlive = world.agents.filter((a) => a.alive).length;
+    meta.finalDay = world.stats.day;
     saveRegistry(registry, dir);
   }
 
-  console.log(
-    JSON.stringify(
-      {
-        settlementVersion: version,
-        gameVersion: GAME_VERSION,
-        day: world.stats.day,
-        alive: world.stats.alive,
-        docs: `docs/settlements/v${version}/snapshot.svg`,
-      },
-      null,
-      2,
-    ),
+  saveCurrentWorld(
+    world,
+    { settlementVersion: version, settlementId: settlementId ?? `settlement-v${version}` },
+    dir,
   );
-  process.exit(0);
+  if (meta) writeSettlementPublicMirror(world, meta, registry, dir);
+
+  publishDocsSnapshot(version, snapAbs, `after_${days}_days`);
+
+  if (!report.stable) {
+    console.warn("[snapshot-after-sim] unstable after sim — automation may drop settlement");
+    process.exitCode = 1;
+  }
+  process.exit();
 }
 
-console.error("Usage: settlement-cli.ts <snapshot|new>");
+console.error("Usage:\n  settlement-cli.ts new\n  settlement-cli.ts snapshot-after-sim [days]");
 process.exit(1);

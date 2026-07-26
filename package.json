@@ -11,7 +11,7 @@
     "village:status": "tsx scripts/export-village-page.ts",
     "village:daemon": "tsx scripts/village-daemon.ts",
     "settlement:new": "tsx scripts/settlement-cli.ts new",
-    "settlement:snapshot": "tsx scripts/settlement-cli.ts snapshot",
+    "settlement:snapshot": "tsx scripts/settlement-cli.ts snapshot-after-sim",
     "test": "tsx --test tests/stability.test.ts"
   },
   "dependencies": {
