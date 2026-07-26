@@ -15,10 +15,10 @@ import {
   shouldLaborerBuild,
   tickBuildProject,
 } from "./housing";
-import { mayTakeFromBarn, applyDepositTithe } from "./government";
+import { mayTakeFromBarn, applyDepositTithe, tickDailyGovernment } from "./government";
 import { recordDaySnapshot } from "./history";
 import { tickDailyShocks } from "./shocks";
-import { tickDailyGovernment } from "./government";
+import { tickDailyMigration } from "./migration";
 import { recordBirth, recordDeath } from "./events";
 import {
   anchorPoint,
@@ -736,6 +736,7 @@ export function simulateTick(world: World): void {
     tickDailyShocks(world);
     tickDailyGovernment(world);
     maybeStartHutBuild(world);
+    tickDailyMigration(world);
     rebalanceVillageLabor(world);
     recordDaySnapshot(world);
   }

@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "0.3.1";
+export const GAME_VERSION = "0.4.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "0.4.0",
+    date: "2026-07-26",
+    changes: [
+      "Миграция при перенаселении — семьи уходят в чужие края при дефиците жилья и голода",
+      "Исход отражается в летописи деревни",
+      "Кулдаун между исходами, защита старосты и последнего сторожа",
+      "SAVE_VERSION=5 — поле lastMigrationDay",
+    ],
+  },
   {
     version: "0.3.1",
     date: "2026-07-26",

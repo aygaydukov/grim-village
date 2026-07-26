@@ -2,7 +2,7 @@ import type { ActiveShock, Agent, BuildProject, DayEvent, DaySnapshot, Tile, Wor
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -27,6 +27,7 @@ export interface WorldSave {
   lastHutBuiltDay?: number;
   treasury?: number;
   starostaId?: number | null;
+  lastMigrationDay?: number;
 }
 
 export function serializeWorld(world: World): WorldSave {
@@ -55,12 +56,14 @@ export function serializeWorld(world: World): WorldSave {
     lastHutBuiltDay: world.lastHutBuiltDay,
     treasury: world.treasury,
     starostaId: world.starostaId,
+    lastMigrationDay: world.lastMigrationDay,
   };
 }
 
 export function deserializeWorld(data: WorldSave): World {
   if (
     data.version !== SAVE_VERSION &&
+    data.version !== 4 &&
     data.version !== 3 &&
     data.version !== 2 &&
     data.version !== 1
@@ -86,6 +89,7 @@ export function deserializeWorld(data: WorldSave): World {
     lastHutBuiltDay: data.lastHutBuiltDay ?? 0,
     treasury: data.treasury ?? 0,
     starostaId: data.starostaId ?? null,
+    lastMigrationDay: data.lastMigrationDay ?? 0,
     rng: createRng(data.seed),
   };
   restoreRng(world, data.rngState);

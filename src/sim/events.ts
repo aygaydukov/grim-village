@@ -29,6 +29,12 @@ export function recordGovernment(world: World, name: string, detail: string): vo
   pushEvent(world, { kind: "government", name, detail });
 }
 
+/** Записать исход семьи из деревни */
+export function recordMigration(world: World, names: string, count: number): void {
+  const detail = count > 1 ? `${count} душ` : "один";
+  pushEvent(world, { kind: "migration", name: names, detail });
+}
+
 /** Записать смену профессии (только если реально изменилась) */
 export function recordProfessionChange(
   world: World,

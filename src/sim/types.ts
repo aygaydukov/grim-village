@@ -65,7 +65,8 @@ export type DayEventKind =
   | "profession"
   | "shock"
   | "construction"
-  | "government";
+  | "government"
+  | "migration";
 
 export interface BuildProject {
   x: number;
@@ -171,5 +172,7 @@ export interface World {
   treasury: number;
   /** id жителя-старосты */
   starostaId: number | null;
+  /** День последнего исхода семьи */
+  lastMigrationDay: number;
   rng: () => number;
 }
