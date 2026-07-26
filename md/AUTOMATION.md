@@ -1,6 +1,6 @@
 # Automation: Medieval Society Daily
 
-Cloud agent evolves the **neural/agent-based life sandbox**, updates the public chronicle, and keeps the headless settlement healthy.
+Cloud agent evolves the **agent-based life sandbox**, updates the public chronicle, and keeps the headless settlement healthy.
 
 - Play: http://45.131.42.53/
 - Chronicle (Pages): https://aygaydukov.github.io/grim-village/
@@ -10,37 +10,39 @@ Cloud agent evolves the **neural/agent-based life sandbox**, updates the public 
 
 You maintain an autonomous medieval village simulation.
 
-After code changes:
+**After every update (mandatory order):**
 
 1. Run `npm test` and `npm run simulate` (10-day smoke). If unstable, fix balance before finishing.
-2. Run `npm run village:status` to refresh `docs/status.json` (chronicle metrics — not release notes).
-3. Update `src/version.ts` CHANGELOG + `GAME_VERSION` when you ship a player-visible feature (this powers the in-game Releases tab).
-4. Commit and push to `main`.
+2. Run `npm run village:status` → refresh `docs/status.json`.
+3. **Always** run `npm run settlement:snapshot` → writes/updates:
+   - `docs/settlements/v{N}/snapshot.svg` (latest for this settlement)
+   - `docs/settlements/v{N}/snapshot-{timestamp}.svg` (archive of this update)
+4. If you ship a player-visible feature: bump `GAME_VERSION` + entry in `src/version.ts` CHANGELOG (in-game Releases tab).
+5. Commit **including** the new SVG snapshots and push to `main`.
 
 ### Settlements & fatal drops
 
-- Headless world lives in `GRIM_DATA_DIR` (`current.json` + `registry.json`). Overwrite saves is OK.
-- If the settlement is **fatally doomed** (extinction / population collapse), you **may drop** the current settlement DB/save and regenerate a new world.
-- Each drop **must** create a new settlement version (`settlement-vN`):
-  - archive previous entry in `data/registry.json` with `endReason`
-  - write SVG snapshot via settlement tools (`scripts/settlement-snapshot.ts` / `startNewSettlement`)
-  - copy snapshot into `docs/settlements/vN/snapshot.svg` (and note it in the commit)
-- After each **release** (version bump), ensure a settlement snapshot exists for the current version (`docs/settlements/v{N}/snapshot.svg`).
+- Overwrite saves is OK (`data/current.json`).
+- If the settlement is **fatally doomed**, drop and regenerate:
+  - `npm run settlement:new` (or daemon auto-drop)
+  - then **again** `npm run settlement:snapshot`
+- Each drop creates a new settlement version `vN+1` with its own folder under `docs/settlements/`.
 
 ### Do not
 
+- Skip the snapshot step after an update.
 - Put long release changelogs on the GitHub Pages landing page.
 - Block forever on a dead village — drop and restart with a new settlement version.
 
-## Local / server daemon
+## Commands
 
 ```bash
+npm run village:status
+npm run settlement:snapshot   # after every update
+npm run settlement:new        # only on fatal drop / reset
 npm run village:daemon
 ```
 
-Server: see [DEPLOY.md](DEPLOY.md) systemd unit.
-
 ## CI/CD
 
-- Pages: `docs/` chronicle
-- Deploy: static game to `45.131.42.53` + keep daemon running with shared `data/`
+Push to `main` auto-deploys game + daemon via GitHub Actions (no manual SSH).
