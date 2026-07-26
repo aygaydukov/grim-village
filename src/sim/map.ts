@@ -140,6 +140,33 @@ export function generateMap(
   return { tiles, hutSpots, barn };
 }
 
+/** Поставить хижину и протянуть тропу к амбару */
+export function placeHut(world: World, x: number, y: number): void {
+  const tile = getTile(world, x, y);
+  if (!tile || tile.kind === "water" || tile.kind === "barn" || tile.kind === "hut") return;
+
+  tile.kind = "hut";
+  tile.food = 0;
+  tile.maxFood = 0;
+  carvePath(world.tiles, world.width, x, y, world.barnX, world.barnY);
+
+  for (const [ax, ay] of [
+    [0, 1],
+    [1, 0],
+    [-1, 0],
+    [0, -1],
+  ]) {
+    const nx = x + ax!;
+    const ny = y + ay!;
+    const n = getTile(world, nx, ny);
+    if (n && n.kind !== "water" && n.kind !== "hut" && n.kind !== "barn") {
+      n.kind = "dirt";
+      n.food = 0;
+      n.maxFood = 0;
+    }
+  }
+}
+
 /** Грязная тропа от хижины к амбару — чтобы не тонуть в воде по дороге за едой */
 function carvePath(
   tiles: Tile[],

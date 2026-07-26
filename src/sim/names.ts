@@ -76,6 +76,8 @@ export const STATE_LABELS: Record<string, string> = {
   returnHome: "возвращается на участок",
   patrol: "обходит участок",
   idle: "у дома",
+  seekBuild: "идёт на стройку",
+  build: "строит хижину",
 };
 
 export const SEX_LABELS = {

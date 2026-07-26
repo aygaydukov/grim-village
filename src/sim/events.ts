@@ -19,6 +19,11 @@ export function recordShock(world: World, name: string, detail: string): void {
   pushEvent(world, { kind: "shock", name, detail });
 }
 
+/** Записать завершение стройки */
+export function recordConstruction(world: World, detail: string): void {
+  pushEvent(world, { kind: "construction", name: "хижина", detail });
+}
+
 /** Записать смену профессии (только если реально изменилась) */
 export function recordProfessionChange(
   world: World,

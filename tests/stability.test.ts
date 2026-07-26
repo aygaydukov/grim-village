@@ -16,6 +16,8 @@ describe("сохранение мира", () => {
     assert.equal(loaded.stats.alive, original.stats.alive);
     assert.equal(loaded.agents.length, original.agents.length);
     assert.equal(loaded.dayHistory.length, original.dayHistory.length);
+    assert.equal(loaded.buildProject?.progress ?? null, original.buildProject?.progress ?? null);
+    assert.equal(loaded.lastHutBuiltDay, original.lastHutBuiltDay);
 
     stepWorld(loaded, loaded.dayLength);
     stepWorld(original, original.dayLength);

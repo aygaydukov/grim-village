@@ -1,8 +1,8 @@
-import type { ActiveShock, Agent, DayEvent, DaySnapshot, Tile, World, WorldStats } from "./types";
+import type { ActiveShock, Agent, BuildProject, DayEvent, DaySnapshot, Tile, World, WorldStats } from "./types";
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -23,6 +23,8 @@ export interface WorldSave {
   dayHistory: DaySnapshot[];
   pendingDayEvents: DayEvent[];
   activeShock: ActiveShock | null;
+  buildProject?: BuildProject | null;
+  lastHutBuiltDay?: number;
 }
 
 export function serializeWorld(world: World): WorldSave {
@@ -47,11 +49,13 @@ export function serializeWorld(world: World): WorldSave {
     })),
     pendingDayEvents: [...world.pendingDayEvents],
     activeShock: world.activeShock ? { ...world.activeShock } : null,
+    buildProject: world.buildProject ? { ...world.buildProject } : null,
+    lastHutBuiltDay: world.lastHutBuiltDay,
   };
 }
 
 export function deserializeWorld(data: WorldSave): World {
-  if (data.version !== SAVE_VERSION && data.version !== 1) {
+  if (data.version !== SAVE_VERSION && data.version !== 2 && data.version !== 1) {
     throw new Error(`Неподдерживаемая версия сохранения: ${data.version}`);
   }
   const world: World = {
@@ -69,6 +73,8 @@ export function deserializeWorld(data: WorldSave): World {
     seed: data.seed,
     pendingDayEvents: data.pendingDayEvents ?? [],
     activeShock: data.activeShock ?? null,
+    buildProject: data.buildProject ?? null,
+    lastHutBuiltDay: data.lastHutBuiltDay ?? 0,
     rng: createRng(data.seed),
   };
   restoreRng(world, data.rngState);

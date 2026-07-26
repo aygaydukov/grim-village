@@ -22,7 +22,8 @@ export type TaskKind =
   | "eat"
   | "rest"
   | "social"
-  | "play";
+  | "play"
+  | "build";
 
 export type AgentState =
   | "wander"
@@ -37,7 +38,9 @@ export type AgentState =
   | "deposit"
   | "returnHome"
   | "patrol"
-  | "idle";
+  | "idle"
+  | "seekBuild"
+  | "build";
 
 export interface Tile {
   kind: TileKind;
@@ -56,7 +59,15 @@ export interface ActiveShock {
 }
 
 /** Именованное событие игрового дня для летописи */
-export type DayEventKind = "birth" | "death" | "profession" | "shock";
+export type DayEventKind = "birth" | "death" | "profession" | "shock" | "construction";
+
+export interface BuildProject {
+  x: number;
+  y: number;
+  progress: number;
+  required: number;
+  builderId: number | null;
+}
 
 export interface DayEvent {
   kind: DayEventKind;
@@ -146,5 +157,9 @@ export interface World {
   pendingDayEvents: DayEvent[];
   /** Сезонный шок, влияющий на реген еды */
   activeShock: ActiveShock | null;
+  /** Текущая стройка хижины (батрак) */
+  buildProject: BuildProject | null;
+  /** День завершения последней хижины (кулдаун) */
+  lastHutBuiltDay: number;
   rng: () => number;
 }

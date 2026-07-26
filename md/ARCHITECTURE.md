@@ -40,7 +40,8 @@ src/
 
 Модуль `src/sim/jobs.ts`:
 - профессии: child / gatherer / laborer / keeper / elder
-- задачи: idle, patrol, returnHome, gather, deposit, eat, rest, social, play
+- задачи: idle, patrol, returnHome, gather, deposit, eat, rest, social, play, **build**
+- состояния: …, **seekBuild**, **build**
 - leash: агент не уходит далеко от дома (или амбара для сборщика/сторожа)
 
 Приоритет поведения: нужды → возврат на участок → работа по профессии.

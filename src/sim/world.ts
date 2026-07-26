@@ -37,6 +37,8 @@ export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): Wo
     seed,
     pendingDayEvents: [],
     activeShock: null,
+    buildProject: null,
+    lastHutBuiltDay: 0,
     rng,
   };
 

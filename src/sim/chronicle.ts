@@ -15,9 +15,14 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
   const namedDeaths = events.filter((e) => e.kind === "death");
   const namedProf = events.filter((e) => e.kind === "profession");
   const namedShocks = events.filter((e) => e.kind === "shock");
+  const namedBuilds = events.filter((e) => e.kind === "construction");
 
   if (namedShocks.length > 0) {
     parts.push(formatShocks(namedShocks));
+  }
+
+  if (namedBuilds.length > 0) {
+    parts.push(formatConstruction(namedBuilds));
   }
 
   if (namedBirths.length > 0) {
@@ -92,6 +97,14 @@ function formatDeaths(events: DayEvent[]): string {
     .slice(0, 2)
     .map((e) => e.name)
     .join(", ")} и ещё ${events.length - 2}.`;
+}
+
+function formatConstruction(events: DayEvent[]): string {
+  if (events.length === 1) {
+    const e = events[0]!;
+    return e.detail ? `возведена ${e.name}: ${e.detail}.` : `возведена ${e.name}.`;
+  }
+  return `стройка: ${events.length} новых построек.`;
 }
 
 function formatShocks(events: DayEvent[]): string {

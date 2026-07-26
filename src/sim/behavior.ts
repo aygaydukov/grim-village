@@ -7,6 +7,14 @@ import {
   MAX_CARRY,
   moveToward,
 } from "./agent";
+import {
+  assignBuilder,
+  buildSitePos,
+  isActiveBuilder,
+  maybeStartHutBuild,
+  shouldLaborerBuild,
+  tickBuildProject,
+} from "./housing";
 import { recordDaySnapshot } from "./history";
 import { tickDailyShocks } from "./shocks";
 import { recordBirth, recordDeath } from "./events";
@@ -75,6 +83,9 @@ function applyWorkPlan(world: World, agent: Agent): void {
     case "patrol":
       agent.state = "patrol";
       setLocalTarget(world, agent, task === "play" ? 0.55 : 0.75);
+      break;
+    case "build":
+      agent.state = "seekBuild";
       break;
     case "idle":
     default:
@@ -432,6 +443,59 @@ function actSleep(world: World, agent: Agent): void {
   }
 }
 
+function actBuild(world: World, agent: Agent): void {
+  if (!isActiveBuilder(world, agent)) {
+    finishToWork(world, agent);
+    return;
+  }
+  const site = buildSitePos(world);
+  if (!site) {
+    finishToWork(world, agent);
+    return;
+  }
+
+  if (dist(agent.x, agent.y, site.x, site.y) > 0.9) {
+    agent.state = "seekBuild";
+    agent.task = "build";
+    return;
+  }
+
+  const stillBuilding = tickBuildProject(world, agent);
+  if (!stillBuilding) {
+    finishToWork(world, agent);
+  }
+}
+
+function actSeekBuild(world: World, agent: Agent): void {
+  if (!shouldLaborerBuild(world, agent) && !isActiveBuilder(world, agent)) {
+    finishToWork(world, agent);
+    return;
+  }
+
+  if (!isActiveBuilder(world, agent)) {
+    assignBuilder(world, agent);
+  }
+
+  const site = buildSitePos(world);
+  if (!site) {
+    finishToWork(world, agent);
+    return;
+  }
+
+  if (agent.targetX == null || agent.targetY == null) {
+    agent.targetX = site.x;
+    agent.targetY = site.y;
+  }
+
+  const arrived = moveToward(world, agent, agent.targetX, agent.targetY, MOVE_SPEED * 0.85);
+  if (arrived || dist(agent.x, agent.y, site.x, site.y) < 0.9) {
+    agent.state = "build";
+    agent.task = "build";
+    agent.targetX = null;
+    agent.targetY = null;
+  }
+}
+
 function actPatrol(world: World, agent: Agent): void {
   if (isBeyondLeash(world, agent)) {
     setTask(agent, "returnHome", "returnHome");
@@ -578,6 +642,8 @@ function tickAgent(world: World, agent: Agent): void {
     "deposit",
     "returnHome",
     "patrol",
+    "seekBuild",
+    "build",
   ];
 
   if (!busy.includes(agent.state)) {
@@ -635,6 +701,12 @@ function tickAgent(world: World, agent: Agent): void {
     case "wander":
       actPatrol(world, agent);
       break;
+    case "seekBuild":
+      actSeekBuild(world, agent);
+      break;
+    case "build":
+      actBuild(world, agent);
+      break;
     case "idle":
       actIdle(world, agent);
       break;
@@ -653,6 +725,7 @@ export function simulateTick(world: World): void {
   if (world.tick % world.dayLength === 0) {
     world.stats.day += 1;
     tickDailyShocks(world);
+    maybeStartHutBuild(world);
     rebalanceVillageLabor(world);
     recordDaySnapshot(world);
   }

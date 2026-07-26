@@ -1,4 +1,5 @@
 import { barnPos, barnStock, findNearestWildFood } from "./map";
+import { shouldLaborerBuild } from "./housing";
 import { recordProfessionChange } from "./events";
 import type { Agent, Profession, TaskKind, World } from "./types";
 import { chance, clamp, dist } from "./util";
@@ -156,6 +157,7 @@ export function planWorkTask(world: World, agent: Agent): TaskKind {
       return chance(world.rng, 0.35) ? "patrol" : "idle";
 
     case "laborer":
+      if (shouldLaborerBuild(world, agent)) return "build";
       if (agent.carriedFood > 0) return "deposit";
       // Батрак помогает собирать, когда запасы средние/низкие
       if (stock < 90 && agent.energy > 40 && agent.hunger < 50 && findWorkFood(world, agent)) {
@@ -200,6 +202,8 @@ export function taskLabel(t: TaskKind): string {
       return "ищет пару";
     case "play":
       return "играет у дома";
+    case "build":
+      return "строит хижину";
   }
 }
 
