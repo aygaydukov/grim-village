@@ -1,10 +1,9 @@
 import { recordConstruction } from "./events";
-import { barnCostForBuild } from "./government";
+import { barnCostForBuild, minBarnToBuild } from "./government";
 import { barnStock, getBarnTile, getTile, placeHut } from "./map";
 import type { Agent, World } from "./types";
 
 const RESIDENTS_PER_HUT = 2.6;
-const MIN_BARN_TO_BUILD = 52;
 const BUILD_FOOD_COST = 6;
 const BUILD_COOLDOWN_DAYS = 3;
 const BUILD_PROGRESS_PER_TICK = 1;
@@ -29,7 +28,7 @@ function canAffordBuild(world: World): boolean {
   if (world.lastHutBuiltDay > 0 && world.stats.day - world.lastHutBuiltDay < BUILD_COOLDOWN_DAYS) {
     return false;
   }
-  return barnStock(world) >= MIN_BARN_TO_BUILD;
+  return barnStock(world) >= minBarnToBuild(world);
 }
 
 /** Подходящая клетка для новой хижины — рядом с деревней, не вода */

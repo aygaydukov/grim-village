@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "0.4.0";
+export const GAME_VERSION = "0.5.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,17 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "0.5.0",
+    date: "2026-07-26",
+    changes: [
+      "Политика старосты: сбалансированная, стройка, запасы, поддержка",
+      "Десятина 5–15% в зависимости от политики и состояния деревни",
+      "Приоритет стройки vs амбара — староста переключает режим ежедневно",
+      "Рождаемость выше при полном амбаре; старики живут чуть дольше",
+      "SAVE_VERSION=6 — поле starostaPolicy",
+    ],
+  },
   {
     version: "0.4.0",
     date: "2026-07-26",

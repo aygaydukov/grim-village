@@ -28,6 +28,7 @@
 - [x] **2026-07-26 (день):** государство — десятина, казна, староста, очередь еды (`government.ts`, `SAVE_VERSION=4`)
 - [x] **2026-07-26 (день):** версия игры в HUD и вкладка «История версий» (`src/version.ts`)
 - [x] **2026-07-26 (вечер):** миграция при перенаселении (`migration.ts`, `SAVE_VERSION=5`)
+- [x] **2026-07-26 (вечер):** политика старосты — 4 режима, динамическая десятина (`government.ts`, `SAVE_VERSION=6`)
 
 ## Automation (Cursor)
 
@@ -48,6 +49,8 @@
 - [x] Государство — десятина, казна, староста (`government.ts`)
 - [x] Версия игры и вкладка changelog (`src/version.ts`)
 - [x] Миграция при перенаселении (`migration.ts`)
+- [x] Политика старосты — 4 режима, динамическая десятина (`government.ts`)
+- [ ] Иммиграция — редкий приток беженцев
 - [x] Дописать CD: secrets `DEPLOY_*` → `45.131.42.53:/var/www/grim-village` (см. [DEPLOY.md](DEPLOY.md); один раз поднять nginx на сервере)
 - [ ] Болезни / эпидемии (отдельный шок смертности)
 - [ ] Звук (ветер, шаги, ночь)
@@ -68,7 +71,7 @@
 - Трупы копятся (обрезка старых тел при >40).
 - Центр поселения принудительно очищается от воды (радиус ~7 клеток) — иначе голод у амбара.
 - Сохранение в localStorage — только локально в браузере; экспорт файла — в бэклог.
-- `SAVE_VERSION = 5` — добавлено `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
+- `SAVE_VERSION = 6` — добавлено `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
 
 ## Полезные ссылки
 

@@ -54,6 +54,13 @@ const MOVE_SPEED = 0.055;
 const NIGHT_COLD = 0.015;
 const SOFT_POP_CAP = 36;
 
+function courtPregnancyChance(world: World): number {
+  const stock = barnStock(world);
+  if (stock > 60) return 0.12;
+  if (stock > 40) return 0.1;
+  return 0.08;
+}
+
 function aliveAgents(world: World): Agent[] {
   return world.agents.filter((a) => a.alive);
 }
@@ -191,7 +198,7 @@ function tickNeeds(world: World, agent: Agent): void {
     return;
   }
 
-  if (agent.age >= MAX_AGE + world.rng() * 8) {
+  if (agent.age >= MAX_AGE + world.rng() * 12) {
     killAgent(agent, "старость");
     world.stats.dead += 1;
     recordDeath(world, agent, "старость");
@@ -614,7 +621,7 @@ function actCourt(world: World, agent: Agent): void {
     return;
   }
 
-  if (chance(world.rng, 0.08)) {
+  if (chance(world.rng, courtPregnancyChance(world))) {
     agent.spouseId = mate.id;
     mate.spouseId = agent.id;
 

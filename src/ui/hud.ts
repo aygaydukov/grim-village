@@ -207,6 +207,7 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-carry", String(r.carriedFood));
   setText("live-v-treasury", String(r.treasury));
   setText("live-v-starosta", r.starosta ?? "—");
+  setText("live-v-policy", r.starostaPolicyLabel);
   const barnPct = Math.round((r.barnFood / Math.max(1, r.barnCapacity)) * 100);
   const hungerPct = Math.round(r.avgHunger);
   const energyPct = Math.round(r.avgEnergy);
@@ -368,6 +369,7 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="section-title">Управление</div>
     <div class="row"><span>Казна</span><span id="live-v-treasury">${r.treasury}</span></div>
     <div class="row"><span>Староста</span><span id="live-v-starosta">${escapeHtml(r.starosta ?? "—")}</span></div>
+    <div class="row"><span>Политика</span><span id="live-v-policy">${escapeHtml(r.starostaPolicyLabel)}</span></div>
 
     <div class="section-title">Ресурсы</div>
     <div class="row"><span>День · время</span><span id="live-v-day">${r.day} · ${r.phase}</span></div>

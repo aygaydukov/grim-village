@@ -1,9 +1,9 @@
 import { ageLabel, childrenOf, isAdult, isChild } from "./agent";
-import { starostaName } from "./government";
+import { policyLabel, starostaName } from "./government";
 import { countByProfession, professionLabel, taskLabel } from "./jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "./names";
 import { seasonForDay, seasonNote } from "./season";
-import type { Agent, Profession, World } from "./types";
+import type { Agent, Profession, StarostaPolicy, World } from "./types";
 
 export interface VillageReport {
   name: string;
@@ -30,6 +30,8 @@ export interface VillageReport {
   carriedFood: number;
   treasury: number;
   starosta: string | null;
+  starostaPolicy: StarostaPolicy;
+  starostaPolicyLabel: string;
   avgHunger: number;
   avgEnergy: number;
   professions: Record<Profession, number>;
@@ -147,6 +149,7 @@ export function collectVillageReport(world: World): VillageReport {
     `В амбаре ${barnFood} из ${barnCapacity} мер еды.`,
     world.treasury > 0 ? `В казне старосты ${world.treasury} мер.` : "Казна пуста — десятина ещё не накопилась.",
     starosta ? `Староста: ${starosta}.` : "Старосту пока не назначили.",
+    `Политика: ${policyLabel(world.starostaPolicy)}.`,
     `В лесу и на лугах ещё ${wildFood} дикой пищи.`,
     jobsLine,
     world.stats.births > 0
@@ -182,6 +185,8 @@ export function collectVillageReport(world: World): VillageReport {
     carriedFood,
     treasury: world.treasury,
     starosta,
+    starostaPolicy: world.starostaPolicy,
+    starostaPolicyLabel: policyLabel(world.starostaPolicy),
     avgHunger,
     avgEnergy,
     professions,

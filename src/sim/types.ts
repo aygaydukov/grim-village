@@ -50,6 +50,9 @@ export interface Tile {
 
 export type Season = "spring" | "summer" | "autumn" | "winter";
 
+/** Политика старосты: налог, приоритет стройки vs амбара */
+export type StarostaPolicy = "balanced" | "build" | "store" | "relief";
+
 /** Активный сезонный шок (неурожай и т.п.) */
 export interface ActiveShock {
   kind: "crop_failure";
@@ -172,6 +175,8 @@ export interface World {
   treasury: number;
   /** id жителя-старосты */
   starostaId: number | null;
+  /** Текущая политика старосты */
+  starostaPolicy: StarostaPolicy;
   /** День последнего исхода семьи */
   lastMigrationDay: number;
   rng: () => number;
