@@ -6,6 +6,8 @@
 **Live chronicle (metrics):** https://aygaydukov.github.io/grim-village/  
 **Releases / changelog:** in-game tab **«История версий»** (not on GitHub Pages).
 
+<img width="1724" height="896" alt="image" src="https://github.com/user-attachments/assets/ab992278-7fcd-4e42-905c-1a7605aff3bf" />
+
 ## Discoverability / topics
 
 Useful search phrases for similar projects and research:
