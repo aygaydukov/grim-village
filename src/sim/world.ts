@@ -45,6 +45,7 @@ export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): Wo
     starostaId: null,
     starostaPolicy: "balanced",
     lastMigrationDay: 0,
+    lastImmigrationDay: 0,
     rng,
   };
 

@@ -12,7 +12,7 @@ import type {
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -39,6 +39,7 @@ export interface WorldSave {
   starostaId?: number | null;
   starostaPolicy?: StarostaPolicy;
   lastMigrationDay?: number;
+  lastImmigrationDay?: number;
 }
 
 export function serializeWorld(world: World): WorldSave {
@@ -69,12 +70,14 @@ export function serializeWorld(world: World): WorldSave {
     starostaId: world.starostaId,
     starostaPolicy: world.starostaPolicy,
     lastMigrationDay: world.lastMigrationDay,
+    lastImmigrationDay: world.lastImmigrationDay,
   };
 }
 
 export function deserializeWorld(data: WorldSave): World {
   if (
     data.version !== SAVE_VERSION &&
+    data.version !== 6 &&
     data.version !== 5 &&
     data.version !== 4 &&
     data.version !== 3 &&
@@ -104,6 +107,7 @@ export function deserializeWorld(data: WorldSave): World {
     starostaId: data.starostaId ?? null,
     starostaPolicy: data.starostaPolicy ?? "balanced",
     lastMigrationDay: data.lastMigrationDay ?? 0,
+    lastImmigrationDay: data.lastImmigrationDay ?? 0,
     rng: createRng(data.seed),
   };
   restoreRng(world, data.rngState);

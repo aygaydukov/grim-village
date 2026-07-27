@@ -1,5 +1,6 @@
-import { fullName } from "./names";
-import { recordMigration } from "./events";
+import { createAgent } from "./agent";
+import { fullName, randomSurname } from "./names";
+import { recordImmigration, recordMigration } from "./events";
 import { countHuts } from "./housing";
 import { barnStock } from "./map";
 import type { Agent, World } from "./types";
@@ -11,6 +12,13 @@ const RESIDENTS_PER_HUT_DESPERATE = 3.9;
 const MIGRATION_COOLDOWN_DAYS = 6;
 const MIN_BARN_FOR_STAY = 22;
 const HUNGER_CRISIS = 64;
+
+/** Порог разреженности для приёма беженцев */
+const RESIDENTS_PER_HUT_SPARSE = 2.0;
+const RESIDENTS_PER_HUT_VACANT = 1.6;
+const IMMIGRATION_COOLDOWN_DAYS = 8;
+const MIN_BARN_FOR_WELCOME = 35;
+const MAX_AVG_HUNGER_FOR_WELCOME = 58;
 
 export function tickDailyMigration(world: World): void {
   if (
@@ -131,4 +139,164 @@ function emigrateFamily(world: World, family: Agent[]): void {
   world.agents = world.agents.filter((a) => !ids.has(a.id));
   world.stats.alive = world.agents.filter((a) => a.alive).length;
   recordMigration(world, names, family.length);
+}
+
+/** Редкий приток беженцев при разреженном поселении и достатке в амбаре */
+export function tickDailyImmigration(world: World): void {
+  if (
+    world.lastImmigrationDay > 0 &&
+    world.stats.day - world.lastImmigrationDay < IMMIGRATION_COOLDOWN_DAYS
+  ) {
+    return;
+  }
+
+  const huts = countHuts(world);
+  if (huts === 0) return;
+
+  const alive = world.agents.filter((a) => a.alive);
+  const ratio = alive.length / huts;
+  if (ratio >= RESIDENTS_PER_HUT_SPARSE) return;
+
+  let hungerSum = 0;
+  for (const a of alive) hungerSum += a.hunger;
+  const avgHunger = hungerSum / Math.max(1, alive.length);
+  const barn = barnStock(world);
+
+  if (barn < MIN_BARN_FOR_WELCOME || avgHunger > MAX_AVG_HUNGER_FOR_WELCOME) return;
+
+  const vacant = ratio < RESIDENTS_PER_HUT_VACANT;
+  const rollChance = vacant ? 0.22 : 0.12;
+  if (!chance(world.rng, rollChance)) return;
+
+  const home = pickImmigrantHome(world);
+  if (!home) return;
+
+  const newcomers = spawnImmigrantFamily(world, home);
+  if (newcomers.length === 0) return;
+
+  for (const agent of newcomers) world.agents.push(agent);
+  world.stats.alive = world.agents.filter((a) => a.alive).length;
+  world.lastImmigrationDay = world.stats.day;
+
+  const names = newcomers.map((a) => fullName(a)).join(", ");
+  recordImmigration(world, names, newcomers.length);
+}
+
+function pickImmigrantHome(world: World): { x: number; y: number } | null {
+  const counts = new Map<string, number>();
+
+  for (let y = 0; y < world.height; y++) {
+    for (let x = 0; x < world.width; x++) {
+      const tile = world.tiles[y * world.width + x]!;
+      if (tile.kind === "hut") counts.set(`${x},${y}`, 0);
+    }
+  }
+  if (counts.size === 0) return null;
+
+  for (const agent of world.agents) {
+    if (!agent.alive) continue;
+    const key = `${Math.floor(agent.homeX)},${Math.floor(agent.homeY)}`;
+    if (counts.has(key)) counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  let bestKey: string | null = null;
+  let bestCount = Infinity;
+  for (const [key, count] of counts) {
+    if (count < bestCount) {
+      bestCount = count;
+      bestKey = key;
+    }
+  }
+  if (!bestKey || bestCount >= 3) return null;
+
+  const [x, y] = bestKey.split(",").map(Number);
+  return { x: x! + 0.5, y: y! + 0.5 };
+}
+
+function spawnImmigrantFamily(
+  world: World,
+  home: { x: number; y: number },
+): Agent[] {
+  const surname = randomRefugeeSurname(world);
+  const newcomers: Agent[] = [];
+  const homeX = home.x;
+  const homeY = home.y;
+
+  const couple = chance(world.rng, 0.62);
+  if (couple) {
+    const father = createAgent(world, {
+      x: homeX + (world.rng() - 0.5),
+      y: homeY + (world.rng() - 0.5),
+      sex: "male",
+      age: 19 + Math.floor(world.rng() * 22),
+      homeX,
+      homeY,
+      surname,
+      profession: "laborer",
+    });
+    const mother = createAgent(world, {
+      x: homeX + (world.rng() - 0.5),
+      y: homeY + (world.rng() - 0.5),
+      sex: "female",
+      age: 18 + Math.floor(world.rng() * 20),
+      homeX,
+      homeY,
+      surname,
+      profession: "gatherer",
+    });
+    father.spouseId = mother.id;
+    mother.spouseId = father.id;
+    newcomers.push(father, mother);
+
+    if (chance(world.rng, 0.35)) {
+      const child = createAgent(world, {
+        x: homeX + (world.rng() - 0.5) * 1.2,
+        y: homeY + (world.rng() - 0.5) * 1.2,
+        sex: chance(world.rng, 0.5) ? "male" : "female",
+        age: 2 + Math.floor(world.rng() * 10),
+        homeX,
+        homeY,
+        surname,
+        motherId: mother.id,
+        fatherId: father.id,
+        profession: "child",
+      });
+      newcomers.push(child);
+    }
+  } else {
+    const lone = createAgent(world, {
+      x: homeX + (world.rng() - 0.5),
+      y: homeY + (world.rng() - 0.5),
+      sex: chance(world.rng, 0.5) ? "male" : "female",
+      age: 20 + Math.floor(world.rng() * 18),
+      homeX,
+      homeY,
+      surname,
+      profession: "laborer",
+    });
+    newcomers.push(lone);
+  }
+
+  for (const agent of newcomers) {
+    agent.hunger = 28 + world.rng() * 18;
+    agent.energy = 40 + world.rng() * 25;
+  }
+
+  return newcomers;
+}
+
+const REFUGEE_SURNAMES = [
+  "Чужеземный",
+  "Дорожный",
+  "Переправный",
+  "Гонимый",
+  "Степной",
+  "Пограничный",
+];
+
+function randomRefugeeSurname(world: World): string {
+  if (chance(world.rng, 0.55)) {
+    return REFUGEE_SURNAMES[Math.floor(world.rng() * REFUGEE_SURNAMES.length)]!;
+  }
+  return randomSurname(world.rng);
 }

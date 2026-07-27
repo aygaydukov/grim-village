@@ -18,6 +18,7 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
   const namedBuilds = events.filter((e) => e.kind === "construction");
   const namedGov = events.filter((e) => e.kind === "government");
   const namedMigrations = events.filter((e) => e.kind === "migration");
+  const namedImmigrations = events.filter((e) => e.kind === "immigration");
 
   if (namedShocks.length > 0) {
     parts.push(formatShocks(namedShocks));
@@ -33,6 +34,10 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
 
   if (namedMigrations.length > 0) {
     parts.push(formatMigrations(namedMigrations));
+  }
+
+  if (namedImmigrations.length > 0) {
+    parts.push(formatImmigrations(namedImmigrations));
   }
 
   if (namedBirths.length > 0) {
@@ -117,6 +122,19 @@ function formatMigrations(events: DayEvent[]): string {
       : `уход в чужие края: ${e.name}.`;
   }
   return `исход ${events.length} семей: ${events
+    .slice(0, 2)
+    .map((e) => e.name)
+    .join("; ")}.`;
+}
+
+function formatImmigrations(events: DayEvent[]): string {
+  if (events.length === 1) {
+    const e = events[0]!;
+    return e.detail
+      ? `приход беженцев: ${e.name} (${e.detail}).`
+      : `приход беженцев: ${e.name}.`;
+  }
+  return `приток ${events.length} групп: ${events
     .slice(0, 2)
     .map((e) => e.name)
     .join("; ")}.`;

@@ -35,6 +35,12 @@ export function recordMigration(world: World, names: string, count: number): voi
   pushEvent(world, { kind: "migration", name: names, detail });
 }
 
+/** Записать приход беженцев в деревню */
+export function recordImmigration(world: World, names: string, count: number): void {
+  const detail = count > 1 ? `${count} душ` : "один";
+  pushEvent(world, { kind: "immigration", name: names, detail });
+}
+
 /** Записать смену профессии (только если реально изменилась) */
 export function recordProfessionChange(
   world: World,

@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "0.5.0";
+export const GAME_VERSION = "0.6.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,17 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "0.6.0",
+    date: "2026-07-27",
+    changes: [
+      "Иммиграция: редкий приток беженцев при разреженном поселении и полном амбаре",
+      "Пара или одинокий взрослый с детьми — заселяются в наименее населённую хижину",
+      "Кулдаун между приходами, защита от приёма в голодный кризис",
+      "Запись в летописи: «приход беженцев»",
+      "SAVE_VERSION=7 — поле lastImmigrationDay",
+    ],
+  },
   {
     version: "0.5.0",
     date: "2026-07-26",

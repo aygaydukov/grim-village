@@ -18,7 +18,7 @@ import {
 import { mayTakeFromBarn, applyDepositTithe, tickDailyGovernment } from "./government";
 import { recordDaySnapshot } from "./history";
 import { tickDailyShocks } from "./shocks";
-import { tickDailyMigration } from "./migration";
+import { tickDailyImmigration, tickDailyMigration } from "./migration";
 import { recordBirth, recordDeath } from "./events";
 import {
   anchorPoint,
@@ -744,6 +744,7 @@ export function simulateTick(world: World): void {
     tickDailyGovernment(world);
     maybeStartHutBuild(world);
     tickDailyMigration(world);
+    tickDailyImmigration(world);
     rebalanceVillageLabor(world);
     recordDaySnapshot(world);
   }

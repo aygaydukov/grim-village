@@ -22,6 +22,7 @@ describe("сохранение мира", () => {
     assert.equal(loaded.starostaId, original.starostaId);
     assert.equal(loaded.starostaPolicy, original.starostaPolicy);
     assert.equal(loaded.lastMigrationDay, original.lastMigrationDay);
+    assert.equal(loaded.lastImmigrationDay, original.lastImmigrationDay);
 
     stepWorld(loaded, loaded.dayLength);
     stepWorld(original, original.dayLength);
