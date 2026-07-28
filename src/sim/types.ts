@@ -10,6 +10,7 @@ export type Profession =
   | "gatherer"
   | "laborer"
   | "keeper"
+  | "artisan"
   | "elder";
 
 /** Высокоуровневая задача (что сейчас должен делать) */
@@ -23,7 +24,8 @@ export type TaskKind =
   | "rest"
   | "social"
   | "play"
-  | "build";
+  | "build"
+  | "craft";
 
 export type AgentState =
   | "wander"
@@ -40,7 +42,8 @@ export type AgentState =
   | "patrol"
   | "idle"
   | "seekBuild"
-  | "build";
+  | "build"
+  | "craft";
 
 export interface Tile {
   kind: TileKind;
@@ -70,7 +73,9 @@ export type DayEventKind =
   | "construction"
   | "government"
   | "migration"
-  | "immigration";
+  | "immigration"
+  | "craft"
+  | "trade";
 
 export interface BuildProject {
   x: number;
@@ -182,5 +187,7 @@ export interface World {
   lastMigrationDay: number;
   /** День последнего прихода беженцев */
   lastImmigrationDay: number;
+  /** Склад ремесленных изделий (ткань, посуда) */
+  craftStock: number;
   rng: () => number;
 }

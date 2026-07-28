@@ -19,6 +19,8 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
   const namedGov = events.filter((e) => e.kind === "government");
   const namedMigrations = events.filter((e) => e.kind === "migration");
   const namedImmigrations = events.filter((e) => e.kind === "immigration");
+  const namedCraft = events.filter((e) => e.kind === "craft");
+  const namedTrade = events.filter((e) => e.kind === "trade");
 
   if (namedShocks.length > 0) {
     parts.push(formatShocks(namedShocks));
@@ -38,6 +40,14 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
 
   if (namedImmigrations.length > 0) {
     parts.push(formatImmigrations(namedImmigrations));
+  }
+
+  if (namedCraft.length > 0) {
+    parts.push(formatCraft(namedCraft));
+  }
+
+  if (namedTrade.length > 0) {
+    parts.push(formatTrade(namedTrade));
   }
 
   if (namedBirths.length > 0) {
@@ -141,6 +151,22 @@ function formatImmigrations(events: DayEvent[]): string {
 }
 
 function formatGovernment(events: DayEvent[]): string {
+  if (events.length === 1) {
+    const e = events[0]!;
+    return e.detail ? `${e.name}: ${e.detail}.` : `${e.name}.`;
+  }
+  return events.map((e) => (e.detail ? `${e.name} — ${e.detail}` : e.name)).join("; ") + ".";
+}
+
+function formatCraft(events: DayEvent[]): string {
+  if (events.length === 1) {
+    const e = events[0]!;
+    return e.detail ? `${e.name}: ${e.detail}.` : `${e.name}.`;
+  }
+  return events.map((e) => (e.detail ? `${e.name} — ${e.detail}` : e.name)).join("; ") + ".";
+}
+
+function formatTrade(events: DayEvent[]): string {
   if (events.length === 1) {
     const e = events[0]!;
     return e.detail ? `${e.name}: ${e.detail}.` : `${e.name}.`;

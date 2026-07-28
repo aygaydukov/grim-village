@@ -6,6 +6,7 @@ import {
   AGENT_DEAD,
   AGENT_FEMALE,
   AGENT_HUNGRY,
+  AGENT_ARTISAN,
   AGENT_MALE,
   AGENT_SLEEP,
   BARN_FILL,
@@ -82,6 +83,13 @@ export function renderWorld(
         ctx.fillRect(px + 3, py + TILE_SIZE - 3 - fillH, TILE_SIZE - 6, fillH);
         ctx.fillStyle = "#1a120c";
         ctx.fillRect(px + 6, py + 8, 4, 5);
+        if (world.craftStock > 0) {
+          const craftDots = Math.min(4, Math.ceil(world.craftStock / 8));
+          ctx.fillStyle = "#7a6890";
+          for (let i = 0; i < craftDots; i++) {
+            ctx.fillRect(px + TILE_SIZE - 5, py + 3 + i * 3, 2, 2);
+          }
+        }
       } else if (tile.kind === "forest") {
         ctx.fillStyle = "#141c12";
         ctx.beginPath();
@@ -181,6 +189,7 @@ function drawAgent(ctx: CanvasRenderingContext2D, agent: Agent, selected: boolea
 
   let color = agent.sex === "male" ? AGENT_MALE : AGENT_FEMALE;
   if (isChild(agent)) color = AGENT_CHILD;
+  if (agent.profession === "artisan") color = AGENT_ARTISAN;
   if (agent.state === "sleep") color = AGENT_SLEEP;
   if (agent.hunger > 75) color = AGENT_HUNGRY;
 

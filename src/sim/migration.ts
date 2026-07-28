@@ -80,6 +80,7 @@ function pickEmigrantFamily(world: World): Agent[] | null {
   const primary = adults.find(
     (a) =>
       a.profession !== "keeper" &&
+      a.profession !== "artisan" &&
       a.profession !== "elder" &&
       a.pregnant <= 0 &&
       a.hunger > 45,

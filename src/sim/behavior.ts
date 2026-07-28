@@ -15,6 +15,7 @@ import {
   shouldLaborerBuild,
   tickBuildProject,
 } from "./housing";
+import { tickDailyCraft } from "./craft";
 import { mayTakeFromBarn, applyDepositTithe, tickDailyGovernment } from "./government";
 import { recordDaySnapshot } from "./history";
 import { tickDailyShocks } from "./shocks";
@@ -102,6 +103,10 @@ function applyWorkPlan(world: World, agent: Agent): void {
     case "build":
       agent.state = "seekBuild";
       break;
+    case "craft":
+      agent.state = "craft";
+      setLocalTarget(world, agent, 0.45);
+      break;
     case "idle":
     default:
       agent.state = "idle";
@@ -167,7 +172,10 @@ function tickNeeds(world: World, agent: Agent): void {
     if (night) agent.hunger = clamp(agent.hunger + HUNGER_RATE * 0.25, 0, 100);
   } else {
     const workExtra =
-      agent.state === "seekGather" || agent.state === "gather" || agent.state === "deposit"
+      agent.state === "seekGather" ||
+      agent.state === "gather" ||
+      agent.state === "deposit" ||
+      agent.state === "craft"
         ? 0.01
         : 0;
     agent.energy = clamp(
@@ -533,6 +541,24 @@ function actPatrol(world: World, agent: Agent): void {
   }
 }
 
+function actCraft(world: World, agent: Agent): void {
+  if (isBeyondLeash(world, agent)) {
+    setTask(agent, "returnHome", "returnHome");
+    return;
+  }
+  if (agent.targetX == null || agent.targetY == null) {
+    setLocalTarget(world, agent, 0.45);
+  }
+  const arrived = moveToward(world, agent, agent.targetX!, agent.targetY!, MOVE_SPEED * 0.55);
+  if (arrived) {
+    agent.targetX = null;
+    agent.targetY = null;
+    if (chance(world.rng, 0.35)) {
+      setLocalTarget(world, agent, 0.4);
+    }
+  }
+}
+
 function actIdle(world: World, agent: Agent): void {
   if (isBeyondLeash(world, agent)) {
     setTask(agent, "returnHome", "returnHome");
@@ -660,6 +686,7 @@ function tickAgent(world: World, agent: Agent): void {
     "patrol",
     "seekBuild",
     "build",
+    "craft",
   ];
 
   if (!busy.includes(agent.state)) {
@@ -723,6 +750,9 @@ function tickAgent(world: World, agent: Agent): void {
     case "build":
       actBuild(world, agent);
       break;
+    case "craft":
+      actCraft(world, agent);
+      break;
     case "idle":
       actIdle(world, agent);
       break;
@@ -745,6 +775,7 @@ export function simulateTick(world: World): void {
     maybeStartHutBuild(world);
     tickDailyMigration(world);
     tickDailyImmigration(world);
+    tickDailyCraft(world);
     rebalanceVillageLabor(world);
     recordDaySnapshot(world);
   }

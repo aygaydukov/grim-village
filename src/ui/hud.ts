@@ -199,6 +199,7 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-gath", String(r.professions.gatherer));
   setText("live-v-lab", String(r.professions.laborer));
   setText("live-v-keep", String(r.professions.keeper));
+  setText("live-v-art", String(r.professions.artisan));
   setText("live-v-eld", String(r.professions.elder));
   setText("live-v-ch", String(r.professions.child));
   setText("live-v-day", `${r.day} · ${r.phase}`);
@@ -206,6 +207,7 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-wild", String(r.wildFood));
   setText("live-v-carry", String(r.carriedFood));
   setText("live-v-treasury", String(r.treasury));
+  setText("live-v-craft", String(r.craftStock));
   setText("live-v-starosta", r.starosta ?? "—");
   setText("live-v-policy", r.starostaPolicyLabel);
   const barnPct = Math.round((r.barnFood / Math.max(1, r.barnCapacity)) * 100);
@@ -363,11 +365,13 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="row"><span>Сборщики</span><span id="live-v-gath">${r.professions.gatherer}</span></div>
     <div class="row"><span>Батраки</span><span id="live-v-lab">${r.professions.laborer}</span></div>
     <div class="row"><span>Сторожа</span><span id="live-v-keep">${r.professions.keeper}</span></div>
+    <div class="row"><span>Ремесленники</span><span id="live-v-art">${r.professions.artisan}</span></div>
     <div class="row"><span>Старцы</span><span id="live-v-eld">${r.professions.elder}</span></div>
     <div class="row"><span>Дети</span><span id="live-v-ch">${r.professions.child}</span></div>
 
     <div class="section-title">Управление</div>
     <div class="row"><span>Казна</span><span id="live-v-treasury">${r.treasury}</span></div>
+    <div class="row"><span>Ремесло</span><span id="live-v-craft">${r.craftStock}</span></div>
     <div class="row"><span>Староста</span><span id="live-v-starosta">${escapeHtml(r.starosta ?? "—")}</span></div>
     <div class="row"><span>Политика</span><span id="live-v-policy">${escapeHtml(r.starostaPolicyLabel)}</span></div>
 

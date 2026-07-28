@@ -1,3 +1,4 @@
+import { artisanTarget } from "./craft";
 import { barnPos, barnStock, findNearestWildFood } from "./map";
 import { shouldLaborerBuild } from "./housing";
 import { recordProfessionChange } from "./events";
@@ -24,6 +25,8 @@ export function leashRadius(agent: Agent): number {
       return 5.5;
     case "keeper":
       return 7;
+    case "artisan":
+      return 6.5;
     case "laborer":
       return 11;
     case "gatherer":
@@ -33,7 +36,7 @@ export function leashRadius(agent: Agent): number {
 
 /** Точка, вокруг которой крутится жизнь */
 export function anchorPoint(world: World, agent: Agent): { x: number; y: number } {
-  if (agent.profession === "keeper" || agent.profession === "gatherer") {
+  if (agent.profession === "keeper" || agent.profession === "gatherer" || agent.profession === "artisan") {
     return barnPos(world);
   }
   return { x: agent.homeX, y: agent.homeY };
@@ -164,6 +167,11 @@ export function planWorkTask(world: World, agent: Agent): TaskKind {
         return "gather";
       }
       return chance(world.rng, 0.45) ? "patrol" : "idle";
+
+    case "artisan":
+      if (agent.carriedFood > 0) return "deposit";
+      if (stock >= 52 && agent.energy > 34 && agent.hunger < 58 && !night) return "craft";
+      return chance(world.rng, 0.5) ? "patrol" : "idle";
   }
 }
 
@@ -177,6 +185,8 @@ export function professionLabel(p: Profession): string {
       return "батрак";
     case "keeper":
       return "сторож амбара";
+    case "artisan":
+      return "ремесленник";
     case "elder":
       return "старец";
   }
@@ -204,6 +214,8 @@ export function taskLabel(t: TaskKind): string {
       return "играет у дома";
     case "build":
       return "строит хижину";
+    case "craft":
+      return "мастерит изделия";
   }
 }
 
@@ -213,6 +225,7 @@ export function countByProfession(world: World): Record<Profession, number> {
     gatherer: 0,
     laborer: 0,
     keeper: 0,
+    artisan: 0,
     elder: 0,
   };
   for (const a of world.agents) {
@@ -228,7 +241,10 @@ function workingAdults(world: World): Agent[] {
       a.alive &&
       isAdultAge(a.age) &&
       a.age < 65 &&
-      (a.profession === "gatherer" || a.profession === "keeper" || a.profession === "laborer"),
+      (a.profession === "gatherer" ||
+        a.profession === "keeper" ||
+        a.profession === "laborer" ||
+        a.profession === "artisan"),
   );
 }
 
@@ -243,7 +259,7 @@ function gathererScore(agent: Agent): number {
 /** Целевые квоты профессий от запасов амбара */
 export function laborTargets(
   world: World,
-): { gatherer: number; keeper: number; laborer: number } {
+): { gatherer: number; keeper: number; artisan: number; laborer: number } {
   const adults = world.agents.filter((a) => a.alive && isAdultAge(a.age) && a.age < 65);
   const n = Math.max(1, adults.length);
   const stock = barnStock(world);
@@ -264,10 +280,11 @@ export function laborTargets(
     keeperRatio = 0.2;
   }
 
+  const artisan = artisanTarget(world, n);
   const gatherer = Math.max(1, Math.round(n * gatherRatio));
-  const keeper = Math.max(1, Math.min(Math.round(n * keeperRatio), n - gatherer - 1));
-  const laborer = Math.max(0, n - gatherer - keeper);
-  return { gatherer, keeper, laborer };
+  const keeper = Math.max(1, Math.min(Math.round(n * keeperRatio), n - gatherer - artisan - 1));
+  const laborer = Math.max(0, n - gatherer - keeper - artisan);
+  return { gatherer, keeper, artisan, laborer };
 }
 
 /**
@@ -287,6 +304,7 @@ export function rebalanceVillageLabor(world: World): void {
     let next: Profession;
     if (i < targets.gatherer) next = "gatherer";
     else if (i < targets.gatherer + targets.keeper) next = "keeper";
+    else if (i < targets.gatherer + targets.keeper + targets.artisan) next = "artisan";
     else next = "laborer";
     if (next !== prev) {
       agent.profession = next;

@@ -28,6 +28,7 @@ export const AGENT_CHILD = "#9a8870";
 export const AGENT_DEAD = "#3a3030";
 export const AGENT_SLEEP = "#4a5a68";
 export const AGENT_HUNGRY = "#8a3030";
+export const AGENT_ARTISAN = "#6a5878";
 export const SELECT_RING = "#c4a878";
 export const CARRY_DOT = "#c4a050";
 

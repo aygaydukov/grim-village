@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "0.6.0";
+export const GAME_VERSION = "0.7.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,17 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "0.7.0",
+    date: "2026-07-28",
+    changes: [
+      "Ремесло: профессия ремесленник при полном амбаре",
+      "Изделия из сырья амбара — склад craftStock, визуал на амбаре",
+      "Торговля с соседями: излишки изделий → казна старосты",
+      "Ремесленники в летописи и инспекторе деревни",
+      "SAVE_VERSION=8 — поле craftStock",
+    ],
+  },
   {
     version: "0.6.0",
     date: "2026-07-27",

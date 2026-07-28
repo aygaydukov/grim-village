@@ -41,6 +41,16 @@ export function recordImmigration(world: World, names: string, count: number): v
   pushEvent(world, { kind: "immigration", name: names, detail });
 }
 
+/** Записать ремесленное производство */
+export function recordCraft(world: World, detail: string): void {
+  pushEvent(world, { kind: "craft", name: "ремесло", detail });
+}
+
+/** Записать торговлю изделиями */
+export function recordTrade(world: World, detail: string): void {
+  pushEvent(world, { kind: "trade", name: "торговля", detail });
+}
+
 /** Записать смену профессии (только если реально изменилась) */
 export function recordProfessionChange(
   world: World,

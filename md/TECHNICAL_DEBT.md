@@ -30,6 +30,7 @@
 - [x] **2026-07-26 (вечер):** миграция при перенаселении (`migration.ts`, `SAVE_VERSION=5`)
 - [x] **2026-07-26 (вечер):** политика старосты — 4 режима, динамическая десятина (`government.ts`, `SAVE_VERSION=6`)
 - [x] **2026-07-27:** иммиграция беженцев при разрежении (`migration.ts`, `SAVE_VERSION=7`)
+- [x] **2026-07-28:** ремесло — ремесленники, склад изделий, торговля (`craft.ts`, `SAVE_VERSION=8`)
 
 ## Automation (Cursor)
 
@@ -52,6 +53,7 @@
 - [x] Миграция при перенаселении (`migration.ts`)
 - [x] Политика старосты — 4 режима, динамическая десятина (`government.ts`)
 - [x] Иммиграция — редкий приток беженцев (`migration.ts`)
+- [x] Ремесло — ремесленники, craftStock, торговля (`craft.ts`)
 - [x] Дописать CD: secrets `DEPLOY_*` → `45.131.42.53:/var/www/grim-village` (см. [DEPLOY.md](DEPLOY.md); один раз поднять nginx на сервере)
 - [ ] Болезни / эпидемии (отдельный шок смертности)
 - [ ] Звук (ветер, шаги, ночь)
@@ -60,7 +62,7 @@
 - [x] Миграция при перенаселении — `migration.ts`
 - [x] Юнит-тесты симуляции в `tests/` (smoke стабильности)
 - [ ] Выбор seed и размер карты из UI
-- [ ] Ремесло (кроме склада еды)
+- [ ] Расширенная торговля (караваны, сезонность)
 - [x] UI летописи по `dayHistory`
 - [x] Именованные события в летописи
 
@@ -72,7 +74,7 @@
 - Трупы копятся (обрезка старых тел при >40).
 - Центр поселения принудительно очищается от воды (радиус ~7 клеток) — иначе голод у амбара.
 - Сохранение в localStorage — только локально в браузере; экспорт файла — в бэклог.
-- `SAVE_VERSION = 7` — добавлено `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
+- `SAVE_VERSION = 8` — добавлено `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
 
 ## Полезные ссылки
 
@@ -80,4 +82,4 @@
 - [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 - [localStorage (MDN)](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
 - [FAO — famine dynamics](https://www.fao.org/emergencies/crisis/famine/en/)
-- PixiJS (кандидат на апгрейд рендера): https://pixijs.com/
+- [Medieval guilds (Britannica)](https://www.britannica.com/topic/guild-trade-association) — ремесло и торговля

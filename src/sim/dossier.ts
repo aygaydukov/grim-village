@@ -29,6 +29,7 @@ export interface VillageReport {
   hutCount: number;
   carriedFood: number;
   treasury: number;
+  craftStock: number;
   starosta: string | null;
   starostaPolicy: StarostaPolicy;
   starostaPolicyLabel: string;
@@ -140,7 +141,7 @@ export function collectVillageReport(world: World): VillageReport {
   else if (barnFood > 80) outlook = "Амбар тяжёлый. Пока земля кормит — люди живут.";
   else outlook = "Деревня дышит ровно. Пока ровно.";
 
-  const jobsLine = `Роли: сборщики ${professions.gatherer}, батраки ${professions.laborer}, сторожа ${professions.keeper}, старцы ${professions.elder}, дети ${professions.child}.`;
+  const jobsLine = `Роли: сборщики ${professions.gatherer}, батраки ${professions.laborer}, сторожа ${professions.keeper}, ремесленники ${professions.artisan}, старцы ${professions.elder}, дети ${professions.child}.`;
   const starosta = starostaName(world);
 
   const chronicle = [
@@ -148,6 +149,7 @@ export function collectVillageReport(world: World): VillageReport {
     hutCount > 0 ? `Хижин: ${hutCount}.` : "Крова почти нет.",
     `В амбаре ${barnFood} из ${barnCapacity} мер еды.`,
     world.treasury > 0 ? `В казне старосты ${world.treasury} мер.` : "Казна пуста — десятина ещё не накопилась.",
+    world.craftStock > 0 ? `На складе ремесла ${world.craftStock} изделий.` : "",
     starosta ? `Староста: ${starosta}.` : "Старосту пока не назначили.",
     `Политика: ${policyLabel(world.starostaPolicy)}.`,
     `В лесу и на лугах ещё ${wildFood} дикой пищи.`,
@@ -184,6 +186,7 @@ export function collectVillageReport(world: World): VillageReport {
     hutCount,
     carriedFood,
     treasury: world.treasury,
+    craftStock: world.craftStock,
     starosta,
     starostaPolicy: world.starostaPolicy,
     starostaPolicyLabel: policyLabel(world.starostaPolicy),
