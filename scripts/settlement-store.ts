@@ -100,6 +100,8 @@ export function startNewSettlement(
   const version = registry.currentVersion + 1;
   const id = `settlement-v${version}-${seed}`;
   const world = initWorld(undefined, seed);
+  world.settlementVersion = version;
+  world.settlementId = id;
   const meta: SettlementMeta = {
     version,
     id,

@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "0.7.0";
+export const GAME_VERSION = "0.8.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "0.8.0",
+    date: "2026-07-28",
+    changes: [
+      "Караваны: сезонные визиты, вывоз изделий и закупка зерна в кризис",
+      "В HUD — версия игры и версия поселения (итерация после перезапуска)",
+      "Аналитика смертей: причины, приток беженцев, предупреждение о нестабильности",
+      "SAVE_VERSION=9 — lastCaravanDay, settlementVersion, settlementId",
+    ],
+  },
   {
     version: "0.7.0",
     date: "2026-07-28",

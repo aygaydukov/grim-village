@@ -38,6 +38,7 @@ let onSelectAgentCb: ((id: number) => void) | null = null;
 
 export function updateHud(world: World, paused: boolean, speed: number, selection: Selection): void {
   el<HTMLElement>("game-version").textContent = `v${GAME_VERSION}`;
+  el<HTMLElement>("settlement-version").textContent = `поселение #${world.settlementVersion}`;
   el<HTMLElement>("stat-alive").textContent = String(world.stats.alive);
   el<HTMLElement>("stat-dead").textContent = String(world.stats.dead);
   el<HTMLElement>("stat-day").textContent = String(world.stats.day);
@@ -208,6 +209,12 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-carry", String(r.carriedFood));
   setText("live-v-treasury", String(r.treasury));
   setText("live-v-craft", String(r.craftStock));
+  setText("live-v-stability", r.stabilityNote || "—");
+  const stabilityEl = elOptional("live-v-stability");
+  if (stabilityEl) stabilityEl.hidden = !r.stabilityNote;
+  setText("live-v-deaths-breakdown", formatDeathCauses(r.deathCauses));
+  setText("live-v-immigration", String(r.immigrationArrivals));
+  setText("live-v-settlement", String(r.settlementVersion));
   setText("live-v-starosta", r.starosta ?? "—");
   setText("live-v-policy", r.starostaPolicyLabel);
   const barnPct = Math.round((r.barnFood / Math.max(1, r.barnCapacity)) * 100);
@@ -350,11 +357,15 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="name">${escapeHtml(r.name)}</div>
     <p class="chronicle" id="live-v-chronicle">${escapeHtml(r.chronicle)}</p>
     <p class="outlook" id="live-v-outlook">${escapeHtml(r.outlook)}</p>
+    ${r.stabilityNote ? `<p class="stability-warn" id="live-v-stability">${escapeHtml(r.stabilityNote)}</p>` : `<p class="stability-warn" id="live-v-stability" hidden>—</p>`}
 
     <div class="section-title">Население</div>
     <div class="row"><span>Живы</span><span id="live-v-alive">${r.alive}</span></div>
     <div class="row"><span>Умерло</span><span id="live-v-dead">${r.dead}</span></div>
+    <div class="row"><span>Причины смерти</span><span id="live-v-deaths-breakdown">${escapeHtml(formatDeathCauses(r.deathCauses))}</span></div>
     <div class="row"><span>Рождений</span><span id="live-v-births">${r.births}</span></div>
+    <div class="row"><span>Приход беженцев</span><span id="live-v-immigration">${r.immigrationArrivals}</span></div>
+    <div class="row"><span>Версия поселения</span><span id="live-v-settlement">${r.settlementVersion}</span></div>
     <div class="row"><span>Муж / Жен</span><span id="live-v-mw">${r.men} / ${r.women}</span></div>
     <div class="row"><span>Дети / Взр. / Старцы</span><span id="live-v-ages">${r.children} / ${r.adults} / ${r.elders}</span></div>
     <div class="row"><span>Пары</span><span id="live-v-couples">${r.couples}</span></div>
@@ -418,6 +429,12 @@ function renderChangelogPanel(): string {
     <p class="muted changelog-current">Релизы живут здесь, в игре (не на GitHub Pages). Текущая версия: <strong>v${escapeHtml(GAME_VERSION)}</strong></p>
     <div class="changelog-scroll">${entries}</div>
   `;
+}
+
+function formatDeathCauses(causes: Record<string, number>): string {
+  const entries = Object.entries(causes).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) return "—";
+  return entries.map(([cause, n]) => `${cause}: ${n}`).join(", ");
 }
 
 function escapeHtml(s: string): string {

@@ -236,11 +236,26 @@ body {
   gap: 0.5rem;
 }
 
+.hud-versions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.12rem;
+}
+
 .game-version {
   font-size: 0.72rem;
   font-family: ui-monospace, "Cascadia Code", monospace;
   color: var(--muted);
   letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.settlement-version {
+  font-size: 0.66rem;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  color: #6a5a48;
+  letter-spacing: 0.03em;
   white-space: nowrap;
 }
 
@@ -390,6 +405,16 @@ body {
 #inspector-body .outlook {
   color: #9a7a58;
   font-style: italic;
+}
+
+#inspector-body .stability-warn {
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: #c87858;
+  margin: 0.2rem 0 0.5rem;
+  padding: 0.35rem 0.45rem;
+  border-left: 2px solid var(--danger);
+  background: rgba(110, 42, 34, 0.15);
 }
 
 #inspector-body .bar.barn > i {

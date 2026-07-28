@@ -51,6 +51,11 @@ export function recordTrade(world: World, detail: string): void {
   pushEvent(world, { kind: "trade", name: "торговля", detail });
 }
 
+/** Записать визит каравана */
+export function recordCaravan(world: World, detail: string): void {
+  pushEvent(world, { kind: "caravan", name: "караван", detail });
+}
+
 /** Записать смену профессии (только если реально изменилась) */
 export function recordProfessionChange(
   world: World,

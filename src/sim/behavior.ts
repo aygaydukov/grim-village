@@ -15,6 +15,7 @@ import {
   shouldLaborerBuild,
   tickBuildProject,
 } from "./housing";
+import { tickDailyCaravan } from "./caravan";
 import { tickDailyCraft } from "./craft";
 import { mayTakeFromBarn, applyDepositTithe, tickDailyGovernment } from "./government";
 import { recordDaySnapshot } from "./history";
@@ -776,6 +777,7 @@ export function simulateTick(world: World): void {
     tickDailyMigration(world);
     tickDailyImmigration(world);
     tickDailyCraft(world);
+    tickDailyCaravan(world);
     rebalanceVillageLabor(world);
     recordDaySnapshot(world);
   }

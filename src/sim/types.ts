@@ -75,7 +75,8 @@ export type DayEventKind =
   | "migration"
   | "immigration"
   | "craft"
-  | "trade";
+  | "trade"
+  | "caravan";
 
 export interface BuildProject {
   x: number;
@@ -189,5 +190,11 @@ export interface World {
   lastImmigrationDay: number;
   /** Склад ремесленных изделий (ткань, посуда) */
   craftStock: number;
+  /** День последнего визита каравана */
+  lastCaravanDay: number;
+  /** Номер итерации поселения (перезапуск после фатала) */
+  settlementVersion: number;
+  /** Идентификатор текущего поселения */
+  settlementId: string;
   rng: () => number;
 }

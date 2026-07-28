@@ -38,6 +38,10 @@ export interface VillageReport {
   professions: Record<Profession, number>;
   outlook: string;
   chronicle: string;
+  deathCauses: Record<string, number>;
+  immigrationArrivals: number;
+  stabilityNote: string;
+  settlementVersion: number;
 }
 
 export function timePhase(world: World): string {
@@ -133,12 +137,16 @@ export function collectVillageReport(world: World): VillageReport {
   const avgHunger = hungerSum / n;
   const avgEnergy = energySum / n;
   const professions = countByProfession(world);
+  const deathCauses = collectDeathCauses(world);
+  const immigrationArrivals = countImmigrationArrivals(world);
+  const stabilityNote = buildStabilityNote(world, deathCauses, immigrationArrivals);
 
   let outlook: string;
   if (alive.length === 0) outlook = "Деревня мертва. Остались только следы ног в грязи.";
   else if (barnFood < 8 && wildFood < 15) outlook = "Запасы на исходе. Голод уже смотрит в окна.";
   else if (hungry > alive.length * 0.4) outlook = "Многие ходят на пустой желудок. Зима ещё не пришла — а уже пахнет бедой.";
   else if (barnFood > 80) outlook = "Амбар тяжёлый. Пока земля кормит — люди живут.";
+  else if (stabilityNote) outlook = stabilityNote;
   else outlook = "Деревня дышит ровно. Пока ровно.";
 
   const jobsLine = `Роли: сборщики ${professions.gatherer}, батраки ${professions.laborer}, сторожа ${professions.keeper}, ремесленники ${professions.artisan}, старцы ${professions.elder}, дети ${professions.child}.`;
@@ -158,7 +166,7 @@ export function collectVillageReport(world: World): VillageReport {
       ? `За память деревни родилось ${world.stats.births}.`
       : "Новых жизней пока не было.",
     world.stats.dead > 0
-      ? `Земля приняла ${world.stats.dead}.`
+      ? `Земля приняла ${world.stats.dead}${formatDeathCauseSummary(deathCauses)}.`
       : "Смерть пока молчит.",
   ].join(" ");
 
@@ -195,7 +203,72 @@ export function collectVillageReport(world: World): VillageReport {
     professions,
     outlook,
     chronicle,
+    deathCauses,
+    immigrationArrivals,
+    stabilityNote,
+    settlementVersion: world.settlementVersion,
   };
+}
+
+function collectDeathCauses(world: World): Record<string, number> {
+  const causes: Record<string, number> = {};
+  for (const agent of world.agents) {
+    if (agent.alive || !agent.deathCause) continue;
+    causes[agent.deathCause] = (causes[agent.deathCause] ?? 0) + 1;
+  }
+  return causes;
+}
+
+function countImmigrationArrivals(world: World): number {
+  let total = 0;
+  for (const snap of world.dayHistory) {
+    for (const event of snap.events ?? []) {
+      if (event.kind !== "immigration") continue;
+      const match = event.detail?.match(/(\d+)/);
+      total += match ? Number(match[1]) : 1;
+    }
+  }
+  return total;
+}
+
+function buildStabilityNote(
+  world: World,
+  deathCauses: Record<string, number>,
+  immigrationArrivals: number,
+): string {
+  const totalDead = world.stats.dead;
+  if (totalDead === 0) return "";
+
+  const hungerDeaths =
+    (deathCauses["голод"] ?? 0) + (deathCauses["холод и истощение"] ?? 0);
+
+  if (world.stats.alive === 0) {
+    return "Поселение вымерло — нужен перезапуск и разбор механик.";
+  }
+
+  if (hungerDeaths >= Math.ceil(totalDead * 0.55) && immigrationArrivals > 0) {
+    return "Тревога: смерти в основном от голода, пополнение — миграция. Внутренний цикл слаб.";
+  }
+
+  if (hungerDeaths >= Math.ceil(totalDead * 0.6)) {
+    return "Тревога: большинство смертей от голода — проверь сбор, профессии и потребление.";
+  }
+
+  if (immigrationArrivals > totalDead && world.stats.births === 0) {
+    return "Население держится на беженцах — рождений нет, внутренняя устойчивость под вопросом.";
+  }
+
+  return "";
+}
+
+function formatDeathCauseSummary(causes: Record<string, number>): string {
+  const entries = Object.entries(causes).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) return "";
+  const top = entries
+    .slice(0, 3)
+    .map(([cause, n]) => `${cause} ${n}`)
+    .join(", ");
+  return ` (${top})`;
 }
 
 function dayWord(n: number): string {

@@ -21,6 +21,7 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
   const namedImmigrations = events.filter((e) => e.kind === "immigration");
   const namedCraft = events.filter((e) => e.kind === "craft");
   const namedTrade = events.filter((e) => e.kind === "trade");
+  const namedCaravans = events.filter((e) => e.kind === "caravan");
 
   if (namedShocks.length > 0) {
     parts.push(formatShocks(namedShocks));
@@ -48,6 +49,10 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
 
   if (namedTrade.length > 0) {
     parts.push(formatTrade(namedTrade));
+  }
+
+  if (namedCaravans.length > 0) {
+    parts.push(formatCaravan(namedCaravans));
   }
 
   if (namedBirths.length > 0) {
@@ -172,6 +177,14 @@ function formatTrade(events: DayEvent[]): string {
     return e.detail ? `${e.name}: ${e.detail}.` : `${e.name}.`;
   }
   return events.map((e) => (e.detail ? `${e.name} — ${e.detail}` : e.name)).join("; ") + ".";
+}
+
+function formatCaravan(events: DayEvent[]): string {
+  if (events.length === 1) {
+    const e = events[0]!;
+    return e.detail ? `караван ${e.detail}.` : "караван прибыл.";
+  }
+  return events.map((e) => (e.detail ? `караван ${e.detail}` : "караван")).join("; ") + ".";
 }
 
 function formatConstruction(events: DayEvent[]): string {

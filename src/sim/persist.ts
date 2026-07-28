@@ -12,7 +12,7 @@ import type {
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 8;
+export const SAVE_VERSION = 9;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -41,6 +41,9 @@ export interface WorldSave {
   lastMigrationDay?: number;
   lastImmigrationDay?: number;
   craftStock?: number;
+  lastCaravanDay?: number;
+  settlementVersion?: number;
+  settlementId?: string;
 }
 
 export function serializeWorld(world: World): WorldSave {
@@ -73,12 +76,16 @@ export function serializeWorld(world: World): WorldSave {
     lastMigrationDay: world.lastMigrationDay,
     lastImmigrationDay: world.lastImmigrationDay,
     craftStock: world.craftStock,
+    lastCaravanDay: world.lastCaravanDay,
+    settlementVersion: world.settlementVersion,
+    settlementId: world.settlementId,
   };
 }
 
 export function deserializeWorld(data: WorldSave): World {
   if (
     data.version !== SAVE_VERSION &&
+    data.version !== 8 &&
     data.version !== 7 &&
     data.version !== 6 &&
     data.version !== 5 &&
@@ -112,6 +119,9 @@ export function deserializeWorld(data: WorldSave): World {
     lastMigrationDay: data.lastMigrationDay ?? 0,
     lastImmigrationDay: data.lastImmigrationDay ?? 0,
     craftStock: data.craftStock ?? 0,
+    lastCaravanDay: data.lastCaravanDay ?? 0,
+    settlementVersion: data.settlementVersion ?? 1,
+    settlementId: data.settlementId ?? "unknown",
     rng: createRng(data.seed),
   };
   restoreRng(world, data.rngState);

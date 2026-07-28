@@ -1,7 +1,7 @@
 {
-  "version": 1,
+  "version": 3,
   "label": "after_10_days",
   "gameVersion": "0.8.0",
   "capturedAt": "2026-07-28T12:22:48.318Z",
-  "source": "/workspace/data/settlements/v1/snapshot-after-10d.svg"
+  "source": "automation v0.8.0 — caravans + settlement version HUD"
 }
