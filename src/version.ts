@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "0.8.0";
+export const GAME_VERSION = "0.9.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "0.9.0",
+    date: "2026-07-29",
+    changes: [
+      "Мастерская — отдельное здание на карте восточнее амбара",
+      "Ремесленники привязаны к мастерской: ходят туда работать, склад изделий на здании",
+      "Миграция сейвов v9: автоматическая постановка мастерской у старых поселений",
+      "SAVE_VERSION=10 — workshopX, workshopY",
+    ],
+  },
   {
     version: "0.8.0",
     date: "2026-07-28",

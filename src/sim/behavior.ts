@@ -39,6 +39,7 @@ import {
   getBarnTile,
   regenerateFood,
   syncBarnStat,
+  workshopPos,
 } from "./map";
 import type { Agent, TaskKind, World } from "./types";
 import {
@@ -106,7 +107,11 @@ function applyWorkPlan(world: World, agent: Agent): void {
       break;
     case "craft":
       agent.state = "craft";
-      setLocalTarget(world, agent, 0.45);
+      {
+        const wp = workshopPos(world);
+        agent.targetX = wp.x;
+        agent.targetY = wp.y;
+      }
       break;
     case "idle":
     default:
@@ -547,16 +552,15 @@ function actCraft(world: World, agent: Agent): void {
     setTask(agent, "returnHome", "returnHome");
     return;
   }
+  const wp = workshopPos(world);
   if (agent.targetX == null || agent.targetY == null) {
-    setLocalTarget(world, agent, 0.45);
+    agent.targetX = wp.x;
+    agent.targetY = wp.y;
   }
   const arrived = moveToward(world, agent, agent.targetX!, agent.targetY!, MOVE_SPEED * 0.55);
   if (arrived) {
-    agent.targetX = null;
-    agent.targetY = null;
-    if (chance(world.rng, 0.35)) {
-      setLocalTarget(world, agent, 0.4);
-    }
+    agent.targetX = wp.x + (world.rng() - 0.5) * 0.6;
+    agent.targetY = wp.y + (world.rng() - 0.5) * 0.6;
   }
 }
 

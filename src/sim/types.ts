@@ -1,6 +1,6 @@
 export const TILE_SIZE = 16;
 
-export type TileKind = "grass" | "dirt" | "forest" | "water" | "hut" | "barn";
+export type TileKind = "grass" | "dirt" | "forest" | "water" | "hut" | "barn" | "workshop";
 
 export type AgentSex = "male" | "female";
 
@@ -166,6 +166,8 @@ export interface World {
   dayLength: number;
   barnX: number;
   barnY: number;
+  workshopX: number;
+  workshopY: number;
   stats: WorldStats;
   dayHistory: DaySnapshot[];
   /** Seed генерации карты и начального PRNG */

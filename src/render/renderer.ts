@@ -83,11 +83,18 @@ export function renderWorld(
         ctx.fillRect(px + 3, py + TILE_SIZE - 3 - fillH, TILE_SIZE - 6, fillH);
         ctx.fillStyle = "#1a120c";
         ctx.fillRect(px + 6, py + 8, 4, 5);
+      } else if (tile.kind === "workshop") {
+        ctx.fillStyle = TILE_EDGE.workshop;
+        ctx.fillRect(px + 2, py + 3, TILE_SIZE - 4, TILE_SIZE - 5);
+        ctx.fillStyle = "#2a2030";
+        ctx.fillRect(px + 3, py + 1, TILE_SIZE - 6, 4);
+        ctx.fillStyle = "#6a5878";
+        ctx.fillRect(px + 4, py + 9, TILE_SIZE - 8, 3);
         if (world.craftStock > 0) {
-          const craftDots = Math.min(4, Math.ceil(world.craftStock / 8));
-          ctx.fillStyle = "#7a6890";
+          const craftDots = Math.min(5, Math.ceil(world.craftStock / 6));
+          ctx.fillStyle = "#9a88a8";
           for (let i = 0; i < craftDots; i++) {
-            ctx.fillRect(px + TILE_SIZE - 5, py + 3 + i * 3, 2, 2);
+            ctx.fillRect(px + 3 + (i % 3) * 3, py + TILE_SIZE - 5 - Math.floor(i / 3) * 3, 2, 2);
           }
         }
       } else if (tile.kind === "forest") {

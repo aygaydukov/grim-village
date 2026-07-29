@@ -8,6 +8,7 @@ export const TILE_COLORS: Record<TileKind, string> = {
   water: "#1a2430",
   hut: "#4a3428",
   barn: "#5a4028",
+  workshop: "#4a3848",
 };
 
 export const TILE_EDGE: Record<TileKind, string> = {
@@ -17,6 +18,7 @@ export const TILE_EDGE: Record<TileKind, string> = {
   water: "#243448",
   hut: "#5c4030",
   barn: "#6e5030",
+  workshop: "#5a4860",
 };
 
 export const FOOD_DOT = "#6a5030";

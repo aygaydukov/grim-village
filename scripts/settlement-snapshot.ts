@@ -7,6 +7,7 @@ const KIND_COLOR: Record<string, string> = {
   water: "#1a2430",
   hut: "#4a3428",
   barn: "#5a4028",
+  workshop: "#4a3848",
 };
 
 /** Lightweight map snapshot (SVG) for settlement archives — no browser needed. */

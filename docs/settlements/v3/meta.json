@@ -1,7 +1,8 @@
 {
   "version": 3,
   "label": "after_10_days",
-  "gameVersion": "0.8.0",
-  "capturedAt": "2026-07-28T12:22:48.318Z",
-  "source": "automation v0.8.0 — caravans + settlement version HUD"
+  "gameVersion": "0.9.0",
+  "capturedAt": "2026-07-29T06:05:15.361Z",
+  "finalAlive": 18,
+  "stable": true
 }

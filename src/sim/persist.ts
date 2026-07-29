@@ -9,10 +9,11 @@ import type {
   World,
   WorldStats,
 } from "./types";
+import { ensureWorkshop } from "./map";
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 9;
+export const SAVE_VERSION = 10;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -29,6 +30,8 @@ export interface WorldSave {
   dayLength: number;
   barnX: number;
   barnY: number;
+  workshopX?: number;
+  workshopY?: number;
   stats: WorldStats;
   dayHistory: DaySnapshot[];
   pendingDayEvents: DayEvent[];
@@ -61,6 +64,8 @@ export function serializeWorld(world: World): WorldSave {
     dayLength: world.dayLength,
     barnX: world.barnX,
     barnY: world.barnY,
+    workshopX: world.workshopX,
+    workshopY: world.workshopY,
     stats: { ...world.stats },
     dayHistory: world.dayHistory.map((s) => ({
       ...s,
@@ -85,6 +90,7 @@ export function serializeWorld(world: World): WorldSave {
 export function deserializeWorld(data: WorldSave): World {
   if (
     data.version !== SAVE_VERSION &&
+    data.version !== 9 &&
     data.version !== 8 &&
     data.version !== 7 &&
     data.version !== 6 &&
@@ -106,6 +112,8 @@ export function deserializeWorld(data: WorldSave): World {
     dayLength: data.dayLength,
     barnX: data.barnX,
     barnY: data.barnY,
+    workshopX: data.workshopX ?? data.barnX + 2,
+    workshopY: data.workshopY ?? data.barnY + 1,
     stats: { ...data.stats },
     dayHistory: data.dayHistory,
     seed: data.seed,
@@ -125,6 +133,9 @@ export function deserializeWorld(data: WorldSave): World {
     rng: createRng(data.seed),
   };
   restoreRng(world, data.rngState);
+  if (data.version < SAVE_VERSION) {
+    ensureWorkshop(world);
+  }
   return world;
 }
 

@@ -61,7 +61,7 @@ export function tickDailyCraft(world: World): void {
   }
 
   if (produced > 0) {
-    recordCraft(world, `мастерские (+${produced} изделий)`);
+    recordCraft(world, `мастерская (+${produced} изделий)`);
   }
 
   if (world.craftStock >= TRADE_THRESHOLD && barnStock(world) >= 38) {

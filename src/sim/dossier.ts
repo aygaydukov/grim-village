@@ -157,7 +157,7 @@ export function collectVillageReport(world: World): VillageReport {
     hutCount > 0 ? `Хижин: ${hutCount}.` : "Крова почти нет.",
     `В амбаре ${barnFood} из ${barnCapacity} мер еды.`,
     world.treasury > 0 ? `В казне старосты ${world.treasury} мер.` : "Казна пуста — десятина ещё не накопилась.",
-    world.craftStock > 0 ? `На складе ремесла ${world.craftStock} изделий.` : "",
+    world.craftStock > 0 ? `В мастерской ${world.craftStock} изделий.` : "",
     starosta ? `Староста: ${starosta}.` : "Старосту пока не назначили.",
     `Политика: ${policyLabel(world.starostaPolicy)}.`,
     `В лесу и на лугах ещё ${wildFood} дикой пищи.`,

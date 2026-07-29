@@ -27,6 +27,8 @@ describe("сохранение мира", () => {
     assert.equal(loaded.lastCaravanDay, original.lastCaravanDay);
     assert.equal(loaded.settlementVersion, original.settlementVersion);
     assert.equal(loaded.settlementId, original.settlementId);
+    assert.equal(loaded.workshopX, original.workshopX);
+    assert.equal(loaded.workshopY, original.workshopY);
 
     stepWorld(loaded, loaded.dayLength);
     stepWorld(original, original.dayLength);

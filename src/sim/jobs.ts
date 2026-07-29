@@ -1,5 +1,5 @@
 import { artisanTarget } from "./craft";
-import { barnPos, barnStock, findNearestWildFood } from "./map";
+import { barnPos, barnStock, findNearestWildFood, workshopPos } from "./map";
 import { shouldLaborerBuild } from "./housing";
 import { recordProfessionChange } from "./events";
 import type { Agent, Profession, TaskKind, World } from "./types";
@@ -36,8 +36,11 @@ export function leashRadius(agent: Agent): number {
 
 /** Точка, вокруг которой крутится жизнь */
 export function anchorPoint(world: World, agent: Agent): { x: number; y: number } {
-  if (agent.profession === "keeper" || agent.profession === "gatherer" || agent.profession === "artisan") {
+  if (agent.profession === "keeper" || agent.profession === "gatherer") {
     return barnPos(world);
+  }
+  if (agent.profession === "artisan") {
+    return workshopPos(world);
   }
   return { x: agent.homeX, y: agent.homeY };
 }

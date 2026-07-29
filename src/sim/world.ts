@@ -15,7 +15,7 @@ export const DEFAULT_CONFIG: WorldConfig = {
 };
 
 export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): World {
-  const { tiles, hutSpots, barn } = generateMap(config.width, config.height, seed);
+  const { tiles, hutSpots, barn, workshop } = generateMap(config.width, config.height, seed);
   const rng = createRng(seed);
   const world: World = {
     width: config.width,
@@ -27,6 +27,8 @@ export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): Wo
     dayLength: DEFAULT_DAY_LENGTH,
     barnX: barn.x,
     barnY: barn.y,
+    workshopX: workshop.x,
+    workshopY: workshop.y,
     stats: {
       alive: 0,
       dead: 0,
