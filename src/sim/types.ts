@@ -192,6 +192,10 @@ export interface World {
   lastImmigrationDay: number;
   /** Склад ремесленных изделий (ткань, посуда) */
   craftStock: number;
+  /** Склад соли (консервация, ночной холод) */
+  saltStock: number;
+  /** Склад железа (стройка, инструменты) */
+  ironStock: number;
   /** День последнего визита каравана */
   lastCaravanDay: number;
   /** Номер итерации поселения (перезапуск после фатала) */

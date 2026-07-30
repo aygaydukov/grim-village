@@ -34,6 +34,7 @@
 - [x] **2026-07-28 (вечер):** караваны — сезонная торговля, кризисное зерно (`caravan.ts`, `SAVE_VERSION=9`)
 - [x] **2026-07-28 (вечер):** версия поселения в HUD, аналитика причин смерти, предупреждение о миграционной нестабильности
 - [x] **2026-07-29:** мастерская как здание на карте — `workshop` tile, якорь ремесленников, визуал склада (`map.ts`, `SAVE_VERSION=10`)
+- [x] **2026-07-30:** расширенная торговля караванов — соль, железо, сезонные маршруты (`caravan.ts`, `resources.ts`, `SAVE_VERSION=11`)
 
 ## Automation (Cursor)
 
@@ -60,6 +61,7 @@
 - [x] Караваны — сезонные визиты, экспорт/импорт (`caravan.ts`)
 - [x] Версия поселения в HUD + аналитика смертей
 - [x] Мастерская как здание на карте (`workshop` tile, `workshopX/Y`)
+- [x] Расширенная торговля караванов — соль, железо (`resources.ts`, `caravan.ts`)
 - [x] Дописать CD: secrets `DEPLOY_*` → `45.131.42.53:/var/www/grim-village` (см. [DEPLOY.md](DEPLOY.md); один раз поднять nginx на сервере)
 - [ ] Болезни / эпидемии (отдельный шок смертности)
 - [ ] Звук (ветер, шаги, ночь)
@@ -68,7 +70,9 @@
 - [x] Миграция при перенаселении — `migration.ts`
 - [x] Юнит-тесты симуляции в `tests/` (smoke стабильности)
 - [ ] Выбор seed и размер карты из UI
-- [ ] Расширенная торговля (разные товары караванов)
+- [ ] CI-режим 100 дней (укороченная беременность)
+- [ ] Гарантированный сезонный караван (минимум 1 визит соли/железа за год)
+- [x] Расширенная торговля (соль, железо, сезонные маршруты караванов)
 - [x] Мастерская как здание на карте
 - [x] UI летописи по `dayHistory`
 - [x] Именованные события в летописи
@@ -81,7 +85,7 @@
 - Трупы копятся (обрезка старых тел при >40).
 - Центр поселения принудительно очищается от воды (радиус ~7 клеток) — иначе голод у амбара.
 - Сохранение в localStorage — только локально в браузере; экспорт файла — в бэклог.
-- `SAVE_VERSION = 10` — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
+- `SAVE_VERSION = 11` — `saltStock`, `ironStock`; v10 — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
 
 ## Полезные ссылки
 

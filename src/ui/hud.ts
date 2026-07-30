@@ -209,6 +209,8 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-carry", String(r.carriedFood));
   setText("live-v-treasury", String(r.treasury));
   setText("live-v-craft", String(r.craftStock));
+  setText("live-v-salt", String(Math.round(r.saltStock)));
+  setText("live-v-iron", String(Math.round(r.ironStock)));
   setText("live-v-stability", r.stabilityNote || "—");
   const stabilityEl = elOptional("live-v-stability");
   if (stabilityEl) stabilityEl.hidden = !r.stabilityNote;
@@ -383,6 +385,8 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="section-title">Управление</div>
     <div class="row"><span>Казна</span><span id="live-v-treasury">${r.treasury}</span></div>
     <div class="row"><span>Ремесло</span><span id="live-v-craft">${r.craftStock}</span></div>
+    <div class="row"><span>Соль</span><span id="live-v-salt">${Math.round(r.saltStock)}</span></div>
+    <div class="row"><span>Железо</span><span id="live-v-iron">${Math.round(r.ironStock)}</span></div>
     <div class="row"><span>Староста</span><span id="live-v-starosta">${escapeHtml(r.starosta ?? "—")}</span></div>
     <div class="row"><span>Политика</span><span id="live-v-policy">${escapeHtml(r.starostaPolicyLabel)}</span></div>
 

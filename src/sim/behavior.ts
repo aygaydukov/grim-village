@@ -23,6 +23,11 @@ import { tickDailyShocks } from "./shocks";
 import { tickDailyImmigration, tickDailyMigration } from "./migration";
 import { recordBirth, recordDeath } from "./events";
 import {
+  saltColdMultiplier,
+  saltHungerMultiplier,
+  tickDailyResources,
+} from "./resources";
+import {
   anchorPoint,
   findWorkFood,
   isBeyondLeash,
@@ -171,11 +176,18 @@ function decideState(world: World, agent: Agent): void {
 
 function tickNeeds(world: World, agent: Agent): void {
   const night = isNight(world);
-  agent.hunger = clamp(agent.hunger + HUNGER_RATE * (isChild(agent) ? 1.1 : 1), 0, 100);
+  const hungerMul = night ? saltHungerMultiplier(world) : 1;
+  agent.hunger = clamp(
+    agent.hunger + HUNGER_RATE * (isChild(agent) ? 1.1 : 1) * hungerMul,
+    0,
+    100,
+  );
 
   if (agent.state === "sleep") {
     agent.energy = clamp(agent.energy + ENERGY_SLEEP, 0, 100);
-    if (night) agent.hunger = clamp(agent.hunger + HUNGER_RATE * 0.25, 0, 100);
+    if (night) {
+      agent.hunger = clamp(agent.hunger + HUNGER_RATE * 0.25 * saltHungerMultiplier(world), 0, 100);
+    }
   } else {
     const workExtra =
       agent.state === "seekGather" ||
@@ -184,11 +196,8 @@ function tickNeeds(world: World, agent: Agent): void {
       agent.state === "craft"
         ? 0.01
         : 0;
-    agent.energy = clamp(
-      agent.energy - ENERGY_DRAIN - workExtra - (night ? NIGHT_COLD : 0),
-      0,
-      100,
-    );
+    const coldDrain = night ? NIGHT_COLD * saltColdMultiplier(world) : 0;
+    agent.energy = clamp(agent.energy - ENERGY_DRAIN - workExtra - coldDrain, 0, 100);
   }
 
   if (agent.cooldown > 0) agent.cooldown -= 1;
@@ -782,6 +791,7 @@ export function simulateTick(world: World): void {
     tickDailyImmigration(world);
     tickDailyCraft(world);
     tickDailyCaravan(world);
+    tickDailyResources(world);
     rebalanceVillageLabor(world);
     recordDaySnapshot(world);
   }

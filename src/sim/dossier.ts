@@ -30,6 +30,8 @@ export interface VillageReport {
   carriedFood: number;
   treasury: number;
   craftStock: number;
+  saltStock: number;
+  ironStock: number;
   starosta: string | null;
   starostaPolicy: StarostaPolicy;
   starostaPolicyLabel: string;
@@ -158,6 +160,8 @@ export function collectVillageReport(world: World): VillageReport {
     `В амбаре ${barnFood} из ${barnCapacity} мер еды.`,
     world.treasury > 0 ? `В казне старосты ${world.treasury} мер.` : "Казна пуста — десятина ещё не накопилась.",
     world.craftStock > 0 ? `В мастерской ${world.craftStock} изделий.` : "",
+    world.saltStock > 0 ? `Соль в амбаре: ${Math.round(world.saltStock)} мешков.` : "",
+    world.ironStock > 0 ? `Железо на складе: ${Math.round(world.ironStock)} слитков.` : "",
     starosta ? `Староста: ${starosta}.` : "Старосту пока не назначили.",
     `Политика: ${policyLabel(world.starostaPolicy)}.`,
     `В лесу и на лугах ещё ${wildFood} дикой пищи.`,
@@ -195,6 +199,8 @@ export function collectVillageReport(world: World): VillageReport {
     carriedFood,
     treasury: world.treasury,
     craftStock: world.craftStock,
+    saltStock: world.saltStock,
+    ironStock: world.ironStock,
     starosta,
     starostaPolicy: world.starostaPolicy,
     starostaPolicyLabel: policyLabel(world.starostaPolicy),

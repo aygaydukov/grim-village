@@ -1,5 +1,6 @@
 import { recordConstruction } from "./events";
 import { barnCostForBuild, minBarnToBuild } from "./government";
+import { consumeIronForBuild, ironBuildBonus } from "./resources";
 import { barnStock, getBarnTile, getTile, placeHut } from "./map";
 import type { Agent, World } from "./types";
 
@@ -97,7 +98,8 @@ export function tickBuildProject(world: World, agent: Agent): boolean {
   const project = world.buildProject;
   if (!project || project.builderId !== agent.id) return false;
 
-  project.progress += BUILD_PROGRESS_PER_TICK;
+  project.progress += BUILD_PROGRESS_PER_TICK + ironBuildBonus(world);
+  if (world.ironStock > 0) consumeIronForBuild(world);
   agent.energy = Math.max(0, agent.energy - 0.04);
 
   if (project.progress < project.required) return true;
