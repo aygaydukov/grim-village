@@ -27,6 +27,11 @@ export function seasonForDay(day: number): Season {
   return SEASONS[idx]!;
 }
 
+/** Первый день текущего сезона (1-based) */
+export function seasonStartDay(day: number): number {
+  return Math.floor(Math.max(0, day - 1) / DAYS_PER_SEASON) * DAYS_PER_SEASON + 1;
+}
+
 export function seasonFoodFactor(day: number): number {
   return SEASON_FOOD_FACTOR[seasonForDay(day)];
 }

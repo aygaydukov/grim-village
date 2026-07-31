@@ -1,9 +1,12 @@
 import { formatStabilityReport, runModulation } from "../src/sim/modulate.ts";
 
-const days = Number(process.argv[2] ?? 10);
-const seed = Number(process.argv[3] ?? 2026);
+const args = process.argv.slice(2);
+const ciMode = args.includes("--ci");
+const numericArgs = args.filter((a) => a !== "--ci");
+const days = Number(numericArgs[0] ?? 10);
+const seed = Number(numericArgs[1] ?? 2026);
 
-const { report } = runModulation(days, seed);
+const { report } = runModulation(days, seed, undefined, { ciMode });
 console.log(formatStabilityReport(report));
 
 if (!report.stable) {

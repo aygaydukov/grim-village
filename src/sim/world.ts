@@ -54,6 +54,7 @@ export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): Wo
     lastCaravanDay: 0,
     settlementVersion: 1,
     settlementId: "browser-fresh",
+    ciMode: config.ciMode ?? false,
     rng,
   };
 

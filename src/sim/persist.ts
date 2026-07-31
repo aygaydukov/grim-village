@@ -137,6 +137,7 @@ export function deserializeWorld(data: WorldSave): World {
     lastCaravanDay: data.lastCaravanDay ?? 0,
     settlementVersion: data.settlementVersion ?? 1,
     settlementId: data.settlementId ?? "unknown",
+    ciMode: false,
     rng: createRng(data.seed),
   };
   restoreRng(world, data.rngState);

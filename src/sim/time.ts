@@ -31,6 +31,23 @@ export const BIRTH_COOLDOWN_GAME_DAYS = GAME_DAYS_PER_YEAR; // 720
 /** Пауза пары после зачатия ≈ 2 месяца */
 export const MATE_COOLDOWN_GAME_DAYS = GAME_DAYS_PER_YEAR / 6; // 120
 
+/** CI-режим: укороченная демография для 100-дневных smoke-тестов */
+export const CI_PREGNANCY_GAME_DAYS = 45;
+export const CI_BIRTH_COOLDOWN_GAME_DAYS = 60;
+export const CI_MATE_COOLDOWN_GAME_DAYS = 30;
+
+export function pregnancyGameDays(ciMode: boolean): number {
+  return ciMode ? CI_PREGNANCY_GAME_DAYS : PREGNANCY_GAME_DAYS;
+}
+
+export function birthCooldownGameDays(ciMode: boolean): number {
+  return ciMode ? CI_BIRTH_COOLDOWN_GAME_DAYS : BIRTH_COOLDOWN_GAME_DAYS;
+}
+
+export function mateCooldownGameDays(ciMode: boolean): number {
+  return ciMode ? CI_MATE_COOLDOWN_GAME_DAYS : MATE_COOLDOWN_GAME_DAYS;
+}
+
 export function yearsPerRealDayAtSpeed(speed: number): number {
   return YEARS_PER_REAL_DAY * Math.max(0, speed);
 }

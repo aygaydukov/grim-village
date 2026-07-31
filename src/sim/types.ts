@@ -145,6 +145,8 @@ export interface WorldConfig {
   width: number;
   height: number;
   initialPopulation: number;
+  /** Укороченная беременность для CI smoke (100 дней) */
+  ciMode?: boolean;
 }
 
 export interface WorldStats {
@@ -202,5 +204,7 @@ export interface World {
   settlementVersion: number;
   /** Идентификатор текущего поселения */
   settlementId: string;
+  /** CI-режим: укороченная демография (не сохраняется в сейв) */
+  ciMode: boolean;
   rng: () => number;
 }

@@ -20,6 +20,7 @@ export interface StabilityThresholds {
   maxDeathRatio: number;
   minBarnFood: number;
   maxAvgHunger: number;
+  minBirths?: number;
 }
 
 export const DEFAULT_THRESHOLDS: StabilityThresholds = {
@@ -28,6 +29,20 @@ export const DEFAULT_THRESHOLDS: StabilityThresholds = {
   minBarnFood: 8,
   maxAvgHunger: 78,
 };
+
+/** Пороги для 100-дневного CI smoke с укороченной беременностью */
+export const CI_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.35,
+  maxDeathRatio: 1.8,
+  minBarnFood: 5,
+  maxAvgHunger: 85,
+  minBirths: 1,
+};
+
+export interface ModulationOptions {
+  ciMode?: boolean;
+  thresholds?: StabilityThresholds;
+}
 
 export function evaluateStability(
   world: World,
@@ -62,6 +77,9 @@ export function evaluateStability(
   if (avgHunger > thresholds.maxAvgHunger) {
     issues.push(`высокий голод: ${avgHunger.toFixed(1)} > ${thresholds.maxAvgHunger}`);
   }
+  if (thresholds.minBirths != null && world.stats.births < thresholds.minBirths) {
+    issues.push(`мало рождений: ${world.stats.births} < ${thresholds.minBirths}`);
+  }
 
   return {
     seed: 0,
@@ -82,11 +100,14 @@ export function runModulation(
   days: number,
   seed = 1337,
   config: WorldConfig = DEFAULT_CONFIG,
+  options: ModulationOptions = {},
 ): { world: World; report: StabilityReport } {
-  const world = initWorld(config, seed);
+  const ciMode = options.ciMode ?? config.ciMode ?? false;
+  const world = initWorld({ ...config, ciMode }, seed);
   const initialAlive = world.stats.alive;
+  const thresholds = options.thresholds ?? (ciMode ? CI_THRESHOLDS : DEFAULT_THRESHOLDS);
   stepWorld(world, days * world.dayLength);
-  const report = evaluateStability(world, initialAlive);
+  const report = evaluateStability(world, initialAlive, thresholds);
   report.seed = seed;
   report.days = days;
   return { world, report };

@@ -31,6 +31,7 @@ describe("сохранение мира", () => {
     assert.equal(loaded.settlementId, original.settlementId);
     assert.equal(loaded.workshopX, original.workshopX);
     assert.equal(loaded.workshopY, original.workshopY);
+    assert.equal(loaded.ciMode, false);
 
     stepWorld(loaded, loaded.dayLength);
     stepWorld(original, original.dayLength);
@@ -52,4 +53,14 @@ describe("стабильность деревни", () => {
       );
     });
   }
+
+  it("100 дней CI-режим, seed=2026 — демография и стабильность", () => {
+    const { report } = runModulation(100, 2026, undefined, { ciMode: true });
+    assert.equal(
+      report.stable,
+      true,
+      `CI 100d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
+    );
+    assert.ok(report.births >= 1, "ожидалось хотя бы одно рождение в CI-режиме");
+  });
 });

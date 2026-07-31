@@ -1,11 +1,12 @@
 import { recordCaravan } from "./events";
 import { barnStock, getBarnTile, syncBarnStat } from "./map";
 import { addIron, addSalt, removeIron } from "./resources";
-import { seasonForDay } from "./season";
+import { DAYS_PER_SEASON, seasonForDay, seasonStartDay } from "./season";
 import type { Season, World } from "./types";
 import { chance } from "./util";
 
 const CARAVAN_COOLDOWN_DAYS = 14;
+const SEASONAL_GUARANTEE_LEAD_DAYS = 12;
 const MIN_CRAFT_FOR_EXPORT = 20;
 const EXPORT_BATCH = 10;
 const EXPORT_TREASURY_BASE = 14;
@@ -169,15 +170,20 @@ function tryCraftExport(world: World, season: Season, barnFood: number, price: n
 
 /** Редкие визиты караванов: сезонные маршруты (соль, железо, зерно, изделия) */
 export function tickDailyCaravan(world: World): void {
-  if (
-    world.lastCaravanDay > 0 &&
-    world.stats.day - world.lastCaravanDay < CARAVAN_COOLDOWN_DAYS
-  ) {
-    return;
-  }
+  const day = world.stats.day;
+  const season = seasonForDay(day);
+  const seasonStart = seasonStartDay(day);
+  const dayInSeason = day - seasonStart + 1;
+  const missedSeason =
+    dayInSeason >= DAYS_PER_SEASON - SEASONAL_GUARANTEE_LEAD_DAYS &&
+    world.lastCaravanDay < seasonStart;
 
-  const season = seasonForDay(world.stats.day);
-  if (!chance(world.rng, caravanArrivalChance(season))) return;
+  if (!missedSeason) {
+    if (world.lastCaravanDay > 0 && day - world.lastCaravanDay < CARAVAN_COOLDOWN_DAYS) {
+      return;
+    }
+    if (!chance(world.rng, caravanArrivalChance(season))) return;
+  }
   if (!getBarnTile(world)) return;
 
   const barnFood = barnStock(world);

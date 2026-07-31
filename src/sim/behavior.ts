@@ -25,6 +25,7 @@ import { recordBirth, recordDeath } from "./events";
 import {
   saltColdMultiplier,
   saltHungerMultiplier,
+  barnWarmthMultiplier,
   tickDailyResources,
 } from "./resources";
 import {
@@ -49,9 +50,9 @@ import {
 import type { Agent, TaskKind, World } from "./types";
 import {
   AGE_PER_GAME_DAY,
-  BIRTH_COOLDOWN_GAME_DAYS,
-  MATE_COOLDOWN_GAME_DAYS,
-  PREGNANCY_GAME_DAYS,
+  birthCooldownGameDays,
+  mateCooldownGameDays,
+  pregnancyGameDays,
 } from "./time";
 import { chance, clamp, dist } from "./util";
 
@@ -196,7 +197,7 @@ function tickNeeds(world: World, agent: Agent): void {
       agent.state === "craft"
         ? 0.01
         : 0;
-    const coldDrain = night ? NIGHT_COLD * saltColdMultiplier(world) : 0;
+    const coldDrain = night ? NIGHT_COLD * saltColdMultiplier(world) * barnWarmthMultiplier(world) : 0;
     agent.energy = clamp(agent.energy - ENERGY_DRAIN - workExtra - coldDrain, 0, 100);
   }
 
@@ -260,7 +261,7 @@ function birth(world: World, mother: Agent): void {
   world.agents.push(child);
   world.stats.births += 1;
   recordBirth(world, child);
-  mother.cooldown = Math.floor(world.dayLength * BIRTH_COOLDOWN_GAME_DAYS);
+  mother.cooldown = Math.floor(world.dayLength * birthCooldownGameDays(world.ciMode));
   mother.energy = clamp(mother.energy - 22, 5, 100);
   mother.hunger = clamp(mother.hunger + 18, 0, 100);
 }
@@ -667,9 +668,10 @@ function actCourt(world: World, agent: Agent): void {
 
     const mother = agent.sex === "female" ? agent : mate.sex === "female" ? mate : null;
     if (mother && mother.pregnant <= 0 && world.stats.alive < SOFT_POP_CAP + 8) {
-      mother.pregnant = Math.floor(world.dayLength * PREGNANCY_GAME_DAYS);
-      agent.cooldown = Math.floor(world.dayLength * MATE_COOLDOWN_GAME_DAYS);
-      mate.cooldown = Math.floor(world.dayLength * MATE_COOLDOWN_GAME_DAYS);
+      mother.pregnant = Math.floor(world.dayLength * pregnancyGameDays(world.ciMode));
+      const mateCd = Math.floor(world.dayLength * mateCooldownGameDays(world.ciMode));
+      agent.cooldown = mateCd;
+      mate.cooldown = mateCd;
       agent.energy = clamp(agent.energy - 10, 0, 100);
       mate.energy = clamp(mate.energy - 10, 0, 100);
     }

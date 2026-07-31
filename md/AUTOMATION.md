@@ -14,7 +14,8 @@ After code changes, **always** finish with this sequence:
 
 1. `npm test`
 2. `npm run simulate` — 10-day smoke. If unstable, fix balance before finishing.
-3. `npm run village:status` — refresh `docs/status.json` (metrics chronicle).
+3. `npm run simulate:ci` — optional 100-day CI smoke (shortened pregnancy, checks births).
+4. `npm run village:status` — refresh `docs/status.json` (metrics chronicle).
 4. **`npm run settlement:snapshot`** — run **10 in-game days** on the current settlement, then write an SVG map snapshot to `docs/settlements/v{N}/snapshot.svg`.  
    - Do **not** snapshot only at spawn; the post-sim snapshot is the release artifact.  
    - Commit the new/updated `docs/settlements/v{N}/` files.

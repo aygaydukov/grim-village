@@ -1,13 +1,14 @@
 {
   "name": "grim-village",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "simulate": "tsx scripts/simulate-days.ts",
+    "simulate:ci": "tsx scripts/simulate-days.ts 100 2026 --ci",
     "village:status": "tsx scripts/export-village-page.ts",
     "village:daemon": "tsx scripts/village-daemon.ts",
     "settlement:new": "tsx scripts/settlement-cli.ts new",
