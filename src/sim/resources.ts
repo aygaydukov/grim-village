@@ -29,9 +29,10 @@ export function saltColdMultiplier(world: World): number {
 /** Полный амбар согревает ночью — меньше смертей от холода */
 export function barnWarmthMultiplier(world: World): number {
   const stock = world.stats.barnFood;
-  if (stock >= 75) return 0.78;
-  if (stock >= 55) return 0.88;
-  if (stock >= 35) return 0.95;
+  if (stock >= 75) return 0.72;
+  if (stock >= 55) return 0.82;
+  if (stock >= 35) return 0.92;
+  if (stock >= 18) return 0.97;
   return 1;
 }
 

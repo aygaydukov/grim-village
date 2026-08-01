@@ -65,9 +65,10 @@ const SOFT_POP_CAP = 36;
 
 function courtPregnancyChance(world: World): number {
   const stock = barnStock(world);
-  if (stock > 60) return 0.12;
-  if (stock > 40) return 0.1;
-  return 0.08;
+  let chance = 0.08;
+  if (stock > 60) chance = 0.12;
+  else if (stock > 40) chance = 0.1;
+  return world.ciMode ? chance * 2.2 : chance;
 }
 
 function aliveAgents(world: World): Agent[] {
@@ -151,7 +152,7 @@ function decideState(world: World, agent: Agent): void {
     return;
   }
 
-  if (agent.energy < 25 || (isNight(world) && agent.energy < 55)) {
+  if (agent.energy < 25 || (isNight(world) && agent.energy < 62)) {
     setTask(agent, "rest", "seekRest");
     return;
   }
@@ -159,7 +160,13 @@ function decideState(world: World, agent: Agent): void {
   // Социум — редко и только в зоне деревни
   const pop = world.stats.alive;
   const foodOk = barnStock(world) >= 8 || findNearestWildFood(world, agent.x, agent.y, 10);
-  const mateChance = pop > SOFT_POP_CAP ? 0.003 : 0.01;
+  const mateChance = world.ciMode
+    ? pop > SOFT_POP_CAP
+      ? 0.012
+      : 0.022
+    : pop > SOFT_POP_CAP
+      ? 0.003
+      : 0.01;
   if (
     canMate(agent) &&
     !isNight(world) &&
@@ -185,7 +192,8 @@ function tickNeeds(world: World, agent: Agent): void {
   );
 
   if (agent.state === "sleep") {
-    agent.energy = clamp(agent.energy + ENERGY_SLEEP, 0, 100);
+    const warmBarn = barnStock(world) >= 55 ? 1.12 : 1;
+    agent.energy = clamp(agent.energy + ENERGY_SLEEP * warmBarn, 0, 100);
     if (night) {
       agent.hunger = clamp(agent.hunger + HUNGER_RATE * 0.25 * saltHungerMultiplier(world), 0, 100);
     }
@@ -476,9 +484,10 @@ function actSeekRest(world: World, agent: Agent): void {
 }
 
 function actSleep(world: World, agent: Agent): void {
+  const wakeForFood = agent.pregnant > 0 ? 62 : 78;
   if (agent.energy >= 90 && !isNight(world)) {
     finishToWork(world, agent);
-  } else if (agent.hunger > 78) {
+  } else if (agent.hunger > wakeForFood) {
     setTask(agent, "eat", "seekFood");
   }
 }
@@ -682,11 +691,42 @@ function actCourt(world: World, agent: Agent): void {
   }
 }
 
+const NIGHT_WORK_STATES: Agent["state"][] = [
+  "gather",
+  "seekGather",
+  "deposit",
+  "craft",
+  "build",
+  "seekBuild",
+  "patrol",
+];
+
+function forceNightRestIfNeeded(world: World, agent: Agent): void {
+  if (!isNight(world)) return;
+  if (agent.state === "sleep" || agent.state === "seekRest") return;
+  if (agent.state === "eat" || agent.state === "seekFood") return;
+  if (agent.hunger > hungryThreshold(agent) - 6) return;
+
+  if (NIGHT_WORK_STATES.includes(agent.state) || agent.energy < 38) {
+    setTask(agent, "rest", "seekRest");
+  }
+}
+
 function tickAgent(world: World, agent: Agent): void {
   if (!agent.alive) return;
 
   tickNeeds(world, agent);
   if (!agent.alive) return;
+
+  if (
+    agent.hunger > 84 &&
+    agent.state !== "eat" &&
+    agent.state !== "seekFood"
+  ) {
+    setTask(agent, "eat", "seekFood");
+  }
+
+  forceNightRestIfNeeded(world, agent);
 
   const busy: Agent["state"][] = [
     "eat",

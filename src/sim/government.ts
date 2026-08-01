@@ -84,8 +84,11 @@ function buildSubsidyAmount(world: World): number {
 export function mayTakeFromBarn(world: World, agent: Agent): boolean {
   const stock = barnStock(world);
   if (stock <= 0) return false;
+  if (agent.hunger >= 85 || (agent.pregnant > 0 && agent.hunger >= 72)) return true;
   if (stock >= BARN_SCARCITY) return true;
-  if (isChild(agent) || agent.profession === "elder") return true;
+  if (isChild(agent) || agent.profession === "elder" || agent.profession === "keeper") {
+    return stock >= 4;
+  }
   if (agent.pregnant > 0) return stock >= 6;
   // В режиме поддержки взрослые получают еду раньше
   if (world.starostaPolicy === "relief") {

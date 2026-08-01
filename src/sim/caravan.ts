@@ -178,7 +178,9 @@ export function tickDailyCaravan(world: World): void {
     dayInSeason >= DAYS_PER_SEASON - SEASONAL_GUARANTEE_LEAD_DAYS &&
     world.lastCaravanDay < seasonStart;
 
-  if (!missedSeason) {
+  const needsEarlySalt = world.saltStock <= 0 && day >= 35 && day <= 90;
+
+  if (!missedSeason && !needsEarlySalt) {
     if (world.lastCaravanDay > 0 && day - world.lastCaravanDay < CARAVAN_COOLDOWN_DAYS) {
       return;
     }
