@@ -130,7 +130,7 @@ function applyWorkPlan(world: World, agent: Agent): void {
 }
 
 function hungryThreshold(agent: Agent): number {
-  return agent.pregnant > 0 ? 55 : 68;
+  return agent.pregnant > 0 ? 52 : 62;
 }
 
 function decideState(world: World, agent: Agent): void {
@@ -284,7 +284,10 @@ function pickFoodTarget(world: World, agent: Agent): { x: number; y: number } | 
   if (stock > 0 && mayTakeFromBarn(world, agent)) {
     if (!wild) return barn;
     const dWild = dist(agent.x, agent.y, wild.x, wild.y);
-    if (dBarn <= dWild + 3 || agent.hunger > 80) return barn;
+    // При голоде > 65 — амбар надёжнее дикой еды (меньше смертей у батраков)
+    if (dBarn <= dWild + 3 || agent.hunger > 65 || (stock >= 28 && agent.hunger > 55)) {
+      return barn;
+    }
   }
   return wild;
 }
@@ -366,7 +369,7 @@ function actEat(world: World, agent: Agent): void {
 }
 
 function actSeekGather(world: World, agent: Agent): void {
-  if (agent.hunger > 70) {
+  if (agent.hunger > 65) {
     setTask(agent, "eat", "seekFood");
     return;
   }
@@ -719,7 +722,7 @@ function tickAgent(world: World, agent: Agent): void {
   if (!agent.alive) return;
 
   if (
-    agent.hunger > 84 &&
+    agent.hunger > 78 &&
     agent.state !== "eat" &&
     agent.state !== "seekFood"
   ) {
