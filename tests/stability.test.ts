@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { deserializeWorld, serializeWorld } from "../src/sim/persist.ts";
-import { runModulation } from "../src/sim/modulate.ts";
+import { runModulation, LONG_THRESHOLDS } from "../src/sim/modulate.ts";
 import { stepWorld } from "../src/sim/world.ts";
 
 describe("сохранение мира", () => {
@@ -32,6 +32,9 @@ describe("сохранение мира", () => {
     assert.equal(loaded.workshopX, original.workshopX);
     assert.equal(loaded.workshopY, original.workshopY);
     assert.equal(loaded.ciMode, false);
+    for (const a of loaded.agents) {
+      assert.equal(a.stuckTicks ?? 0, original.agents.find((o) => o.id === a.id)?.stuckTicks ?? 0);
+    }
 
     stepWorld(loaded, loaded.dayLength);
     stepWorld(original, original.dayLength);
@@ -62,5 +65,15 @@ describe("стабильность деревни", () => {
       `CI 100d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
     );
     assert.ok(report.births >= 1, "ожидалось хотя бы одно рождение в CI-режиме");
+  });
+
+  it("720 дней, seed=2026 — рождения и долгий баланс", () => {
+    const { report } = runModulation(720, 2026, undefined, { thresholds: LONG_THRESHOLDS });
+    assert.equal(
+      report.stable,
+      true,
+      `720d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
+    );
+    assert.ok(report.births >= 1, "ожидалось хотя бы одно рождение за ~1 год симуляции");
   });
 });

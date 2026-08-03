@@ -139,6 +139,8 @@ export interface Agent {
   alive: boolean;
   deathCause: string | null;
   cooldown: number;
+  /** Тики без движения при поиске еды/дома — для диагностики застревания */
+  stuckTicks: number;
 }
 
 export interface WorldConfig {

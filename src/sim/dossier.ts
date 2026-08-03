@@ -44,6 +44,7 @@ export interface VillageReport {
   immigrationArrivals: number;
   stabilityNote: string;
   settlementVersion: number;
+  stuckAgents: number;
 }
 
 export function timePhase(world: World): string {
@@ -141,7 +142,8 @@ export function collectVillageReport(world: World): VillageReport {
   const professions = countByProfession(world);
   const deathCauses = collectDeathCauses(world);
   const immigrationArrivals = countImmigrationArrivals(world);
-  const stabilityNote = buildStabilityNote(world, deathCauses, immigrationArrivals);
+  const stuckAgents = countStuckAgents(world);
+  const stabilityNote = buildStabilityNote(world, deathCauses, immigrationArrivals, stuckAgents);
 
   let outlook: string;
   if (alive.length === 0) outlook = "Деревня мертва. Остались только следы ног в грязи.";
@@ -213,7 +215,17 @@ export function collectVillageReport(world: World): VillageReport {
     immigrationArrivals,
     stabilityNote,
     settlementVersion: world.settlementVersion,
+    stuckAgents,
   };
+}
+
+function countStuckAgents(world: World): number {
+  let n = 0;
+  for (const a of world.agents) {
+    if (!a.alive) continue;
+    if ((a.stuckTicks ?? 0) >= 60) n += 1;
+  }
+  return n;
 }
 
 function collectDeathCauses(world: World): Record<string, number> {
@@ -241,8 +253,13 @@ function buildStabilityNote(
   world: World,
   deathCauses: Record<string, number>,
   immigrationArrivals: number,
+  stuckAgents: number,
 ): string {
   const totalDead = world.stats.dead;
+  if (stuckAgents >= 2) {
+    return `Тревога: ${stuckAgents} жителей застряли у воды или за участком — проверь путь и leash.`;
+  }
+
   if (totalDead === 0) return "";
 
   const hungerDeaths =

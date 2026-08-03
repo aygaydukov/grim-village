@@ -54,6 +54,7 @@ import {
   mateCooldownGameDays,
   pregnancyGameDays,
 } from "./time";
+import { clearAgentPath } from "./pathfind";
 import { chance, clamp, dist } from "./util";
 
 const HUNGER_RATE = 0.032;
@@ -704,6 +705,51 @@ const NIGHT_WORK_STATES: Agent["state"][] = [
   "patrol",
 ];
 
+const STUCK_TICK_THRESHOLD = 200;
+const STUCK_MOVE_EPS = 0.025;
+
+/** Сброс пути и новая цель, если агент не двигается у воды или за leash */
+function trackAndRecoverStuck(
+  world: World,
+  agent: Agent,
+  prevX: number,
+  prevY: number,
+): void {
+  const moved = dist(agent.x, agent.y, prevX, prevY);
+  const seeking =
+    agent.state === "seekFood" ||
+    agent.state === "seekRest" ||
+    agent.state === "returnHome" ||
+    agent.state === "seekGather" ||
+    agent.state === "seekBuild";
+
+  if (moved < STUCK_MOVE_EPS && seeking) {
+    agent.stuckTicks += 1;
+  } else {
+    agent.stuckTicks = 0;
+  }
+
+  if (agent.stuckTicks < STUCK_TICK_THRESHOLD) return;
+
+  clearAgentPath(agent.id);
+  agent.targetX = null;
+  agent.targetY = null;
+  agent.stuckTicks = 0;
+
+  const barn = barnPos(world);
+  if (agent.hunger > 58 && barnStock(world) > 0 && mayTakeFromBarn(world, agent)) {
+    setTask(agent, "eat", "seekFood");
+    agent.targetX = barn.x;
+    agent.targetY = barn.y;
+    return;
+  }
+
+  const anchor = anchorPoint(world, agent);
+  setTask(agent, "returnHome", "returnHome");
+  agent.targetX = anchor.x;
+  agent.targetY = anchor.y;
+}
+
 function forceNightRestIfNeeded(world: World, agent: Agent): void {
   if (!isNight(world)) return;
   if (agent.state === "sleep" || agent.state === "seekRest") return;
@@ -717,6 +763,9 @@ function forceNightRestIfNeeded(world: World, agent: Agent): void {
 
 function tickAgent(world: World, agent: Agent): void {
   if (!agent.alive) return;
+
+  const prevX = agent.x;
+  const prevY = agent.y;
 
   tickNeeds(world, agent);
   if (!agent.alive) return;
@@ -822,6 +871,8 @@ function tickAgent(world: World, agent: Agent): void {
       actCourt(world, agent);
       break;
   }
+
+  trackAndRecoverStuck(world, agent, prevX, prevY);
 }
 
 export function simulateTick(world: World): void {

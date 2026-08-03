@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "1.2.1";
+export const GAME_VERSION = "1.2.2";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "1.2.2",
+    date: "2026-08-03",
+    changes: [
+      "Диагностика застревания: счётчик stuckTicks, сброс пути и новая цель у амбара/якоря",
+      "В инспекторе «Деревня» — число застрявших жителей и предупреждение о нестабильности",
+      "Smoke-тест 720 дней (seed=2026): рождения и долгий баланс — LONG_THRESHOLDS в modulate.ts",
+      "100-дневный режим: стабильно (4 смерти, 0 рождений — норма для короткого прогона)",
+    ],
+  },
   {
     version: "1.2.1",
     date: "2026-08-02",

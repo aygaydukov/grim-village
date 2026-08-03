@@ -216,6 +216,7 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   if (stabilityEl) stabilityEl.hidden = !r.stabilityNote;
   setText("live-v-deaths-breakdown", formatDeathCauses(r.deathCauses));
   setText("live-v-immigration", String(r.immigrationArrivals));
+  setText("live-v-stuck", String(r.stuckAgents));
   setText("live-v-settlement", String(r.settlementVersion));
   setText("live-v-starosta", r.starosta ?? "—");
   setText("live-v-policy", r.starostaPolicyLabel);
@@ -367,6 +368,7 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="row"><span>Причины смерти</span><span id="live-v-deaths-breakdown">${escapeHtml(formatDeathCauses(r.deathCauses))}</span></div>
     <div class="row"><span>Рождений</span><span id="live-v-births">${r.births}</span></div>
     <div class="row"><span>Приход беженцев</span><span id="live-v-immigration">${r.immigrationArrivals}</span></div>
+    <div class="row"><span>Застряли</span><span id="live-v-stuck">${r.stuckAgents}</span></div>
     <div class="row"><span>Версия поселения</span><span id="live-v-settlement">${r.settlementVersion}</span></div>
     <div class="row"><span>Муж / Жен</span><span id="live-v-mw">${r.men} / ${r.women}</span></div>
     <div class="row"><span>Дети / Взр. / Старцы</span><span id="live-v-ages">${r.children} / ${r.adults} / ${r.elders}</span></div>

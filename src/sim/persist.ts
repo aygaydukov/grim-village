@@ -141,6 +141,9 @@ export function deserializeWorld(data: WorldSave): World {
     rng: createRng(data.seed),
   };
   restoreRng(world, data.rngState);
+  for (const agent of world.agents) {
+    if (agent.stuckTicks == null) agent.stuckTicks = 0;
+  }
   if (data.version < SAVE_VERSION) {
     ensureWorkshop(world);
   }

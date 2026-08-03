@@ -39,6 +39,15 @@ export const CI_THRESHOLDS: StabilityThresholds = {
   minBirths: 1,
 };
 
+/** Пороги для 720-дневного smoke — демография и долгий баланс */
+export const LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.4,
+  maxDeathRatio: 0.55,
+  minBarnFood: 8,
+  maxAvgHunger: 80,
+  minBirths: 1,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

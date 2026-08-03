@@ -55,6 +55,7 @@ export function createAgent(
     alive: true,
     deathCause: null,
     cooldown: 0,
+    stuckTicks: 0,
   };
 }
 
