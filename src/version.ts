@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "1.2.2";
+export const GAME_VERSION = "1.3.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,17 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "1.3.0",
+    date: "2026-08-04",
+    changes: [
+      "Эпидемии — редкий весенний/летний шок смертности (причина «болезнь»), кулдаун 120 дней",
+      "Соль в амбаре снижает смертность от эпидемии; дети и старцы уязвимее",
+      "В HUD и летописи — подпись «эпидемия»; инспектор отделяет болезнь от голода",
+      "Smoke 1440 дней (2 игровых года): EXTRA_LONG_THRESHOLDS, ≥2 рождений на seed=2026",
+      "SAVE_VERSION=12 — lastEpidemicDay",
+    ],
+  },
   {
     version: "1.2.2",
     date: "2026-08-03",

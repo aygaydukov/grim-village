@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { deserializeWorld, serializeWorld } from "../src/sim/persist.ts";
-import { runModulation, LONG_THRESHOLDS } from "../src/sim/modulate.ts";
+import { runModulation, LONG_THRESHOLDS, EXTRA_LONG_THRESHOLDS } from "../src/sim/modulate.ts";
 import { stepWorld } from "../src/sim/world.ts";
 
 describe("сохранение мира", () => {
@@ -27,6 +27,7 @@ describe("сохранение мира", () => {
     assert.equal(loaded.saltStock, original.saltStock);
     assert.equal(loaded.ironStock, original.ironStock);
     assert.equal(loaded.lastCaravanDay, original.lastCaravanDay);
+    assert.equal(loaded.lastEpidemicDay, original.lastEpidemicDay);
     assert.equal(loaded.settlementVersion, original.settlementVersion);
     assert.equal(loaded.settlementId, original.settlementId);
     assert.equal(loaded.workshopX, original.workshopX);
@@ -75,5 +76,15 @@ describe("стабильность деревни", () => {
       `720d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
     );
     assert.ok(report.births >= 1, "ожидалось хотя бы одно рождение за ~1 год симуляции");
+  });
+
+  it("1440 дней, seed=2026 — два года, эпидемии и демография", () => {
+    const { report } = runModulation(1440, 2026, undefined, { thresholds: EXTRA_LONG_THRESHOLDS });
+    assert.equal(
+      report.stable,
+      true,
+      `1440d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
+    );
+    assert.ok(report.births >= 2, "ожидалось ≥2 рождений за ~2 года симуляции");
   });
 });

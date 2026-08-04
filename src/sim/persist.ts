@@ -13,7 +13,7 @@ import { ensureWorkshop } from "./map";
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 11;
+export const SAVE_VERSION = 12;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -47,6 +47,7 @@ export interface WorldSave {
   saltStock?: number;
   ironStock?: number;
   lastCaravanDay?: number;
+  lastEpidemicDay?: number;
   settlementVersion?: number;
   settlementId?: string;
 }
@@ -86,6 +87,7 @@ export function serializeWorld(world: World): WorldSave {
     saltStock: world.saltStock,
     ironStock: world.ironStock,
     lastCaravanDay: world.lastCaravanDay,
+    lastEpidemicDay: world.lastEpidemicDay,
     settlementVersion: world.settlementVersion,
     settlementId: world.settlementId,
   };
@@ -94,6 +96,7 @@ export function serializeWorld(world: World): WorldSave {
 export function deserializeWorld(data: WorldSave): World {
   if (
     data.version !== SAVE_VERSION &&
+    data.version !== 11 &&
     data.version !== 10 &&
     data.version !== 9 &&
     data.version !== 8 &&
@@ -135,6 +138,7 @@ export function deserializeWorld(data: WorldSave): World {
     saltStock: data.saltStock ?? 0,
     ironStock: data.ironStock ?? 0,
     lastCaravanDay: data.lastCaravanDay ?? 0,
+    lastEpidemicDay: data.lastEpidemicDay ?? 0,
     settlementVersion: data.settlementVersion ?? 1,
     settlementId: data.settlementId ?? "unknown",
     ciMode: false,

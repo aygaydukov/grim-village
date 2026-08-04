@@ -56,13 +56,20 @@ export type Season = "spring" | "summer" | "autumn" | "winter";
 /** Политика старосты: налог, приоритет стройки vs амбара */
 export type StarostaPolicy = "balanced" | "build" | "store" | "relief";
 
-/** Активный сезонный шок (неурожай и т.п.) */
-export interface ActiveShock {
-  kind: "crop_failure";
-  daysLeft: number;
-  /** Множитель регена дикой еды (0.5–0.6 при неурожае) */
-  regenFactor: number;
-}
+/** Активный сезонный шок (неурожай, эпидемия) */
+export type ActiveShock =
+  | {
+      kind: "crop_failure";
+      daysLeft: number;
+      /** Множитель регена дикой еды (0.5–0.6 при неурожае) */
+      regenFactor: number;
+    }
+  | {
+      kind: "epidemic";
+      daysLeft: number;
+      /** Базовый дневный шанс смерти от болезни (0.02–0.04) */
+      mortalityRate: number;
+    };
 
 /** Именованное событие игрового дня для летописи */
 export type DayEventKind =
@@ -202,6 +209,8 @@ export interface World {
   ironStock: number;
   /** День последнего визита каравана */
   lastCaravanDay: number;
+  /** День последней эпидемии (кулдаун между вспышками) */
+  lastEpidemicDay: number;
   /** Номер итерации поселения (перезапуск после фатала) */
   settlementVersion: number;
   /** Идентификатор текущего поселения */

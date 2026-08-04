@@ -277,6 +277,11 @@ function buildStabilityNote(
     return "Тревога: большинство смертей от голода — проверь сбор, профессии и потребление.";
   }
 
+  const diseaseDeaths = deathCauses["болезнь"] ?? 0;
+  if (diseaseDeaths >= Math.ceil(totalDead * 0.45) && hungerDeaths < Math.ceil(totalDead * 0.35)) {
+    return "Эпидемия отняла жизни — соль в амбаре снижает смертность; это не провал еды.";
+  }
+
   if (immigrationArrivals > totalDead && world.stats.births === 0) {
     return "Население держится на беженцах — рождений нет, внутренняя устойчивость под вопросом.";
   }

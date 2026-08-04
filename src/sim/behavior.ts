@@ -19,7 +19,7 @@ import { tickDailyCaravan } from "./caravan";
 import { tickDailyCraft } from "./craft";
 import { mayTakeFromBarn, applyDepositTithe, tickDailyGovernment } from "./government";
 import { recordDaySnapshot } from "./history";
-import { tickDailyShocks } from "./shocks";
+import { tickDailyShocks, tickEpidemicMortality } from "./shocks";
 import { tickDailyImmigration, tickDailyMigration } from "./migration";
 import { recordBirth, recordDeath } from "./events";
 import {
@@ -881,6 +881,7 @@ export function simulateTick(world: World): void {
   if (world.tick % world.dayLength === 0) {
     world.stats.day += 1;
     tickDailyShocks(world);
+    tickEpidemicMortality(world);
     tickDailyGovernment(world);
     maybeStartHutBuild(world);
     tickDailyMigration(world);

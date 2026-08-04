@@ -1,26 +1,36 @@
-import { recordShock } from "./events";
+import { killAgent } from "./agent";
+import { recordDeath, recordShock } from "./events";
 import { barnStock } from "./map";
 import { DAYS_PER_SEASON, seasonForDay } from "./season";
-import type { ActiveShock, World } from "./types";
+import type { ActiveShock, Agent, World } from "./types";
 import { chance } from "./util";
+
+const EPIDEMIC_COOLDOWN_DAYS = 120;
 
 /** Множитель регена еды от активного шока (1 = без эффекта). */
 export function foodRegenShockFactor(world: World): number {
-  return world.activeShock?.regenFactor ?? 1;
+  const shock = world.activeShock;
+  if (!shock || shock.kind !== "crop_failure") return 1;
+  return shock.regenFactor;
 }
 
 /** Краткая подпись для HUD */
 export function shockLabel(world: World): string | null {
-  if (!world.activeShock) return null;
-  if (world.activeShock.kind === "crop_failure") {
-    const d = world.activeShock.daysLeft;
+  const shock = world.activeShock;
+  if (!shock) return null;
+  if (shock.kind === "crop_failure") {
+    const d = shock.daysLeft;
     return d === 1 ? "неурожай" : `неурожай (${d} дн.)`;
+  }
+  if (shock.kind === "epidemic") {
+    const d = shock.daysLeft;
+    return d === 1 ? "эпидемия" : `эпидемия (${d} дн.)`;
   }
   return null;
 }
 
 /**
- * Ежедневный тик шоков: затухание и редкий старт неурожая в осень/зиму.
+ * Ежедневный тик шоков: затухание и редкий старт неурожая / эпидемии.
  * Вызывать сразу после инкремента `stats.day`.
  */
 export function tickDailyShocks(world: World): void {
@@ -37,8 +47,42 @@ export function tickDailyShocks(world: World): void {
   if (world.activeShock) return;
 
   const season = seasonForDay(day);
-  if (season !== "autumn" && season !== "winter") return;
+  if (season === "autumn" || season === "winter") {
+    maybeStartCropFailure(world, season);
+  } else if (season === "spring" || season === "summer") {
+    maybeStartEpidemic(world, season);
+  }
+}
 
+/** Смерти от болезни во время активной эпидемии — один тик на день. */
+export function tickEpidemicMortality(world: World): void {
+  const shock = world.activeShock;
+  if (!shock || shock.kind !== "epidemic") return;
+
+  const saltMul =
+    world.saltStock >= 8 ? 0.45 : world.saltStock >= 3 ? 0.72 : 1;
+  const rate = shock.mortalityRate * saltMul;
+
+  for (const agent of world.agents) {
+    if (!agent.alive) continue;
+    const vuln = epidemicVulnerability(agent);
+    if (!chance(world.rng, rate * vuln)) continue;
+    killAgent(agent, "болезнь");
+    world.stats.dead += 1;
+    recordDeath(world, agent, "болезнь");
+  }
+}
+
+function epidemicVulnerability(agent: Agent): number {
+  if (agent.age < 3 || agent.profession === "child") return 1.55;
+  if (agent.age >= 65 || agent.profession === "elder") return 1.35;
+  return 1;
+}
+
+function maybeStartCropFailure(
+  world: World,
+  season: "autumn" | "winter",
+): void {
   const barn = barnStock(world);
   let chanceValue = season === "autumn" ? 0.035 : 0.025;
   if (barn < 35) chanceValue += 0.05;
@@ -57,11 +101,45 @@ export function tickDailyShocks(world: World): void {
   );
 }
 
+function maybeStartEpidemic(
+  world: World,
+  season: "spring" | "summer",
+): void {
+  const day = world.stats.day;
+  if (day - world.lastEpidemicDay < EPIDEMIC_COOLDOWN_DAYS) return;
+
+  const alive = world.stats.alive;
+  if (alive < 15) return;
+
+  let chanceValue = season === "spring" ? 0.02 : 0.012;
+  if (alive >= 22) chanceValue += 0.008;
+  if (alive >= 26) chanceValue += 0.006;
+
+  if (!chance(world.rng, chanceValue)) return;
+
+  const daysLeft = 5 + Math.floor(world.rng() * 4);
+  const mortalityRate = 0.022 + world.rng() * 0.012;
+  world.activeShock = createEpidemic(daysLeft, mortalityRate);
+  world.lastEpidemicDay = day;
+  recordShock(
+    world,
+    "эпидемия",
+    season === "spring"
+      ? "чума бродит по избе и полю"
+      : "лихорадка жмёт на деревню",
+  );
+}
+
 function createCropFailure(
   world: World,
   season: "autumn" | "winter",
 ): ActiveShock {
-  const daysLeft = season === "autumn" ? 2 + Math.floor(world.rng() * 2) : 3 + Math.floor(world.rng() * 2);
+  const daysLeft =
+    season === "autumn" ? 2 + Math.floor(world.rng() * 2) : 3 + Math.floor(world.rng() * 2);
   const regenFactor = 0.52 + world.rng() * 0.08;
   return { kind: "crop_failure", daysLeft, regenFactor };
+}
+
+function createEpidemic(daysLeft: number, mortalityRate: number): ActiveShock {
+  return { kind: "epidemic", daysLeft, mortalityRate };
 }

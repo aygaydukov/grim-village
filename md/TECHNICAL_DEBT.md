@@ -41,6 +41,7 @@
 - [x] **2026-08-01:** баланс 100-дн. режима — ночной отдых, экстренная еда, ранний караван соли (`behavior.ts`, `government.ts`, `caravan.ts`, v1.2.0)
 - [x] **2026-08-02:** баланс 100-дн. режима — ранний перехват голода, приоритет амбара (`behavior.ts`, v1.2.1; 10→4 смерти seed=2026)
 - [x] **2026-08-03:** диагностика застревания — `stuckTicks`, сброс пути, инспектор; smoke 720 дней (`behavior.ts`, `modulate.ts`, v1.2.2; 100д 0 смертей)
+- [x] **2026-08-04:** эпидемии — весенний/летний шок «болезнь», соль, smoke 1440 дней (`shocks.ts`, `SAVE_VERSION=12`, v1.3.0)
 
 ## Automation (Cursor)
 
@@ -69,7 +70,8 @@
 - [x] Мастерская как здание на карте (`workshop` tile, `workshopX/Y`)
 - [x] Расширенная торговля караванов — соль, железо (`resources.ts`, `caravan.ts`)
 - [x] Дописать CD: secrets `DEPLOY_*` → `45.131.42.53:/var/www/grim-village` (см. [DEPLOY.md](DEPLOY.md); один раз поднять nginx на сервере)
-- [ ] Болезни / эпидемии (отдельный шок смертности)
+- [x] Болезни / эпидемии — редкий шок «болезнь» (`shocks.ts`, v1.3.0, SAVE_VERSION=12)
+- [x] Smoke 1440 дней — `EXTRA_LONG_THRESHOLDS`, тест демографии (v1.3.0)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
 - [x] Pathfinding (A*) — `pathfind.ts`, кэш пути на агента
@@ -81,7 +83,7 @@
 - [x] Баланс 100-дневного обычного режима — 0 смертей на seed=2026 (v1.2.2)
 - [x] Диагностика застревания — `stuckTicks`, recovery, инспектор (v1.2.2)
 - [x] Smoke 720 дней — `LONG_THRESHOLDS`, тест демографии (v1.2.2)
-- [ ] Болезни / эпидемии (отдельный шок смертности)
+- [ ] Лекарь / карантин при эпидемии
 
 ## Риски
 
@@ -91,7 +93,7 @@
 - Трупы копятся (обрезка старых тел при >40).
 - Центр поселения принудительно очищается от воды (радиус ~7 клеток) — иначе голод у амбара.
 - Сохранение в localStorage — только локально в браузере; экспорт файла — в бэклог.
-- `SAVE_VERSION = 11` — `saltStock`, `ironStock`; v10 — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
+- `SAVE_VERSION = 12` — `lastEpidemicDay`, шок `epidemic`; v11 — `saltStock`, `ironStock`; v10 — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
 
 ## Полезные ссылки
 
