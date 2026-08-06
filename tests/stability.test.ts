@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { deserializeWorld, serializeWorld } from "../src/sim/persist.ts";
-import { runModulation, LONG_THRESHOLDS, EXTRA_LONG_THRESHOLDS } from "../src/sim/modulate.ts";
+import {
+  runModulation,
+  LONG_THRESHOLDS,
+  EXTRA_LONG_THRESHOLDS,
+  ULTRA_LONG_THRESHOLDS,
+} from "../src/sim/modulate.ts";
 import { stepWorld } from "../src/sim/world.ts";
 
 describe("сохранение мира", () => {
@@ -86,5 +91,15 @@ describe("стабильность деревни", () => {
       `1440d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
     );
     assert.ok(report.births >= 2, "ожидалось ≥2 рождений за ~2 года симуляции");
+  });
+
+  it("2160 дней, seed=2026 — три года, карантин и лекари", () => {
+    const { report } = runModulation(2160, 2026, undefined, { thresholds: ULTRA_LONG_THRESHOLDS });
+    assert.equal(
+      report.stable,
+      true,
+      `2160d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
+    );
+    assert.ok(report.births >= 3, "ожидалось ≥3 рождений за ~3 года симуляции");
   });
 });

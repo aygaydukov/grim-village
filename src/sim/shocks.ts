@@ -7,6 +7,39 @@ import { chance } from "./util";
 
 const EPIDEMIC_COOLDOWN_DAYS = 120;
 
+/** Активна ли эпидемия */
+export function isEpidemicActive(world: World): boolean {
+  return world.activeShock?.kind === "epidemic";
+}
+
+/** Живые старцы (профессия elder или возраст ≥ 65) */
+export function countLivingElders(world: World): number {
+  let n = 0;
+  for (const a of world.agents) {
+    if (!a.alive) continue;
+    if (a.profession === "elder" || a.age >= 65) n += 1;
+  }
+  return n;
+}
+
+/** Множитель смертности от лекарей-старцев (1 = без эффекта) */
+export function epidemicHealerMultiplier(world: World): number {
+  const elders = countLivingElders(world);
+  if (elders === 0) return 1;
+  let mul = 0.68;
+  if (elders >= 2) mul *= 0.82;
+  const starosta = world.starostaId != null
+    ? world.agents.find((a) => a.id === world.starostaId)
+    : null;
+  if (
+    starosta?.alive &&
+    (starosta.profession === "elder" || starosta.age >= 65)
+  ) {
+    mul *= 0.72;
+  }
+  return mul;
+}
+
 /** Множитель регена еды от активного шока (1 = без эффекта). */
 export function foodRegenShockFactor(world: World): number {
   const shock = world.activeShock;
@@ -24,7 +57,10 @@ export function shockLabel(world: World): string | null {
   }
   if (shock.kind === "epidemic") {
     const d = shock.daysLeft;
-    return d === 1 ? "эпидемия" : `эпидемия (${d} дн.)`;
+    const elders = countLivingElders(world);
+    const quarantine = elders > 0 ? "карантин · старцы лечат" : "карантин";
+    const base = d === 1 ? "эпидемия" : `эпидемия (${d} дн.)`;
+    return `${base} · ${quarantine}`;
   }
   return null;
 }
@@ -61,7 +97,7 @@ export function tickEpidemicMortality(world: World): void {
 
   const saltMul =
     world.saltStock >= 8 ? 0.45 : world.saltStock >= 3 ? 0.72 : 1;
-  const rate = shock.mortalityRate * saltMul;
+  const rate = shock.mortalityRate * saltMul * epidemicHealerMultiplier(world);
 
   for (const agent of world.agents) {
     if (!agent.alive) continue;
@@ -121,12 +157,17 @@ function maybeStartEpidemic(
   const mortalityRate = 0.022 + world.rng() * 0.012;
   world.activeShock = createEpidemic(daysLeft, mortalityRate);
   world.lastEpidemicDay = day;
+  const elders = countLivingElders(world);
+  const elderNote =
+    elders > 0
+      ? `старцы у постелей (${elders}) — карантин в хижинах`
+      : "карантин в хижинах — старцев мало";
   recordShock(
     world,
     "эпидемия",
     season === "spring"
-      ? "чума бродит по избе и полю"
-      : "лихорадка жмёт на деревню",
+      ? `чума бродит по избе и полю; ${elderNote}`
+      : `лихорадка жмёт на деревню; ${elderNote}`,
   );
 }
 

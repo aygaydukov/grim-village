@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "1.3.0";
+export const GAME_VERSION = "1.4.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "1.4.0",
+    date: "2026-08-06",
+    changes: [
+      "Карантин при эпидемии — жители сидят в хижинах; сторожа и старцы на посту",
+      "Старцы снижают смертность от болезни; староста-старец усиливает эффект",
+      "HUD: эпидемия · карантин · старцы лечат; летопись с карантином при вспышке",
+      "Smoke 2160 дней (3 игровых года): ULTRA_LONG_THRESHOLDS, ≥3 рождений на seed=2026",
+    ],
+  },
   {
     version: "1.3.0",
     date: "2026-08-04",

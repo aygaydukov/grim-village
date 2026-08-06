@@ -2,6 +2,7 @@ import { ageLabel, childrenOf, isAdult, isChild } from "./agent";
 import { policyLabel, starostaName } from "./government";
 import { countByProfession, professionLabel, taskLabel } from "./jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "./names";
+import { countLivingElders } from "./shocks";
 import { seasonForDay, seasonNote } from "./season";
 import type { Agent, Profession, StarostaPolicy, World } from "./types";
 
@@ -279,7 +280,12 @@ function buildStabilityNote(
 
   const diseaseDeaths = deathCauses["болезнь"] ?? 0;
   if (diseaseDeaths >= Math.ceil(totalDead * 0.45) && hungerDeaths < Math.ceil(totalDead * 0.35)) {
-    return "Эпидемия отняла жизни — соль в амбаре снижает смертность; это не провал еды.";
+    const elders = countLivingElders(world);
+    const elderHint =
+      elders > 0
+        ? "старцы и соль снижают смертность"
+        : "соль в амбаре снижает смертность — старцев мало";
+    return `Эпидемия отняла жизни — ${elderHint}; это не провал еды.`;
   }
 
   if (immigrationArrivals > totalDead && world.stats.births === 0) {

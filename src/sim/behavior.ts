@@ -19,7 +19,11 @@ import { tickDailyCaravan } from "./caravan";
 import { tickDailyCraft } from "./craft";
 import { mayTakeFromBarn, applyDepositTithe, tickDailyGovernment } from "./government";
 import { recordDaySnapshot } from "./history";
-import { tickDailyShocks, tickEpidemicMortality } from "./shocks";
+import {
+  isEpidemicActive,
+  tickDailyShocks,
+  tickEpidemicMortality,
+} from "./shocks";
 import { tickDailyImmigration, tickDailyMigration } from "./migration";
 import { recordBirth, recordDeath } from "./events";
 import {
@@ -134,6 +138,16 @@ function hungryThreshold(agent: Agent): number {
   return agent.pregnant > 0 ? 52 : 62;
 }
 
+/** Карантин: не разносить болезнь — домой, кроме голода и дежурных */
+function shouldEpidemicQuarantine(world: World, agent: Agent): boolean {
+  if (!isEpidemicActive(world)) return false;
+  if (agent.profession === "elder") return false;
+  if (agent.profession === "keeper") return false;
+  if (agent.carriedFood > 0) return false;
+  if (agent.hunger > hungryThreshold(agent) - 4) return false;
+  return true;
+}
+
 function decideState(world: World, agent: Agent): void {
   const eatAt = hungryThreshold(agent);
 
@@ -144,6 +158,11 @@ function decideState(world: World, agent: Agent): void {
 
   if (agent.hunger > eatAt) {
     setTask(agent, "eat", "seekFood");
+    return;
+  }
+
+  if (shouldEpidemicQuarantine(world, agent)) {
+    setTask(agent, "rest", "seekRest");
     return;
   }
 

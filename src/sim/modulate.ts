@@ -57,6 +57,15 @@ export const EXTRA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 2,
 };
 
+/** Пороги для 2160-дневного smoke — три игровых года, несколько эпидемий */
+export const ULTRA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.3,
+  maxDeathRatio: 0.85,
+  minBarnFood: 8,
+  maxAvgHunger: 84,
+  minBirths: 3,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;
