@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "1.4.0";
+export const GAME_VERSION = "1.5.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "1.5.0",
+    date: "2026-08-07",
+    changes: [
+      "Визуал карантина: фиолетовый туман, обводка хижин, кольца у жителей в изоляции",
+      "Старцы при эпидемии — зелёное кольцо «лечит»; легенда карты обновлена",
+      "HUD: seed генерации мира рядом с версией поселения",
+      "Smoke 2880 дней (4 игровых года): MEGA_LONG_THRESHOLDS, ≥4 рождений на seed=2026",
+    ],
+  },
   {
     version: "1.4.0",
     date: "2026-08-06",

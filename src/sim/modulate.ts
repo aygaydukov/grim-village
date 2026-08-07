@@ -66,6 +66,15 @@ export const ULTRA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 3,
 };
 
+/** Пороги для 2880-дневного smoke — четыре игровых года, караваны и миграция */
+export const MEGA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.28,
+  maxDeathRatio: 0.95,
+  minBarnFood: 5,
+  maxAvgHunger: 85,
+  minBirths: 4,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

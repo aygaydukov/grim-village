@@ -139,7 +139,7 @@ function hungryThreshold(agent: Agent): number {
 }
 
 /** Карантин: не разносить болезнь — домой, кроме голода и дежурных */
-function shouldEpidemicQuarantine(world: World, agent: Agent): boolean {
+export function shouldEpidemicQuarantine(world: World, agent: Agent): boolean {
   if (!isEpidemicActive(world)) return false;
   if (agent.profession === "elder") return false;
   if (agent.profession === "keeper") return false;

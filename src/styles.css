@@ -192,6 +192,22 @@ body {
   border-color: rgba(196, 168, 120, 0.7);
 }
 
+#map-legend .dot.ring-purple {
+  background: #8a6a48;
+  box-shadow: 0 0 0 2px #9a68a8;
+}
+
+#map-legend .dot.ring-green {
+  background: #8a6a48;
+  box-shadow: 0 0 0 2px #68a878;
+}
+
+#map-legend .swatch.hut-quarantine {
+  background: rgba(120, 72, 140, 0.45);
+  border-color: #9a68a8;
+  border-style: dashed;
+}
+
 #map-legend .dot {
   border-radius: 50%;
 }
@@ -255,6 +271,14 @@ body {
   font-size: 0.66rem;
   font-family: ui-monospace, "Cascadia Code", monospace;
   color: #6a5a48;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.world-seed {
+  font-size: 0.62rem;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  color: #5a5060;
   letter-spacing: 0.03em;
   white-space: nowrap;
 }

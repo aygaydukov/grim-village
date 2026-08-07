@@ -1,4 +1,6 @@
 import { isChild } from "../sim/agent";
+import { shouldEpidemicQuarantine } from "../sim/behavior";
+import { isEpidemicActive } from "../sim/shocks";
 import { TILE_SIZE, type Agent, type World } from "../sim/types";
 import type { Camera } from "./camera";
 import {
@@ -15,8 +17,12 @@ import {
   BUILD_SITE_PROGRESS,
   CARRY_DOT,
   DUSK_OVERLAY,
+  EPIDEMIC_OVERLAY,
+  ELDER_HEAL_RING,
   FOOD_DOT,
   NIGHT_OVERLAY,
+  QUARANTINE_HUT,
+  QUARANTINE_RING,
   SELECT_RING,
   TILE_COLORS,
   TILE_EDGE,
@@ -57,6 +63,8 @@ export function renderWorld(
   const startY = Math.max(0, Math.floor(cam.y / TILE_SIZE) - 1);
   const endX = Math.min(world.width, Math.ceil((cam.x + viewW / cam.zoom) / TILE_SIZE) + 1);
   const endY = Math.min(world.height, Math.ceil((cam.y + viewH / cam.zoom) / TILE_SIZE) + 1);
+
+  const epidemic = isEpidemicActive(world);
 
   for (let y = startY; y < endY; y++) {
     for (let x = startX; x < endX; x++) {
@@ -108,6 +116,16 @@ export function renderWorld(
       } else if (tile.kind === "water") {
         ctx.fillStyle = "rgba(40, 60, 80, 0.25)";
         ctx.fillRect(px, py + ((x + y) % 4), TILE_SIZE, 2);
+      }
+
+      if (tile.kind === "hut" && epidemic) {
+        ctx.fillStyle = QUARANTINE_HUT;
+        ctx.fillRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+        ctx.strokeStyle = QUARANTINE_RING;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
+        ctx.strokeRect(px + 2, py + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+        ctx.setLineDash([]);
       }
 
       if (tile.food > 0 && tile.kind !== "hut" && tile.kind !== "barn") {
@@ -162,14 +180,19 @@ export function renderWorld(
 
   for (const agent of world.agents) {
     if (agent.alive) continue;
-    drawAgent(ctx, agent, false);
+    drawAgent(ctx, world, agent, false);
   }
   for (const agent of world.agents) {
     if (!agent.alive) continue;
-    drawAgent(ctx, agent, agent.id === selectedId);
+    drawAgent(ctx, world, agent, agent.id === selectedId);
   }
 
   ctx.restore();
+
+  if (epidemic) {
+    ctx.fillStyle = EPIDEMIC_OVERLAY;
+    ctx.fillRect(0, 0, viewW, viewH);
+  }
 
   const t = world.stats.timeOfDay;
   if (t < 0.2 || t > 0.8) {
@@ -181,7 +204,12 @@ export function renderWorld(
   }
 }
 
-function drawAgent(ctx: CanvasRenderingContext2D, agent: Agent, selected: boolean): void {
+function drawAgent(
+  ctx: CanvasRenderingContext2D,
+  world: World,
+  agent: Agent,
+  selected: boolean,
+): void {
   const px = agent.x * TILE_SIZE;
   const py = agent.y * TILE_SIZE;
   const r = isChild(agent) ? 3.2 : 4.4;
@@ -200,12 +228,30 @@ function drawAgent(ctx: CanvasRenderingContext2D, agent: Agent, selected: boolea
   if (agent.state === "sleep") color = AGENT_SLEEP;
   if (agent.hunger > 75) color = AGENT_HUNGRY;
 
+  const epidemic = isEpidemicActive(world);
+
   if (selected) {
     ctx.strokeStyle = SELECT_RING;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(px, py, r + 3, 0, Math.PI * 2);
     ctx.stroke();
+  }
+
+  if (epidemic && agent.profession === "elder") {
+    ctx.strokeStyle = ELDER_HEAL_RING;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(px, py, r + 2.2, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (epidemic && shouldEpidemicQuarantine(world, agent)) {
+    ctx.strokeStyle = QUARANTINE_RING;
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.arc(px, py, r + 2.2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
   }
 
   ctx.fillStyle = color;

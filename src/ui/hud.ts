@@ -39,6 +39,8 @@ let onSelectAgentCb: ((id: number) => void) | null = null;
 export function updateHud(world: World, paused: boolean, speed: number, selection: Selection): void {
   el<HTMLElement>("game-version").textContent = `v${GAME_VERSION}`;
   el<HTMLElement>("settlement-version").textContent = `поселение #${world.settlementVersion}`;
+  const seedEl = document.getElementById("world-seed");
+  if (seedEl) seedEl.textContent = `seed ${world.seed}`;
   el<HTMLElement>("stat-alive").textContent = String(world.stats.alive);
   el<HTMLElement>("stat-dead").textContent = String(world.stats.dead);
   el<HTMLElement>("stat-day").textContent = String(world.stats.day);

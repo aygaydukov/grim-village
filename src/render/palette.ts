@@ -37,6 +37,12 @@ export const CARRY_DOT = "#c4a050";
 export const NIGHT_OVERLAY = "rgba(8, 10, 18, 0.45)";
 export const DUSK_OVERLAY = "rgba(40, 24, 16, 0.2)";
 
+/** Эпидемия — лёгкий фиолетовый туман и обводка хижин */
+export const EPIDEMIC_OVERLAY = "rgba(48, 24, 56, 0.22)";
+export const QUARANTINE_HUT = "rgba(120, 72, 140, 0.38)";
+export const QUARANTINE_RING = "#9a68a8";
+export const ELDER_HEAL_RING = "#68a878";
+
 /** Стройплощадка хижины */
 export const BUILD_SITE_FILL = "rgba(90, 72, 48, 0.55)";
 export const BUILD_SITE_FRAME = "rgba(196, 168, 120, 0.75)";
