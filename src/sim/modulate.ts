@@ -75,6 +75,15 @@ export const MEGA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 4,
 };
 
+/** Пороги для 3600-дневного smoke — пять игровых лет, миграция и изоляция хижин */
+export const SUPER_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.25,
+  maxDeathRatio: 1.05,
+  minBarnFood: 5,
+  maxAvgHunger: 86,
+  minBirths: 5,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

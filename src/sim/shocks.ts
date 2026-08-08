@@ -1,6 +1,7 @@
 import { killAgent } from "./agent";
 import { recordDeath, recordShock } from "./events";
 import { barnStock } from "./map";
+import { countHomeIsolated, epidemicIsolationFactor } from "./quarantine";
 import { DAYS_PER_SEASON, seasonForDay } from "./season";
 import type { ActiveShock, Agent, World } from "./types";
 import { chance } from "./util";
@@ -58,9 +59,12 @@ export function shockLabel(world: World): string | null {
   if (shock.kind === "epidemic") {
     const d = shock.daysLeft;
     const elders = countLivingElders(world);
-    const quarantine = elders > 0 ? "карантин · старцы лечат" : "карантин";
+    const isolated = countHomeIsolated(world);
+    const quarantine =
+      elders > 0 ? "карантин · старцы лечат" : "карантин";
+    const isoNote = isolated > 0 ? ` · ${isolated} в избе` : "";
     const base = d === 1 ? "эпидемия" : `эпидемия (${d} дн.)`;
-    return `${base} · ${quarantine}`;
+    return `${base} · ${quarantine}${isoNote}`;
   }
   return null;
 }
@@ -101,7 +105,7 @@ export function tickEpidemicMortality(world: World): void {
 
   for (const agent of world.agents) {
     if (!agent.alive) continue;
-    const vuln = epidemicVulnerability(agent);
+    const vuln = epidemicVulnerability(agent) * epidemicIsolationFactor(world, agent);
     if (!chance(world.rng, rate * vuln)) continue;
     killAgent(agent, "болезнь");
     world.stats.dead += 1;

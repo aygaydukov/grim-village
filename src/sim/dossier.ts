@@ -2,7 +2,8 @@ import { ageLabel, childrenOf, isAdult, isChild } from "./agent";
 import { policyLabel, starostaName } from "./government";
 import { countByProfession, professionLabel, taskLabel } from "./jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "./names";
-import { countLivingElders } from "./shocks";
+import { countLivingElders, isEpidemicActive } from "./shocks";
+import { countHomeIsolated } from "./quarantine";
 import { seasonForDay, seasonNote } from "./season";
 import type { Agent, Profession, StarostaPolicy, World } from "./types";
 
@@ -46,6 +47,7 @@ export interface VillageReport {
   stabilityNote: string;
   settlementVersion: number;
   stuckAgents: number;
+  quarantineIsolated: number;
 }
 
 export function timePhase(world: World): string {
@@ -144,6 +146,7 @@ export function collectVillageReport(world: World): VillageReport {
   const deathCauses = collectDeathCauses(world);
   const immigrationArrivals = countImmigrationArrivals(world);
   const stuckAgents = countStuckAgents(world);
+  const quarantineIsolated = countHomeIsolated(world);
   const stabilityNote = buildStabilityNote(world, deathCauses, immigrationArrivals, stuckAgents);
 
   let outlook: string;
@@ -217,6 +220,7 @@ export function collectVillageReport(world: World): VillageReport {
     stabilityNote,
     settlementVersion: world.settlementVersion,
     stuckAgents,
+    quarantineIsolated,
   };
 }
 

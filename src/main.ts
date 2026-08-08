@@ -25,8 +25,26 @@ if (!ctx) throw new Error("Canvas 2D недоступен");
 
 const DEFAULT_SEED = 2026;
 
-function createFreshWorld(seed = DEFAULT_SEED) {
-  return initWorld({ width: 64, height: 48, initialPopulation: 22 }, seed);
+function createFreshWorld(seed = DEFAULT_SEED, settlementVersion = 1) {
+  const w = initWorld({ width: 64, height: 48, initialPopulation: 22 }, seed);
+  w.settlementVersion = settlementVersion;
+  w.settlementId = settlementVersion > 1 ? `browser-v${settlementVersion}` : "browser-fresh";
+  return w;
+}
+
+function restartLocalWorld(seed: number): void {
+  const nextVersion = world.settlementVersion + 1;
+  world = createFreshWorld(seed, nextVersion);
+  cam = createCamera(viewW, viewH, world.width, world.height);
+  clampCamera(cam, viewW, viewH, world.width, world.height);
+  paused = false;
+  speed = 1;
+  acc = 0;
+  liveAcc = 0;
+  applySelection({ kind: "village" });
+  const seedInput = document.getElementById("seed-input") as HTMLInputElement | null;
+  if (seedInput) seedInput.value = String(seed);
+  console.info(`[grim-village] local restart seed=${seed} settlement-v${nextVersion}`);
 }
 
 let world = createFreshWorld();
@@ -133,6 +151,7 @@ bindHudControls({
   onVillage: selectVillage,
   onChangelog: selectChangelog,
   onSelectAgent: selectAgent,
+  onNewWorld: restartLocalWorld,
 });
 
 window.addEventListener("keydown", (e) => {
@@ -194,6 +213,8 @@ updateHud(world, paused, speed, selection);
 updateInspector(selection, world);
 void loadPreferredWorld().then((src) => {
   console.info(`[grim-village] world source: ${src}`);
+  const seedInput = document.getElementById("seed-input") as HTMLInputElement | null;
+  if (seedInput) seedInput.placeholder = String(world.seed);
   updateHud(world, paused, speed, selection);
   updateInspector(selection, world);
 });

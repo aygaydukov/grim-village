@@ -219,6 +219,9 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-deaths-breakdown", formatDeathCauses(r.deathCauses));
   setText("live-v-immigration", String(r.immigrationArrivals));
   setText("live-v-stuck", String(r.stuckAgents));
+  setText("live-v-quarantine", String(r.quarantineIsolated));
+  const quarantineRow = elOptional("live-v-quarantine-row");
+  if (quarantineRow) quarantineRow.hidden = r.quarantineIsolated <= 0;
   setText("live-v-settlement", String(r.settlementVersion));
   setText("live-v-starosta", r.starosta ?? "—");
   setText("live-v-policy", r.starostaPolicyLabel);
@@ -371,6 +374,7 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="row"><span>Рождений</span><span id="live-v-births">${r.births}</span></div>
     <div class="row"><span>Приход беженцев</span><span id="live-v-immigration">${r.immigrationArrivals}</span></div>
     <div class="row"><span>Застряли</span><span id="live-v-stuck">${r.stuckAgents}</span></div>
+    <div class="row" id="live-v-quarantine-row" ${r.quarantineIsolated > 0 ? "" : "hidden"}><span>В избе (карантин)</span><span id="live-v-quarantine">${r.quarantineIsolated}</span></div>
     <div class="row"><span>Версия поселения</span><span id="live-v-settlement">${r.settlementVersion}</span></div>
     <div class="row"><span>Муж / Жен</span><span id="live-v-mw">${r.men} / ${r.women}</span></div>
     <div class="row"><span>Дети / Взр. / Старцы</span><span id="live-v-ages">${r.children} / ${r.adults} / ${r.elders}</span></div>
@@ -459,6 +463,7 @@ export function bindHudControls(opts: {
   onVillage: () => void;
   onChangelog: () => void;
   onSelectAgent: (id: number) => void;
+  onNewWorld?: (seed: number) => void;
 }): void {
   onSelectAgentCb = opts.onSelectAgent;
   el<HTMLButtonElement>("btn-pause").addEventListener("click", opts.onPause);
@@ -466,6 +471,17 @@ export function bindHudControls(opts: {
   el<HTMLButtonElement>("btn-changelog").addEventListener("click", opts.onChangelog);
   for (const s of [1, 2, 4]) {
     el<HTMLButtonElement>(`btn-speed-${s}`).addEventListener("click", () => opts.onSpeed(s));
+  }
+
+  const newWorldBtn = document.getElementById("btn-new-world");
+  const seedInput = document.getElementById("seed-input") as HTMLInputElement | null;
+  if (newWorldBtn && seedInput && opts.onNewWorld) {
+    newWorldBtn.addEventListener("click", () => {
+      const raw = seedInput.value.trim();
+      const seed = raw ? Number(raw) : Date.now() % 1_000_000;
+      if (!Number.isFinite(seed) || seed < 1) return;
+      opts.onNewWorld!(Math.floor(seed));
+    });
   }
 
   el<HTMLElement>("inspector-body").addEventListener("click", (e) => {

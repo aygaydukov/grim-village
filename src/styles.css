@@ -283,6 +283,41 @@ body {
   white-space: nowrap;
 }
 
+.hud-seed-row {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+  align-items: center;
+}
+
+.seed-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.28rem 0.4rem;
+  font-size: 0.72rem;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  background: #12100e;
+  border: 1px solid var(--panel-edge);
+  color: var(--ink);
+  border-radius: 2px;
+}
+
+.hud-seed-row button {
+  padding: 0.28rem 0.45rem;
+  font-size: 0.68rem;
+  background: #1e1814;
+  border: 1px solid var(--panel-edge);
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.hud-seed-row button:hover {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
 .hud-sub {
   margin-top: 0.35rem;
   font-size: 0.78rem;

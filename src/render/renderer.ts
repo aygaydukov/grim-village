@@ -1,6 +1,7 @@
 import { isChild } from "../sim/agent";
 import { shouldEpidemicQuarantine } from "../sim/behavior";
 import { isEpidemicActive } from "../sim/shocks";
+import { isolatedHutKeys } from "../sim/quarantine";
 import { TILE_SIZE, type Agent, type World } from "../sim/types";
 import type { Camera } from "./camera";
 import {
@@ -65,6 +66,7 @@ export function renderWorld(
   const endY = Math.min(world.height, Math.ceil((cam.y + viewH / cam.zoom) / TILE_SIZE) + 1);
 
   const epidemic = isEpidemicActive(world);
+  const quarantineHuts = epidemic ? isolatedHutKeys(world) : new Set<string>();
 
   for (let y = startY; y < endY; y++) {
     for (let x = startX; x < endX; x++) {
@@ -118,7 +120,7 @@ export function renderWorld(
         ctx.fillRect(px, py + ((x + y) % 4), TILE_SIZE, 2);
       }
 
-      if (tile.kind === "hut" && epidemic) {
+      if (tile.kind === "hut" && epidemic && quarantineHuts.has(`${x},${y}`)) {
         ctx.fillStyle = QUARANTINE_HUT;
         ctx.fillRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
         ctx.strokeStyle = QUARANTINE_RING;

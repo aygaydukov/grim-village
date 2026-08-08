@@ -1,0 +1,9 @@
+{
+  "version": 6,
+  "label": "after_10_days_v1.6.0",
+  "gameVersion": "1.6.0",
+  "capturedAt": "2026-08-08T06:09:22.193Z",
+  "source": "seed=2026 days=10",
+  "stable": true,
+  "finalAlive": 22
+}

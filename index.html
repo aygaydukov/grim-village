@@ -44,7 +44,7 @@
             <li><i class="carry"></i><span><b>Жёлтые точки сбоку</b> — несёт еду в амбар</span></li>
             <li><i class="dot ring-purple"></i><span><b>Фиолетовое кольцо</b> — карантин при эпидемии</span></li>
             <li><i class="dot ring-green"></i><span><b>Зелёное кольцо</b> — старец лечит</span></li>
-            <li><i class="swatch hut-quarantine"></i><span><b>Фиолетовая хижина</b> — карантин в избе</span></li>
+            <li><i class="swatch hut-quarantine"></i><span><b>Фиолетовая хижина</b> — жители в изоляции при эпидемии</span></li>
           </ul>
         </div>
         <p class="legend-hint">Клик: житель · амбар/площадь · Esc снять выбор</p>
@@ -58,6 +58,10 @@
               <span id="settlement-version" class="settlement-version" title="Версия поселения (итерация после перезапуска)">поселение #1</span>
               <span id="world-seed" class="world-seed" title="Seed генерации мира">seed —</span>
             </div>
+          </div>
+          <div class="hud-seed-row" id="seed-picker" title="Локальный перезапуск — не влияет на серверный daemon">
+            <input type="number" id="seed-input" class="seed-input" min="1" max="999999" placeholder="seed" aria-label="Seed нового мира" />
+            <button type="button" id="btn-new-world">Новый мир</button>
           </div>
           <p class="hud-sub">Наблюдай. Не вмешивайся. Земля сама решит.</p>
         </header>
