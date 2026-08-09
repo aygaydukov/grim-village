@@ -1,0 +1,9 @@
+{
+  "version": 7,
+  "label": "after_10_days_v1.7.0",
+  "gameVersion": "1.7.0",
+  "capturedAt": "2026-08-09T06:10:15.000Z",
+  "source": "path smoothing release smoke",
+  "stable": true,
+  "finalAlive": 22
+}

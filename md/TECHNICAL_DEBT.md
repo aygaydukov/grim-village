@@ -45,6 +45,7 @@
 - [x] **2026-08-06:** карантин и лекари-старцы при эпидемии, smoke 2160 дней (`shocks.ts`, `behavior.ts`, v1.4.0)
 - [x] **2026-08-07:** визуал карантина на карте, seed в HUD, smoke 2880 дней (`renderer.ts`, `modulate.ts`, v1.5.0)
 - [x] **2026-08-08:** изоляция в хижине при эпидемии (`quarantine.ts`, v1.6.0); smoke 3600 дней; локальный выбор seed
+- [x] **2026-08-09:** path smoothing A* (`pathfind.ts`, v1.7.0); smoke 4320 дней; `HYPER_LONG_THRESHOLDS`
 
 ## Automation (Cursor)
 
@@ -83,6 +84,8 @@
 - [x] Изоляция больных хижин — механика `quarantine.ts` (v1.6.0)
 - [x] Smoke 3600 дней — `SUPER_LONG_THRESHOLDS` (v1.6.0)
 - [x] Выбор seed из UI — локальный «Новый мир» (v1.6.0)
+- [x] Path smoothing A* — `smoothPath`, `hasLineOfSight` (v1.7.0)
+- [x] Smoke 4320 дней — `HYPER_LONG_THRESHOLDS` (v1.7.0)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
 - [x] Pathfinding (A*) — `pathfind.ts`, кэш пути на агента

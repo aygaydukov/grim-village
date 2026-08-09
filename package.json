@@ -1,7 +1,7 @@
 {
   "name": "grim-village",
   "private": true,
-  "version": "1.6.0",
+  "version": "1.7.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,7 @@
     "village:daemon": "tsx scripts/village-daemon.ts",
     "settlement:new": "tsx scripts/settlement-cli.ts new",
     "settlement:snapshot": "tsx scripts/settlement-cli.ts snapshot-after-sim",
-    "test": "tsx --test tests/stability.test.ts"
+    "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "tsx": "^4.19.4"

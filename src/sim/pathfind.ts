@@ -33,6 +33,70 @@ function isWalkable(world: World, x: number, y: number): boolean {
   return !!tile && tile.kind !== "water";
 }
 
+/** Прямая видимость по сетке — все клетки линии проходимы (без воды). */
+export function hasLineOfSight(
+  world: World,
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+): boolean {
+  let x0 = Math.floor(fromX);
+  let y0 = Math.floor(fromY);
+  const x1 = Math.floor(toX);
+  const y1 = Math.floor(toY);
+
+  if (!isWalkable(world, x0, y0) || !isWalkable(world, x1, y1)) return false;
+  if (x0 === x1 && y0 === y1) return true;
+
+  const dx = Math.abs(x1 - x0);
+  const dy = Math.abs(y1 - y0);
+  const sx = x0 < x1 ? 1 : -1;
+  const sy = y0 < y1 ? 1 : -1;
+  let err = dx - dy;
+
+  while (x0 !== x1 || y0 !== y1) {
+    const e2 = 2 * err;
+    if (e2 > -dy) {
+      err -= dy;
+      x0 += sx;
+    }
+    if (e2 < dx) {
+      err += dx;
+      y0 += sy;
+    }
+    if (!isWalkable(world, x0, y0)) return false;
+  }
+  return true;
+}
+
+/** String-pulling: убирает лишние углы A*, сохраняя обход воды. */
+export function smoothPath(
+  world: World,
+  path: { x: number; y: number }[],
+): { x: number; y: number }[] {
+  if (path.length <= 2) return path;
+
+  const out: { x: number; y: number }[] = [];
+  let anchor = 0;
+  out.push(path[0]!);
+
+  while (anchor < path.length - 1) {
+    let farthest = anchor + 1;
+    for (let j = path.length - 1; j > anchor; j--) {
+      const wp = path[j]!;
+      if (hasLineOfSight(world, path[anchor]!.x, path[anchor]!.y, wp.x, wp.y)) {
+        farthest = j;
+        break;
+      }
+    }
+    if (farthest !== anchor) out.push(path[farthest]!);
+    anchor = farthest;
+  }
+
+  return out;
+}
+
 /** Ближайшая проходимая клетка к цели (если цель в воде) */
 function nearestWalkable(
   world: World,
@@ -141,7 +205,7 @@ export function findPath(
         cur = cameFrom[cur]!;
       }
       path.reverse();
-      return path;
+      return smoothPath(world, path);
     }
 
     closed.add(current);

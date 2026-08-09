@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "1.6.0";
+export const GAME_VERSION = "1.7.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,15 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "1.7.0",
+    date: "2026-08-09",
+    changes: [
+      "Сглаживание A* (string-pulling): меньше зигзагов у воды, короче маршруты к амбару и участкам",
+      "Прямая видимость по сетке — промежуточные углы пути отбрасываются, если линия проходима",
+      "Smoke 4320 дней (6 игровых лет): HYPER_LONG_THRESHOLDS, ≥6 рождений на seed=2026",
+    ],
+  },
   {
     version: "1.6.0",
     date: "2026-08-08",
