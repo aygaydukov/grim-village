@@ -93,6 +93,15 @@ export const HYPER_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 6,
 };
 
+/** Пороги для 5040-дневного smoke — семь игровых лет, больная изба и эпидемии */
+export const OMEGA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.2,
+  maxDeathRatio: 1.25,
+  minBarnFood: 5,
+  maxAvgHunger: 88,
+  minBirths: 7,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

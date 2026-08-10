@@ -25,6 +25,7 @@ import {
   tickEpidemicMortality,
 } from "./shocks";
 import { tickDailyImmigration, tickDailyMigration } from "./migration";
+import { quarantineTarget, shouldEpidemicQuarantine } from "./quarantine";
 import { recordBirth, recordDeath } from "./events";
 import {
   saltColdMultiplier,
@@ -136,16 +137,6 @@ function applyWorkPlan(world: World, agent: Agent): void {
 
 function hungryThreshold(agent: Agent): number {
   return agent.pregnant > 0 ? 52 : 62;
-}
-
-/** Карантин: не разносить болезнь — домой, кроме голода и дежурных */
-export function shouldEpidemicQuarantine(world: World, agent: Agent): boolean {
-  if (!isEpidemicActive(world)) return false;
-  if (agent.profession === "elder") return false;
-  if (agent.profession === "keeper") return false;
-  if (agent.carriedFood > 0) return false;
-  if (agent.hunger > hungryThreshold(agent) - 4) return false;
-  return true;
 }
 
 function decideState(world: World, agent: Agent): void {
@@ -481,18 +472,21 @@ function actDeposit(world: World, agent: Agent): void {
 
 function actSeekRest(world: World, agent: Agent): void {
   if (agent.targetX == null || agent.targetY == null) {
-    const homeTile = world.tiles[Math.floor(agent.homeY) * world.width + Math.floor(agent.homeX)];
+    const target = quarantineTarget(world, agent);
+    const hx = Math.floor(target.x);
+    const hy = Math.floor(target.y);
+    const homeTile = world.tiles[hy * world.width + hx];
     if (homeTile && homeTile.kind === "hut") {
-      agent.targetX = agent.homeX;
-      agent.targetY = agent.homeY;
+      agent.targetX = target.x;
+      agent.targetY = target.y;
     } else {
       const hut = findNearestHut(world, agent.x, agent.y);
       if (hut) {
         agent.targetX = hut.x;
         agent.targetY = hut.y;
       } else {
-        agent.targetX = agent.homeX;
-        agent.targetY = agent.homeY;
+        agent.targetX = target.x;
+        agent.targetY = target.y;
       }
     }
   }
@@ -929,3 +923,5 @@ export function simulateTick(world: World): void {
   world.stats.alive = world.agents.filter((a) => a.alive).length;
   syncBarnStat(world);
 }
+
+export { shouldEpidemicQuarantine } from "./quarantine";

@@ -1,9 +1,9 @@
 {
   "version": 7,
-  "label": "after_10_days_v1.7.0",
-  "gameVersion": "1.7.0",
-  "capturedAt": "2026-08-09T06:10:15.000Z",
-  "source": "path smoothing release smoke",
+  "label": "after_10_days_v1.8.0",
+  "gameVersion": "1.8.0",
+  "capturedAt": "2026-08-10T06:12:26.400Z",
+  "source": "sick hut release smoke seed=2026",
   "stable": true,
   "finalAlive": 22
 }

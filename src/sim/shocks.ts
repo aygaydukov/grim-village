@@ -1,7 +1,7 @@
 import { killAgent } from "./agent";
 import { recordDeath, recordShock } from "./events";
 import { barnStock } from "./map";
-import { countHomeIsolated, epidemicIsolationFactor } from "./quarantine";
+import { countHomeIsolated, epidemicIsolationFactor, assignSickHut, clearSickHut } from "./quarantine";
 import { DAYS_PER_SEASON, seasonForDay } from "./season";
 import type { ActiveShock, Agent, World } from "./types";
 import { chance } from "./util";
@@ -60,9 +60,9 @@ export function shockLabel(world: World): string | null {
     const d = shock.daysLeft;
     const elders = countLivingElders(world);
     const isolated = countHomeIsolated(world);
+    const isoNote = isolated > 0 ? ` · ${isolated} в больной избе` : "";
     const quarantine =
-      elders > 0 ? "карантин · старцы лечат" : "карантин";
-    const isoNote = isolated > 0 ? ` · ${isolated} в избе` : "";
+      elders > 0 ? "карантин · старцы лечат" : "карантин · больная изба";
     const base = d === 1 ? "эпидемия" : `эпидемия (${d} дн.)`;
     return `${base} · ${quarantine}${isoNote}`;
   }
@@ -77,6 +77,7 @@ export function tickDailyShocks(world: World): void {
   if (world.activeShock) {
     world.activeShock.daysLeft -= 1;
     if (world.activeShock.daysLeft <= 0) {
+      if (world.activeShock.kind === "epidemic") clearSickHut(world);
       world.activeShock = null;
     }
   }
@@ -159,13 +160,14 @@ function maybeStartEpidemic(
 
   const daysLeft = 5 + Math.floor(world.rng() * 4);
   const mortalityRate = 0.022 + world.rng() * 0.012;
+  assignSickHut(world);
   world.activeShock = createEpidemic(daysLeft, mortalityRate);
   world.lastEpidemicDay = day;
   const elders = countLivingElders(world);
   const elderNote =
     elders > 0
-      ? `старцы у постелей (${elders}) — карантин в хижинах`
-      : "карантин в хижинах — старцев мало";
+      ? `старцы у постелей (${elders}) — больная изба на окраине`
+      : "больная изба на окраине — старцев мало";
   recordShock(
     world,
     "эпидемия",

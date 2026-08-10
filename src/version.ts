@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "1.7.0";
+export const GAME_VERSION = "1.8.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,17 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "1.8.0",
+    date: "2026-08-10",
+    changes: [
+      "Больная изба: при эпидемии заражённых свозят в одну хижину на окраине (дальше от амбара)",
+      "Изоляция в больной избе сильнее снижает смертность от болезни, чем дома",
+      "Визуал: красная обводка больной избы; инспектор — «В больной избе» и статус избы",
+      "Smoke 5040 дней (7 игровых лет): OMEGA_LONG_THRESHOLDS, ≥7 рождений на seed=2026",
+      "SAVE_VERSION=13 — sickHutX, sickHutY",
+    ],
+  },
   {
     version: "1.7.0",
     date: "2026-08-09",

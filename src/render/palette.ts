@@ -41,6 +41,9 @@ export const DUSK_OVERLAY = "rgba(40, 24, 16, 0.2)";
 export const EPIDEMIC_OVERLAY = "rgba(48, 24, 56, 0.22)";
 export const QUARANTINE_HUT = "rgba(120, 72, 140, 0.38)";
 export const QUARANTINE_RING = "#9a68a8";
+/** Больная изба — центральный карантин при эпидемии */
+export const SICK_HUT_FILL = "rgba(140, 48, 72, 0.5)";
+export const SICK_HUT_RING = "#c06078";
 export const ELDER_HEAL_RING = "#68a878";
 
 /** Стройплощадка хижины */

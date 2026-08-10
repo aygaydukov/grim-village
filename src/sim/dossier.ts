@@ -3,7 +3,7 @@ import { policyLabel, starostaName } from "./government";
 import { countByProfession, professionLabel, taskLabel } from "./jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "./names";
 import { countLivingElders, isEpidemicActive } from "./shocks";
-import { countHomeIsolated } from "./quarantine";
+import { countHomeIsolated, hasSickHut } from "./quarantine";
 import { seasonForDay, seasonNote } from "./season";
 import type { Agent, Profession, StarostaPolicy, World } from "./types";
 
@@ -48,6 +48,7 @@ export interface VillageReport {
   settlementVersion: number;
   stuckAgents: number;
   quarantineIsolated: number;
+  sickHutActive: boolean;
 }
 
 export function timePhase(world: World): string {
@@ -147,6 +148,7 @@ export function collectVillageReport(world: World): VillageReport {
   const immigrationArrivals = countImmigrationArrivals(world);
   const stuckAgents = countStuckAgents(world);
   const quarantineIsolated = countHomeIsolated(world);
+  const sickHutActive = isEpidemicActive(world) && hasSickHut(world);
   const stabilityNote = buildStabilityNote(world, deathCauses, immigrationArrivals, stuckAgents);
 
   let outlook: string;
@@ -168,6 +170,7 @@ export function collectVillageReport(world: World): VillageReport {
     world.craftStock > 0 ? `В мастерской ${world.craftStock} изделий.` : "",
     world.saltStock > 0 ? `Соль в амбаре: ${Math.round(world.saltStock)} мешков.` : "",
     world.ironStock > 0 ? `Железо на складе: ${Math.round(world.ironStock)} слитков.` : "",
+    sickHutActive ? "Больная изба на окраине — туда свозят заражённых." : "",
     starosta ? `Староста: ${starosta}.` : "Старосту пока не назначили.",
     `Политика: ${policyLabel(world.starostaPolicy)}.`,
     `В лесу и на лугах ещё ${wildFood} дикой пищи.`,
@@ -221,6 +224,7 @@ export function collectVillageReport(world: World): VillageReport {
     settlementVersion: world.settlementVersion,
     stuckAgents,
     quarantineIsolated,
+    sickHutActive,
   };
 }
 

@@ -222,6 +222,8 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-quarantine", String(r.quarantineIsolated));
   const quarantineRow = elOptional("live-v-quarantine-row");
   if (quarantineRow) quarantineRow.hidden = r.quarantineIsolated <= 0;
+  const sickHutRow = elOptional("live-v-sick-hut-row");
+  if (sickHutRow) sickHutRow.hidden = !r.sickHutActive;
   setText("live-v-settlement", String(r.settlementVersion));
   setText("live-v-starosta", r.starosta ?? "—");
   setText("live-v-policy", r.starostaPolicyLabel);
@@ -374,7 +376,8 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="row"><span>Рождений</span><span id="live-v-births">${r.births}</span></div>
     <div class="row"><span>Приход беженцев</span><span id="live-v-immigration">${r.immigrationArrivals}</span></div>
     <div class="row"><span>Застряли</span><span id="live-v-stuck">${r.stuckAgents}</span></div>
-    <div class="row" id="live-v-quarantine-row" ${r.quarantineIsolated > 0 ? "" : "hidden"}><span>В избе (карантин)</span><span id="live-v-quarantine">${r.quarantineIsolated}</span></div>
+    <div class="row" id="live-v-quarantine-row" ${r.quarantineIsolated > 0 ? "" : "hidden"}><span>В больной избе</span><span id="live-v-quarantine">${r.quarantineIsolated}</span></div>
+    <div class="row" id="live-v-sick-hut-row" ${r.sickHutActive ? "" : "hidden"}><span>Больная изба</span><span id="live-v-sick-hut">активна</span></div>
     <div class="row"><span>Версия поселения</span><span id="live-v-settlement">${r.settlementVersion}</span></div>
     <div class="row"><span>Муж / Жен</span><span id="live-v-mw">${r.men} / ${r.women}</span></div>
     <div class="row"><span>Дети / Взр. / Старцы</span><span id="live-v-ages">${r.children} / ${r.adults} / ${r.elders}</span></div>

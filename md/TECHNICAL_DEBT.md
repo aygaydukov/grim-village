@@ -46,6 +46,7 @@
 - [x] **2026-08-07:** визуал карантина на карте, seed в HUD, smoke 2880 дней (`renderer.ts`, `modulate.ts`, v1.5.0)
 - [x] **2026-08-08:** изоляция в хижине при эпидемии (`quarantine.ts`, v1.6.0); smoke 3600 дней; локальный выбор seed
 - [x] **2026-08-09:** path smoothing A* (`pathfind.ts`, v1.7.0); smoke 4320 дней; `HYPER_LONG_THRESHOLDS`
+- [x] **2026-08-10:** больная изба — центр карантина (`quarantine.ts`, v1.8.0); smoke 5040 дней; `OMEGA_LONG_THRESHOLDS`; SAVE_VERSION=13
 
 ## Automation (Cursor)
 
@@ -86,6 +87,8 @@
 - [x] Выбор seed из UI — локальный «Новый мир» (v1.6.0)
 - [x] Path smoothing A* — `smoothPath`, `hasLineOfSight` (v1.7.0)
 - [x] Smoke 4320 дней — `HYPER_LONG_THRESHOLDS` (v1.7.0)
+- [x] Больная изба — центр карантина (`quarantine.ts`, v1.8.0)
+- [x] Smoke 5040 дней — `OMEGA_LONG_THRESHOLDS` (v1.8.0)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
 - [x] Pathfinding (A*) — `pathfind.ts`, кэш пути на агента
@@ -105,7 +108,7 @@
 - Трупы копятся (обрезка старых тел при >40).
 - Центр поселения принудительно очищается от воды (радиус ~7 клеток) — иначе голод у амбара.
 - Сохранение в localStorage — только локально в браузере; экспорт файла — в бэклог.
-- `SAVE_VERSION = 12` — `lastEpidemicDay`, шок `epidemic`; v11 — `saltStock`, `ironStock`; v10 — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
+- `SAVE_VERSION = 13` — `sickHutX`, `sickHutY`; v12 — `lastEpidemicDay`, шок `epidemic`; v11 — `saltStock`, `ironStock`; v10 — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
 
 ## Полезные ссылки
 

@@ -211,6 +211,9 @@ export interface World {
   lastCaravanDay: number;
   /** День последней эпидемии (кулдаун между вспышками) */
   lastEpidemicDay: number;
+  /** Координаты «больной избы» при эпидемии (центр клетки хижины) */
+  sickHutX: number | null;
+  sickHutY: number | null;
   /** Номер итерации поселения (перезапуск после фатала) */
   settlementVersion: number;
   /** Идентификатор текущего поселения */

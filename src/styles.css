@@ -202,6 +202,11 @@ body {
   box-shadow: 0 0 0 2px #68a878;
 }
 
+#map-legend .swatch.hut-sick {
+  background: rgba(140, 48, 72, 0.55);
+  border: 1px solid #c06078;
+}
+
 #map-legend .swatch.hut-quarantine {
   background: rgba(120, 72, 140, 0.45);
   border-color: #9a68a8;
