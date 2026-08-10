@@ -102,10 +102,7 @@ export function epidemicIsolationFactor(world: World, agent: Agent): number {
 
   if (isAtHomeHut(world, agent)) {
     if (agent.state === "sleep") return 0.38;
-    if (
-      shouldEpidemicQuarantine(world, agent) &&
-      (agent.state === "seekRest" || agent.state === "sleep")
-    ) {
+    if (shouldEpidemicQuarantine(world, agent) && agent.state === "seekRest") {
       return 0.52;
     }
   }

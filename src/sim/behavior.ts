@@ -20,7 +20,6 @@ import { tickDailyCraft } from "./craft";
 import { mayTakeFromBarn, applyDepositTithe, tickDailyGovernment } from "./government";
 import { recordDaySnapshot } from "./history";
 import {
-  isEpidemicActive,
   tickDailyShocks,
   tickEpidemicMortality,
 } from "./shocks";

@@ -56,6 +56,7 @@
 - CI/CD: Pages (`docs/`) + deploy `dist/` на сервер (secrets `DEPLOY_*`).
 - Инструкция для промпта: [md/AUTOMATION.md](AUTOMATION.md)
 - План развития: [md/DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
+- **2026-08-11:** CD снова зелёный — фикс `tsc` (`behavior.ts` unused import, `quarantine.ts` dead `"sleep"` compare после сужения типа). С v1.6.0 по v1.8.0 деплой падал после тестов на `npm run build`.
 
 ## Бэклог
 

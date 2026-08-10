@@ -13,14 +13,15 @@ You maintain an autonomous medieval village simulation.
 After code changes, **always** finish with this sequence:
 
 1. `npm test`
-2. `npm run simulate` — 10-day smoke. If unstable, fix balance before finishing.
-3. `npm run simulate:ci` — optional 100-day CI smoke (shortened pregnancy, checks births).
-4. `npm run village:status` — refresh `docs/status.json` (metrics chronicle).
-5. **`npm run settlement:snapshot`** — run **10 in-game days** on the current settlement, then write an SVG map snapshot to `docs/settlements/v{N}/snapshot.svg`.  
+2. `npm run build` — **required**. Deploy CI runs `tsc`; tests alone do not catch unused imports / dead type comparisons. Never push if build fails.
+3. `npm run simulate` — 10-day smoke. If unstable, fix balance before finishing.
+4. `npm run simulate:ci` — optional 100-day CI smoke (shortened pregnancy, checks births).
+5. `npm run village:status` — refresh `docs/status.json` (metrics chronicle).
+6. **`npm run settlement:snapshot`** — run **10 in-game days** on the current settlement, then write an SVG map snapshot to `docs/settlements/v{N}/snapshot.svg`.  
    - Do **not** snapshot only at spawn; the post-sim snapshot is the release artifact.  
    - Commit the new/updated `docs/settlements/v{N}/` files.
-6. If you shipped a player-visible feature: bump `GAME_VERSION` + `CHANGELOG` in `src/version.ts`.
-7. Commit and push to `main`.
+7. If you shipped a player-visible feature: bump `GAME_VERSION` + `CHANGELOG` in `src/version.ts`.
+8. Commit and push to `main`.
 
 ### Settlements & fatal drops
 
@@ -36,6 +37,7 @@ After code changes, **always** finish with this sequence:
 - Put full release notes on GitHub Pages.
 - Commit a spawn-only snapshot as the release snapshot (always simulate 10 days first).
 - Leave a dead village without dropping and restarting.
+- Push to `main` without a green `npm run build` (server deploy will fail after tests).
 
 ## Commands
 
