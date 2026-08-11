@@ -10,6 +10,7 @@ import {
   SUPER_LONG_THRESHOLDS,
   HYPER_LONG_THRESHOLDS,
   OMEGA_LONG_THRESHOLDS,
+  GIGA_LONG_THRESHOLDS,
 } from "../src/sim/modulate.ts";
 import { stepWorld } from "../src/sim/world.ts";
 
@@ -147,5 +148,15 @@ describe("стабильность деревни", () => {
       `5040d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
     );
     assert.ok(report.births >= 7, "ожидалось ≥7 рождений за ~7 лет симуляции");
+  });
+
+  it("5760 дней, seed=2026 — восемь лет, семейный карантин и демография", () => {
+    const { report } = runModulation(5760, 2026, undefined, { thresholds: GIGA_LONG_THRESHOLDS });
+    assert.equal(
+      report.stable,
+      true,
+      `5760d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
+    );
+    assert.ok(report.births >= 8, "ожидалось ≥8 рождений за ~8 лет симуляции");
   });
 });

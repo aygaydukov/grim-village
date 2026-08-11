@@ -166,8 +166,8 @@ function maybeStartEpidemic(
   const elders = countLivingElders(world);
   const elderNote =
     elders > 0
-      ? `старцы у постелей (${elders}) — больная изба на окраине`
-      : "больная изба на окраине — старцев мало";
+      ? `старцы у постелей (${elders}) — семьи целиком в больной избе`
+      : "семьи целиком в больной избе — старцев мало";
   recordShock(
     world,
     "эпидемия",

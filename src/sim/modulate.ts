@@ -102,6 +102,15 @@ export const OMEGA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 7,
 };
 
+/** Пороги для 5760-дневного smoke — восемь игровых лет, семейный карантин */
+export const GIGA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.18,
+  maxDeathRatio: 1.35,
+  minBarnFood: 5,
+  maxAvgHunger: 89,
+  minBirths: 8,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

@@ -4,15 +4,39 @@ import { dist } from "./util";
 
 const HOME_RADIUS = 1.35;
 
-/** Карантин: не разносить болезнь — в больную избу, кроме голода и дежурных */
-export function shouldEpidemicQuarantine(world: World, agent: Agent): boolean {
-  if (!isEpidemicActive(world)) return false;
-  if (agent.profession === "elder") return false;
-  if (agent.profession === "keeper") return false;
+function householdKey(agent: Agent): string {
+  return `${Math.floor(agent.homeX)},${Math.floor(agent.homeY)}`;
+}
+
+function agentsInHousehold(world: World, agent: Agent): Agent[] {
+  const key = householdKey(agent);
+  return world.agents.filter((a) => a.alive && householdKey(a) === key);
+}
+
+/** Индивидуальные исключения: голод, еда в руках, дежурные */
+function wouldQuarantineIndividually(agent: Agent): boolean {
+  if (agent.profession === "elder" || agent.profession === "keeper") return false;
   if (agent.carriedFood > 0) return false;
   const eatAt = agent.pregnant > 0 ? 52 : 62;
   if (agent.hunger > eatAt - 4) return false;
   return true;
+}
+
+/** Семья под карантином, если хоть один взрослый в хижине должен изолироваться */
+export function householdUnderQuarantine(world: World, agent: Agent): boolean {
+  if (!isEpidemicActive(world)) return false;
+  for (const a of agentsInHousehold(world, agent)) {
+    if (wouldQuarantineIndividually(a)) return true;
+  }
+  return false;
+}
+
+/** Карантин: семья целиком в больную избу, кроме голода и дежурных */
+export function shouldEpidemicQuarantine(world: World, agent: Agent): boolean {
+  if (!isEpidemicActive(world)) return false;
+  if (agent.profession === "elder" || agent.profession === "keeper") return false;
+  if (!householdUnderQuarantine(world, agent)) return false;
+  return wouldQuarantineIndividually(agent);
 }
 
 /** Назначить «больную избу» — хижину дальше всего от амбара */
@@ -152,4 +176,16 @@ export function countHomeIsolated(world: World): number {
     if (a.state === "sleep" || a.state === "seekRest") n += 1;
   }
   return n;
+}
+
+/** Сколько семей (хижин) целиком под карантином */
+export function countQuarantinedHouseholds(world: World): number {
+  if (!isEpidemicActive(world)) return 0;
+  const keys = new Set<string>();
+  for (const a of world.agents) {
+    if (!a.alive) continue;
+    if (!householdUnderQuarantine(world, a)) continue;
+    keys.add(householdKey(a));
+  }
+  return keys.size;
 }

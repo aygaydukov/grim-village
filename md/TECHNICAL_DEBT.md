@@ -47,6 +47,7 @@
 - [x] **2026-08-08:** изоляция в хижине при эпидемии (`quarantine.ts`, v1.6.0); smoke 3600 дней; локальный выбор seed
 - [x] **2026-08-09:** path smoothing A* (`pathfind.ts`, v1.7.0); smoke 4320 дней; `HYPER_LONG_THRESHOLDS`
 - [x] **2026-08-10:** больная изба — центр карантина (`quarantine.ts`, v1.8.0); smoke 5040 дней; `OMEGA_LONG_THRESHOLDS`; SAVE_VERSION=13
+- [x] **2026-08-11:** семейный карантин — вся семья в больной избе (`quarantine.ts`, v1.9.0); smoke 5760 дней; `GIGA_LONG_THRESHOLDS`
 
 ## Automation (Cursor)
 
@@ -90,6 +91,8 @@
 - [x] Smoke 4320 дней — `HYPER_LONG_THRESHOLDS` (v1.7.0)
 - [x] Больная изба — центр карантина (`quarantine.ts`, v1.8.0)
 - [x] Smoke 5040 дней — `OMEGA_LONG_THRESHOLDS` (v1.8.0)
+- [x] Семейный карантин в больной избе (`quarantine.ts`, v1.9.0)
+- [x] Smoke 5760 дней — `GIGA_LONG_THRESHOLDS` (v1.9.0)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
 - [x] Pathfinding (A*) — `pathfind.ts`, кэш пути на агента

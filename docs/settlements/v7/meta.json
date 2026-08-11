@@ -1,9 +1,9 @@
 {
   "version": 7,
-  "label": "after_10_days_v1.8.0",
-  "gameVersion": "1.8.0",
-  "capturedAt": "2026-08-10T06:12:26.400Z",
-  "source": "sick hut release smoke seed=2026",
+  "label": "after_10_days_v1.9.0",
+  "gameVersion": "1.9.0",
+  "capturedAt": "2026-08-11T06:15:36.229Z",
+  "source": "family quarantine release smoke seed=2026",
   "stable": true,
   "finalAlive": 22
 }
