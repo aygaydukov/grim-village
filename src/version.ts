@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "1.9.0";
+export const GAME_VERSION = "2.0.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,17 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "2.0.0",
+    date: "2026-08-12",
+    changes: [
+      "Вторая больная изба при переполнении — ≥5 семей в карантине, распределение по двум дальним хижинам",
+      "Визуал: оранжевая обводка второй избы; инспектор — счётчик «Больные избы»",
+      "HUD эпидемии: подпись «2 больные избы» при активном втором карантине",
+      "Smoke 6480 дней (9 игровых лет): TERA_LONG_THRESHOLDS, ≥9 рождений на seed=2026",
+      "SAVE_VERSION=14 — sickHut2X, sickHut2Y",
+    ],
+  },
   {
     version: "1.9.0",
     date: "2026-08-11",

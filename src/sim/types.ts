@@ -214,6 +214,9 @@ export interface World {
   /** Координаты «больной избы» при эпидемии (центр клетки хижины) */
   sickHutX: number | null;
   sickHutY: number | null;
+  /** Вторая больная изба при переполнении первой (≥5 семей в карантине) */
+  sickHut2X: number | null;
+  sickHut2Y: number | null;
   /** Номер итерации поселения (перезапуск после фатала) */
   settlementVersion: number;
   /** Идентификатор текущего поселения */

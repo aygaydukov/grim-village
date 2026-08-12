@@ -15,7 +15,7 @@ import { isEpidemicActive } from "./shocks";
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 13;
+export const SAVE_VERSION = 14;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -52,6 +52,8 @@ export interface WorldSave {
   lastEpidemicDay?: number;
   sickHutX?: number | null;
   sickHutY?: number | null;
+  sickHut2X?: number | null;
+  sickHut2Y?: number | null;
   settlementVersion?: number;
   settlementId?: string;
 }
@@ -94,6 +96,8 @@ export function serializeWorld(world: World): WorldSave {
     lastEpidemicDay: world.lastEpidemicDay,
     sickHutX: world.sickHutX,
     sickHutY: world.sickHutY,
+    sickHut2X: world.sickHut2X,
+    sickHut2Y: world.sickHut2Y,
     settlementVersion: world.settlementVersion,
     settlementId: world.settlementId,
   };
@@ -102,6 +106,7 @@ export function serializeWorld(world: World): WorldSave {
 export function deserializeWorld(data: WorldSave): World {
   if (
     data.version !== SAVE_VERSION &&
+    data.version !== 13 &&
     data.version !== 12 &&
     data.version !== 11 &&
     data.version !== 10 &&
@@ -148,6 +153,8 @@ export function deserializeWorld(data: WorldSave): World {
     lastEpidemicDay: data.lastEpidemicDay ?? 0,
     sickHutX: data.sickHutX ?? null,
     sickHutY: data.sickHutY ?? null,
+    sickHut2X: data.sickHut2X ?? null,
+    sickHut2Y: data.sickHut2Y ?? null,
     settlementVersion: data.settlementVersion ?? 1,
     settlementId: data.settlementId ?? "unknown",
     ciMode: false,
@@ -159,6 +166,9 @@ export function deserializeWorld(data: WorldSave): World {
   }
   if (data.version < SAVE_VERSION) {
     ensureWorkshop(world);
+  }
+  if (data.version < 14) {
+    if (isEpidemicActive(world)) assignSickHut(world);
   }
   if (isEpidemicActive(world) && !hasSickHut(world)) {
     assignSickHut(world);

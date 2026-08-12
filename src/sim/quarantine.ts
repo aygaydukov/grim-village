@@ -3,6 +3,8 @@ import type { Agent, World } from "./types";
 import { dist } from "./util";
 
 const HOME_RADIUS = 1.35;
+/** Семей на одну больную избу — при большем числе открывается вторая */
+const SICK_HUT_HOUSEHOLD_CAPACITY = 4;
 
 function householdKey(agent: Agent): string {
   return `${Math.floor(agent.homeX)},${Math.floor(agent.homeY)}`;
@@ -39,39 +41,103 @@ export function shouldEpidemicQuarantine(world: World, agent: Agent): boolean {
   return wouldQuarantineIndividually(agent);
 }
 
-/** Назначить «больную избу» — хижину дальше всего от амбара */
-export function assignSickHut(world: World): void {
-  let bestX: number | null = null;
-  let bestY: number | null = null;
-  let bestD = -1;
+function countHutTiles(world: World): number {
+  let n = 0;
+  for (const tile of world.tiles) {
+    if (tile.kind === "hut") n += 1;
+  }
+  return n;
+}
+
+/** Хижины, отсортированные по удалённости от амбара (дальние первыми) */
+function farthestHuts(world: World, limit: number): { x: number; y: number }[] {
   const bx = world.barnX + 0.5;
   const by = world.barnY + 0.5;
+  const huts: { x: number; y: number; d: number }[] = [];
 
   for (let y = 0; y < world.height; y++) {
     for (let x = 0; x < world.width; x++) {
       if (world.tiles[y * world.width + x]!.kind !== "hut") continue;
       const hx = x + 0.5;
       const hy = y + 0.5;
-      const d = Math.hypot(hx - bx, hy - by);
-      if (d > bestD) {
-        bestD = d;
-        bestX = hx;
-        bestY = hy;
-      }
+      huts.push({ x: hx, y: hy, d: Math.hypot(hx - bx, hy - by) });
     }
   }
 
-  world.sickHutX = bestX;
-  world.sickHutY = bestY;
+  huts.sort((a, b) => b.d - a.d);
+  return huts.slice(0, limit).map((h) => ({ x: h.x, y: h.y }));
+}
+
+/** Назначить больные избы — одна или две дальние хижины от амбара */
+export function assignSickHut(world: World): void {
+  const candidates = farthestHuts(world, 2);
+  if (candidates.length === 0) {
+    clearSickHut(world);
+    return;
+  }
+
+  world.sickHutX = candidates[0]!.x;
+  world.sickHutY = candidates[0]!.y;
+
+  if (candidates.length >= 2 && countHutTiles(world) >= 6) {
+    world.sickHut2X = candidates[1]!.x;
+    world.sickHut2Y = candidates[1]!.y;
+  } else {
+    world.sickHut2X = null;
+    world.sickHut2Y = null;
+  }
 }
 
 export function clearSickHut(world: World): void {
   world.sickHutX = null;
   world.sickHutY = null;
+  world.sickHut2X = null;
+  world.sickHut2Y = null;
 }
 
 export function hasSickHut(world: World): boolean {
   return world.sickHutX != null && world.sickHutY != null;
+}
+
+export function hasSickHut2(world: World): boolean {
+  return world.sickHut2X != null && world.sickHut2Y != null;
+}
+
+/** Сколько больных изб активно при эпидемии */
+export function countActiveSickHuts(world: World): number {
+  if (!isEpidemicActive(world) || !hasSickHut(world)) return 0;
+  if (!hasSickHut2(world)) return 1;
+  const households = quarantinedHouseholdKeys(world);
+  return households.length > SICK_HUT_HOUSEHOLD_CAPACITY ? 2 : 1;
+}
+
+function quarantinedHouseholdKeys(world: World): string[] {
+  const keys = new Set<string>();
+  for (const a of world.agents) {
+    if (!a.alive) continue;
+    if (!householdUnderQuarantine(world, a)) continue;
+    keys.add(householdKey(a));
+  }
+  return [...keys].sort();
+}
+
+function sickHutIndexForHousehold(world: World, key: string): 1 | 2 {
+  if (!hasSickHut2(world)) return 1;
+  const keys = quarantinedHouseholdKeys(world);
+  if (keys.length <= SICK_HUT_HOUSEHOLD_CAPACITY) return 1;
+  const idx = keys.indexOf(key);
+  if (idx < 0) return 1;
+  const mid = Math.ceil(keys.length / 2);
+  return idx < mid ? 1 : 2;
+}
+
+function sickHutCoords(world: World, index: 1 | 2): { x: number; y: number } | null {
+  if (index === 1) {
+    if (!hasSickHut(world)) return null;
+    return { x: world.sickHutX!, y: world.sickHutY! };
+  }
+  if (!hasSickHut2(world)) return null;
+  return { x: world.sickHut2X!, y: world.sickHut2Y! };
 }
 
 /** Куда идти на отдых при карантине: больная изба или свой дом */
@@ -81,7 +147,9 @@ export function quarantineTarget(world: World, agent: Agent): { x: number; y: nu
     shouldEpidemicQuarantine(world, agent) &&
     hasSickHut(world)
   ) {
-    return { x: world.sickHutX!, y: world.sickHutY! };
+    const hutIdx = sickHutIndexForHousehold(world, householdKey(agent));
+    const coords = sickHutCoords(world, hutIdx) ?? sickHutCoords(world, 1);
+    if (coords) return coords;
   }
   return { x: agent.homeX, y: agent.homeY };
 }
@@ -152,6 +220,9 @@ export function isolatedHutKeys(world: World): Set<string> {
 
   if (hasSickHut(world)) {
     keys.add(`${Math.floor(world.sickHutX!)},${Math.floor(world.sickHutY!)}`);
+  }
+  if (hasSickHut2(world) && countActiveSickHuts(world) >= 2) {
+    keys.add(`${Math.floor(world.sickHut2X!)},${Math.floor(world.sickHut2Y!)}`);
   }
 
   for (const a of world.agents) {

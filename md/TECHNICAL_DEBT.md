@@ -48,6 +48,7 @@
 - [x] **2026-08-09:** path smoothing A* (`pathfind.ts`, v1.7.0); smoke 4320 дней; `HYPER_LONG_THRESHOLDS`
 - [x] **2026-08-10:** больная изба — центр карантина (`quarantine.ts`, v1.8.0); smoke 5040 дней; `OMEGA_LONG_THRESHOLDS`; SAVE_VERSION=13
 - [x] **2026-08-11:** семейный карантин — вся семья в больной избе (`quarantine.ts`, v1.9.0); smoke 5760 дней; `GIGA_LONG_THRESHOLDS`
+- [x] **2026-08-12:** вторая больная изба при переполнении (`quarantine.ts`, v2.0.0); smoke 6480 дней; `TERA_LONG_THRESHOLDS`; SAVE_VERSION=14
 
 ## Automation (Cursor)
 
@@ -93,6 +94,8 @@
 - [x] Smoke 5040 дней — `OMEGA_LONG_THRESHOLDS` (v1.8.0)
 - [x] Семейный карантин в больной избе (`quarantine.ts`, v1.9.0)
 - [x] Smoke 5760 дней — `GIGA_LONG_THRESHOLDS` (v1.9.0)
+- [x] Вторая больная изба при переполнении (`quarantine.ts`, v2.0.0)
+- [x] Smoke 6480 дней — `TERA_LONG_THRESHOLDS` (v2.0.0)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
 - [x] Pathfinding (A*) — `pathfind.ts`, кэш пути на агента
@@ -112,7 +115,7 @@
 - Трупы копятся (обрезка старых тел при >40).
 - Центр поселения принудительно очищается от воды (радиус ~7 клеток) — иначе голод у амбара.
 - Сохранение в localStorage — только локально в браузере; экспорт файла — в бэклог.
-- `SAVE_VERSION = 13` — `sickHutX`, `sickHutY`; v12 — `lastEpidemicDay`, шок `epidemic`; v11 — `saltStock`, `ironStock`; v10 — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
+- `SAVE_VERSION = 14` — `sickHut2X`, `sickHut2Y`; v13 — `sickHutX`, `sickHutY`; v12 — `lastEpidemicDay`, шок `epidemic`; v11 — `saltStock`, `ironStock`; v10 — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
 
 ## Полезные ссылки
 

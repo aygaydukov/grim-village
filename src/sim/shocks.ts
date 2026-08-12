@@ -1,7 +1,7 @@
 import { killAgent } from "./agent";
 import { recordDeath, recordShock } from "./events";
 import { barnStock } from "./map";
-import { countHomeIsolated, epidemicIsolationFactor, assignSickHut, clearSickHut } from "./quarantine";
+import { countHomeIsolated, epidemicIsolationFactor, assignSickHut, clearSickHut, countActiveSickHuts } from "./quarantine";
 import { DAYS_PER_SEASON, seasonForDay } from "./season";
 import type { ActiveShock, Agent, World } from "./types";
 import { chance } from "./util";
@@ -60,11 +60,13 @@ export function shockLabel(world: World): string | null {
     const d = shock.daysLeft;
     const elders = countLivingElders(world);
     const isolated = countHomeIsolated(world);
+    const sickHuts = countActiveSickHuts(world);
     const isoNote = isolated > 0 ? ` · ${isolated} в больной избе` : "";
+    const hutNote = sickHuts >= 2 ? " · 2 больные избы" : "";
     const quarantine =
       elders > 0 ? "карантин · старцы лечат" : "карантин · больная изба";
     const base = d === 1 ? "эпидемия" : `эпидемия (${d} дн.)`;
-    return `${base} · ${quarantine}${isoNote}`;
+    return `${base} · ${quarantine}${hutNote}${isoNote}`;
   }
   return null;
 }

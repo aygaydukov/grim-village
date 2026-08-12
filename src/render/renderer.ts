@@ -1,7 +1,7 @@
 import { isChild } from "../sim/agent";
 import { shouldEpidemicQuarantine } from "../sim/behavior";
 import { isEpidemicActive } from "../sim/shocks";
-import { isolatedHutKeys, hasSickHut } from "../sim/quarantine";
+import { isolatedHutKeys, hasSickHut, hasSickHut2, countActiveSickHuts } from "../sim/quarantine";
 import { TILE_SIZE, type Agent, type World } from "../sim/types";
 import type { Camera } from "./camera";
 import {
@@ -26,6 +26,8 @@ import {
   QUARANTINE_RING,
   SICK_HUT_FILL,
   SICK_HUT_RING,
+  SICK_HUT2_FILL,
+  SICK_HUT2_RING,
   SELECT_RING,
   TILE_COLORS,
   TILE_EDGE,
@@ -72,6 +74,10 @@ export function renderWorld(
   const sickKey =
     epidemic && hasSickHut(world)
       ? `${Math.floor(world.sickHutX!)},${Math.floor(world.sickHutY!)}`
+      : null;
+  const sickKey2 =
+    epidemic && hasSickHut2(world) && countActiveSickHuts(world) >= 2
+      ? `${Math.floor(world.sickHut2X!)},${Math.floor(world.sickHut2Y!)}`
       : null;
 
   for (let y = startY; y < endY; y++) {
@@ -130,6 +136,12 @@ export function renderWorld(
         ctx.fillStyle = SICK_HUT_FILL;
         ctx.fillRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
         ctx.strokeStyle = SICK_HUT_RING;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(px + 2, py + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+      } else if (tile.kind === "hut" && epidemic && sickKey2 === `${x},${y}`) {
+        ctx.fillStyle = SICK_HUT2_FILL;
+        ctx.fillRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+        ctx.strokeStyle = SICK_HUT2_RING;
         ctx.lineWidth = 1.5;
         ctx.strokeRect(px + 2, py + 2, TILE_SIZE - 4, TILE_SIZE - 4);
       } else if (tile.kind === "hut" && epidemic && quarantineHuts.has(`${x},${y}`)) {

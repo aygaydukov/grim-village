@@ -11,6 +11,7 @@ import {
   HYPER_LONG_THRESHOLDS,
   OMEGA_LONG_THRESHOLDS,
   GIGA_LONG_THRESHOLDS,
+  TERA_LONG_THRESHOLDS,
 } from "../src/sim/modulate.ts";
 import { stepWorld } from "../src/sim/world.ts";
 
@@ -40,6 +41,8 @@ describe("сохранение мира", () => {
     assert.equal(loaded.lastEpidemicDay, original.lastEpidemicDay);
     assert.equal(loaded.sickHutX, original.sickHutX);
     assert.equal(loaded.sickHutY, original.sickHutY);
+    assert.equal(loaded.sickHut2X, original.sickHut2X);
+    assert.equal(loaded.sickHut2Y, original.sickHut2Y);
     assert.equal(loaded.settlementVersion, original.settlementVersion);
     assert.equal(loaded.settlementId, original.settlementId);
     assert.equal(loaded.workshopX, original.workshopX);
@@ -158,5 +161,15 @@ describe("стабильность деревни", () => {
       `5760d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
     );
     assert.ok(report.births >= 8, "ожидалось ≥8 рождений за ~8 лет симуляции");
+  });
+
+  it("6480 дней, seed=2026 — девять лет, вторая больная изба и демография", () => {
+    const { report } = runModulation(6480, 2026, undefined, { thresholds: TERA_LONG_THRESHOLDS });
+    assert.equal(
+      report.stable,
+      true,
+      `6480d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
+    );
+    assert.ok(report.births >= 9, "ожидалось ≥9 рождений за ~9 лет симуляции");
   });
 });

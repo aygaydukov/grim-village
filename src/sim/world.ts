@@ -55,6 +55,8 @@ export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): Wo
     lastEpidemicDay: 0,
     sickHutX: null,
     sickHutY: null,
+    sickHut2X: null,
+    sickHut2Y: null,
     settlementVersion: 1,
     settlementId: "browser-fresh",
     ciMode: config.ciMode ?? false,

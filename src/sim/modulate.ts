@@ -111,6 +111,15 @@ export const GIGA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 8,
 };
 
+/** Пороги для 6480-дневного smoke — девять игровых лет, вторая больная изба */
+export const TERA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.16,
+  maxDeathRatio: 1.45,
+  minBarnFood: 5,
+  maxAvgHunger: 90,
+  minBirths: 9,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

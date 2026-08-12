@@ -44,6 +44,9 @@ export const QUARANTINE_RING = "#9a68a8";
 /** Больная изба — центральный карантин при эпидемии */
 export const SICK_HUT_FILL = "rgba(140, 48, 72, 0.5)";
 export const SICK_HUT_RING = "#c06078";
+/** Вторая больная изба — чуть иная обводка */
+export const SICK_HUT2_FILL = "rgba(160, 88, 48, 0.48)";
+export const SICK_HUT2_RING = "#d08050";
 export const ELDER_HEAL_RING = "#68a878";
 
 /** Стройплощадка хижины */

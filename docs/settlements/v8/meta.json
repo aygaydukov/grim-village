@@ -1,0 +1,9 @@
+{
+  "version": 8,
+  "label": "after_10_days_v2.0.0",
+  "gameVersion": "2.0.0",
+  "capturedAt": "2026-08-12T06:19:05.634Z",
+  "source": "release smoke seed=2026",
+  "stable": true,
+  "finalAlive": 22
+}
