@@ -1,7 +1,14 @@
 import { killAgent } from "./agent";
 import { recordDeath, recordShock } from "./events";
 import { barnStock } from "./map";
-import { countHomeIsolated, epidemicIsolationFactor, assignSickHut, clearSickHut, countActiveSickHuts } from "./quarantine";
+import {
+  countHomeIsolated,
+  epidemicIsolationFactor,
+  assignSickHut,
+  clearSickHut,
+  countActiveSickHuts,
+  maybeOpenSecondSickHut,
+} from "./quarantine";
 import { DAYS_PER_SEASON, seasonForDay } from "./season";
 import type { ActiveShock, Agent, World } from "./types";
 import { chance } from "./util";
@@ -77,6 +84,14 @@ export function shockLabel(world: World): string | null {
  */
 export function tickDailyShocks(world: World): void {
   if (world.activeShock) {
+    if (world.activeShock.kind === "epidemic" && maybeOpenSecondSickHut(world)) {
+      recordShock(
+        world,
+        "эпидемия",
+        "переполнение больной избы — открыта вторая дальняя хижина",
+      );
+    }
+
     world.activeShock.daysLeft -= 1;
     if (world.activeShock.daysLeft <= 0) {
       if (world.activeShock.kind === "epidemic") clearSickHut(world);

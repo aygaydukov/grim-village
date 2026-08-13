@@ -68,9 +68,9 @@ function farthestHuts(world: World, limit: number): { x: number; y: number }[] {
   return huts.slice(0, limit).map((h) => ({ x: h.x, y: h.y }));
 }
 
-/** Назначить больные избы — одна или две дальние хижины от амбара */
+/** Назначить первую больную избу — дальняя хижина от амбара */
 export function assignSickHut(world: World): void {
-  const candidates = farthestHuts(world, 2);
+  const candidates = farthestHuts(world, 1);
   if (candidates.length === 0) {
     clearSickHut(world);
     return;
@@ -78,14 +78,30 @@ export function assignSickHut(world: World): void {
 
   world.sickHutX = candidates[0]!.x;
   world.sickHutY = candidates[0]!.y;
+  world.sickHut2X = null;
+  world.sickHut2Y = null;
+}
 
-  if (candidates.length >= 2 && countHutTiles(world) >= 6) {
-    world.sickHut2X = candidates[1]!.x;
-    world.sickHut2Y = candidates[1]!.y;
-  } else {
-    world.sickHut2X = null;
-    world.sickHut2Y = null;
-  }
+/**
+ * Открыть вторую больную избу по факту переполнения (не только при старте эпидемии).
+ * Вызывается ежедневно во время эпидемии.
+ */
+export function maybeOpenSecondSickHut(world: World): boolean {
+  if (!isEpidemicActive(world)) return false;
+  if (!hasSickHut(world) || hasSickHut2(world)) return false;
+  if (countHutTiles(world) < 6) return false;
+  if (countQuarantinedHouseholds(world) <= SICK_HUT_HOUSEHOLD_CAPACITY) return false;
+
+  const candidates = farthestHuts(world, 2);
+  const firstKey = `${Math.floor(world.sickHutX!)},${Math.floor(world.sickHutY!)}`;
+  const second = candidates.find(
+    (h) => `${Math.floor(h.x)},${Math.floor(h.y)}` !== firstKey,
+  );
+  if (!second) return false;
+
+  world.sickHut2X = second.x;
+  world.sickHut2Y = second.y;
+  return true;
 }
 
 export function clearSickHut(world: World): void {

@@ -120,6 +120,15 @@ export const TERA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 9,
 };
 
+/** Пороги для 7200-дневного smoke — десять игровых лет, динамическая вторая изба */
+export const PETA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.14,
+  maxDeathRatio: 1.55,
+  minBarnFood: 3,
+  maxAvgHunger: 91,
+  minBirths: 10,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;
