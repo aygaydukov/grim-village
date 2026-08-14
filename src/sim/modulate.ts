@@ -129,6 +129,15 @@ export const PETA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 10,
 };
 
+/** Пороги для 7920-дневного smoke — одиннадцать игровых лет, долгий цикл эпидемий */
+export const EXA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.12,
+  maxDeathRatio: 1.65,
+  minBarnFood: 3,
+  maxAvgHunger: 92,
+  minBirths: 11,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

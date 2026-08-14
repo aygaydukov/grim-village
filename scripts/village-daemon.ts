@@ -71,8 +71,12 @@ function persist(reason: string): void {
 }
 
 function maybeReset(): void {
-  if (world.stats.day < 20) return;
-  if (!isFatalSettlement(world, initialAlive)) return;
+  const alive = world.agents.filter((a) => a.alive).length;
+  if (alive === 0 || world.stats.day >= 20) {
+    if (!isFatalSettlement(world, initialAlive)) return;
+  } else {
+    return;
+  }
   console.warn(`[daemon] fatal collapse — dropping settlement ${settlementId}`);
   const next = archiveFatalAndRestart(world, initialAlive, dir, GAME_VERSION);
   world = next.world;

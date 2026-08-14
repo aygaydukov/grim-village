@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "2.1.0";
+export const GAME_VERSION = "2.2.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,14 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "2.2.0",
+    date: "2026-08-14",
+    changes: [
+      "Демон: перезапуск поселения при вымирании до 20-го дня — не ждать миграции в пустой деревне",
+      "Smoke 7920 дней (11 игровых лет): EXA_LONG_THRESHOLDS, ≥11 рождений на seed=2026",
+    ],
+  },
   {
     version: "2.1.0",
     date: "2026-08-13",
