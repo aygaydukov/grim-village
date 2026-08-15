@@ -218,6 +218,9 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   if (stabilityEl) stabilityEl.hidden = !r.stabilityNote;
   setText("live-v-deaths-breakdown", formatDeathCauses(r.deathCauses));
   setText("live-v-immigration", String(r.immigrationArrivals));
+  setText("live-v-trend", r.dayHistoryTrend.note || "—");
+  const trendRow = elOptional("live-v-trend-row");
+  if (trendRow) trendRow.hidden = !r.dayHistoryTrend.note;
   setText("live-v-stuck", String(r.stuckAgents));
   setText("live-v-quarantine", String(r.quarantineIsolated));
   const quarantineRow = elOptional("live-v-quarantine-row");
@@ -379,6 +382,7 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="row"><span>Причины смерти</span><span id="live-v-deaths-breakdown">${escapeHtml(formatDeathCauses(r.deathCauses))}</span></div>
     <div class="row"><span>Рождений</span><span id="live-v-births">${r.births}</span></div>
     <div class="row"><span>Приход беженцев</span><span id="live-v-immigration">${r.immigrationArrivals}</span></div>
+    <div class="row" id="live-v-trend-row" ${r.dayHistoryTrend.note ? "" : "hidden"}><span>Тренд (${r.dayHistoryTrend.windowDays} дн.)</span><span id="live-v-trend">${escapeHtml(r.dayHistoryTrend.note)}</span></div>
     <div class="row"><span>Застряли</span><span id="live-v-stuck">${r.stuckAgents}</span></div>
     <div class="row" id="live-v-quarantine-row" ${r.quarantineIsolated > 0 ? "" : "hidden"}><span>В больной избе</span><span id="live-v-quarantine">${r.quarantineIsolated}</span></div>
     <div class="row" id="live-v-quarantine-households-row" ${r.quarantineHouseholds > 0 ? "" : "hidden"}><span>Семей в карантине</span><span id="live-v-quarantine-households">${r.quarantineHouseholds}</span></div>

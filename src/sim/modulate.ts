@@ -138,6 +138,15 @@ export const EXA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 11,
 };
 
+/** Пороги для 8640-дневного smoke — двенадцать игровых лет, миграция и эпидемии */
+export const ZETTA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.1,
+  maxDeathRatio: 1.75,
+  minBarnFood: 3,
+  maxAvgHunger: 93,
+  minBirths: 12,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

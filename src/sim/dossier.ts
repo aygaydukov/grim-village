@@ -7,6 +7,15 @@ import { countHomeIsolated, countQuarantinedHouseholds, hasSickHut, countActiveS
 import { seasonForDay, seasonNote } from "./season";
 import type { Agent, Profession, StarostaPolicy, World } from "./types";
 
+export interface DayHistoryTrend {
+  windowDays: number;
+  deathsInWindow: number;
+  immigrationInWindow: number;
+  hungerDeathsInWindow: number;
+  deathTrend: "rising" | "falling" | "stable" | "none";
+  note: string;
+}
+
 export interface VillageReport {
   name: string;
   day: number;
@@ -45,6 +54,7 @@ export interface VillageReport {
   deathCauses: Record<string, number>;
   immigrationArrivals: number;
   stabilityNote: string;
+  dayHistoryTrend: DayHistoryTrend;
   settlementVersion: number;
   stuckAgents: number;
   quarantineIsolated: number;
@@ -149,11 +159,18 @@ export function collectVillageReport(world: World): VillageReport {
   const deathCauses = collectDeathCauses(world);
   const immigrationArrivals = countImmigrationArrivals(world);
   const stuckAgents = countStuckAgents(world);
+  const dayHistoryTrend = analyzeDayHistoryTrend(world);
   const quarantineIsolated = countHomeIsolated(world);
   const quarantineHouseholds = countQuarantinedHouseholds(world);
   const sickHutActive = isEpidemicActive(world) && hasSickHut(world);
   const sickHutCount = countActiveSickHuts(world);
-  const stabilityNote = buildStabilityNote(world, deathCauses, immigrationArrivals, stuckAgents);
+  const stabilityNote = buildStabilityNote(
+    world,
+    deathCauses,
+    immigrationArrivals,
+    stuckAgents,
+    dayHistoryTrend,
+  );
 
   let outlook: string;
   if (alive.length === 0) outlook = "Деревня мертва. Остались только следы ног в грязи.";
@@ -229,6 +246,7 @@ export function collectVillageReport(world: World): VillageReport {
     deathCauses,
     immigrationArrivals,
     stabilityNote,
+    dayHistoryTrend,
     settlementVersion: world.settlementVersion,
     stuckAgents,
     quarantineIsolated,
@@ -259,13 +277,102 @@ function collectDeathCauses(world: World): Record<string, number> {
 function countImmigrationArrivals(world: World): number {
   let total = 0;
   for (const snap of world.dayHistory) {
-    for (const event of snap.events ?? []) {
-      if (event.kind !== "immigration") continue;
-      const match = event.detail?.match(/(\d+)/);
-      total += match ? Number(match[1]) : 1;
-    }
+    total += countImmigrationInSnapshot(snap);
   }
   return total;
+}
+
+function countImmigrationInSnapshot(snap: { events?: { kind: string; detail?: string }[] }): number {
+  let total = 0;
+  for (const event of snap.events ?? []) {
+    if (event.kind !== "immigration") continue;
+    const match = event.detail?.match(/(\d+)/);
+    total += match ? Number(match[1]) : 1;
+  }
+  return total;
+}
+
+const TREND_WINDOW_DAYS = 7;
+
+/** Тренды смертей и миграции по последним дням dayHistory */
+export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
+  const empty: DayHistoryTrend = {
+    windowDays: 0,
+    deathsInWindow: 0,
+    immigrationInWindow: 0,
+    hungerDeathsInWindow: 0,
+    deathTrend: "none",
+    note: "",
+  };
+  if (world.dayHistory.length < 2) return empty;
+
+  const window = world.dayHistory.slice(-TREND_WINDOW_DAYS);
+  let deathsInWindow = 0;
+  let immigrationInWindow = 0;
+  let hungerDeathsInWindow = 0;
+  const dailyDeaths: number[] = [];
+
+  for (const snap of window) {
+    const dayDeaths = snap.deathsToday ?? 0;
+    deathsInWindow += dayDeaths;
+    dailyDeaths.push(dayDeaths);
+    immigrationInWindow += countImmigrationInSnapshot(snap);
+    for (const event of snap.events ?? []) {
+      if (event.kind !== "death") continue;
+      const cause = event.detail ?? "";
+      if (cause === "голод" || cause === "холод и истощение") hungerDeathsInWindow += 1;
+    }
+  }
+
+  const deathTrend = computeDeathTrend(dailyDeaths);
+  const note = buildTrendNote(deathsInWindow, immigrationInWindow, hungerDeathsInWindow, deathTrend);
+
+  return {
+    windowDays: window.length,
+    deathsInWindow,
+    immigrationInWindow,
+    hungerDeathsInWindow,
+    deathTrend,
+    note,
+  };
+}
+
+function computeDeathTrend(dailyDeaths: number[]): DayHistoryTrend["deathTrend"] {
+  if (dailyDeaths.length < 4) return dailyDeaths.some((d) => d > 0) ? "stable" : "none";
+  const mid = Math.floor(dailyDeaths.length / 2);
+  const firstHalf = dailyDeaths.slice(0, mid).reduce((a, b) => a + b, 0);
+  const secondHalf = dailyDeaths.slice(mid).reduce((a, b) => a + b, 0);
+  if (firstHalf === 0 && secondHalf === 0) return "none";
+  if (secondHalf > firstHalf + 1) return "rising";
+  if (firstHalf > secondHalf + 1) return "falling";
+  return "stable";
+}
+
+function buildTrendNote(
+  deaths: number,
+  immigration: number,
+  hungerDeaths: number,
+  deathTrend: DayHistoryTrend["deathTrend"],
+): string {
+  if (deaths === 0 && immigration === 0) return "";
+
+  const parts: string[] = [];
+  if (deaths > 0) {
+    const trendLabel =
+      deathTrend === "rising" ? "растёт" : deathTrend === "falling" ? "снижается" : "стабильно";
+    parts.push(`смерти за ${TREND_WINDOW_DAYS} дн.: ${deaths} (${trendLabel})`);
+  }
+  if (immigration > 0) parts.push(`беженцы: +${immigration}`);
+  if (hungerDeaths > 0 && hungerDeaths >= Math.ceil(deaths * 0.5)) {
+    parts.push(`голод/холод: ${hungerDeaths}`);
+  }
+  if (deaths >= 2 && immigration > deaths && hungerDeaths >= Math.ceil(deaths * 0.4)) {
+    return `${parts.join(" · ")} — пополнение за счёт миграции, внутренний цикл слаб`;
+  }
+  if (deaths >= 3 && deathTrend === "rising" && immigration === 0) {
+    return `${parts.join(" · ")} — смертность растёт без притока`;
+  }
+  return parts.join(" · ");
 }
 
 function buildStabilityNote(
@@ -273,6 +380,7 @@ function buildStabilityNote(
   deathCauses: Record<string, number>,
   immigrationArrivals: number,
   stuckAgents: number,
+  dayHistoryTrend: DayHistoryTrend,
 ): string {
   const totalDead = world.stats.dead;
   if (stuckAgents >= 2) {
@@ -308,6 +416,14 @@ function buildStabilityNote(
 
   if (immigrationArrivals > totalDead && world.stats.births === 0) {
     return "Население держится на беженцах — рождений нет, внутренняя устойчивость под вопросом.";
+  }
+
+  if (dayHistoryTrend.note.includes("внутренний цикл слаб")) {
+    return `Тревога: ${dayHistoryTrend.note}`;
+  }
+
+  if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {
+    return `Тревога: ${dayHistoryTrend.note || "смертность растёт за последние дни"}`;
   }
 
   return "";

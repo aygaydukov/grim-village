@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "2.2.0";
+export const GAME_VERSION = "2.3.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,15 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "2.3.0",
+    date: "2026-08-15",
+    changes: [
+      "Инспектор: тренд смертей и миграции за последние 7 дней по dayHistory",
+      "Предупреждение, если смерти от голода растут, а пополнение — за счёт беженцев",
+      "Smoke 8640 дней (12 игровых лет): ZETTA_LONG_THRESHOLDS, ≥12 рождений на seed=2026",
+    ],
+  },
   {
     version: "2.2.0",
     date: "2026-08-14",
