@@ -12,6 +12,7 @@ export interface DayHistoryTrend {
   deathsInWindow: number;
   immigrationInWindow: number;
   hungerDeathsInWindow: number;
+  diseaseDeathsInWindow: number;
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -301,6 +302,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     deathsInWindow: 0,
     immigrationInWindow: 0,
     hungerDeathsInWindow: 0,
+    diseaseDeathsInWindow: 0,
     deathTrend: "none",
     note: "",
   };
@@ -310,6 +312,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   let deathsInWindow = 0;
   let immigrationInWindow = 0;
   let hungerDeathsInWindow = 0;
+  let diseaseDeathsInWindow = 0;
   const dailyDeaths: number[] = [];
 
   for (const snap of window) {
@@ -321,17 +324,25 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
       if (event.kind !== "death") continue;
       const cause = event.detail ?? "";
       if (cause === "голод" || cause === "холод и истощение") hungerDeathsInWindow += 1;
+      else if (cause === "болезнь") diseaseDeathsInWindow += 1;
     }
   }
 
   const deathTrend = computeDeathTrend(dailyDeaths);
-  const note = buildTrendNote(deathsInWindow, immigrationInWindow, hungerDeathsInWindow, deathTrend);
+  const note = buildTrendNote(
+    deathsInWindow,
+    immigrationInWindow,
+    hungerDeathsInWindow,
+    diseaseDeathsInWindow,
+    deathTrend,
+  );
 
   return {
     windowDays: window.length,
     deathsInWindow,
     immigrationInWindow,
     hungerDeathsInWindow,
+    diseaseDeathsInWindow,
     deathTrend,
     note,
   };
@@ -352,6 +363,7 @@ function buildTrendNote(
   deaths: number,
   immigration: number,
   hungerDeaths: number,
+  diseaseDeaths: number,
   deathTrend: DayHistoryTrend["deathTrend"],
 ): string {
   if (deaths === 0 && immigration === 0) return "";
@@ -366,8 +378,23 @@ function buildTrendNote(
   if (hungerDeaths > 0 && hungerDeaths >= Math.ceil(deaths * 0.5)) {
     parts.push(`голод/холод: ${hungerDeaths}`);
   }
+  if (
+    diseaseDeaths > 0 &&
+    diseaseDeaths >= Math.ceil(deaths * 0.45) &&
+    hungerDeaths < Math.ceil(deaths * 0.35)
+  ) {
+    parts.push(`болезнь: ${diseaseDeaths}`);
+  }
   if (deaths >= 2 && immigration > deaths && hungerDeaths >= Math.ceil(deaths * 0.4)) {
     return `${parts.join(" · ")} — пополнение за счёт миграции, внутренний цикл слаб`;
+  }
+  if (
+    deaths >= 2 &&
+    diseaseDeaths >= Math.ceil(deaths * 0.45) &&
+    hungerDeaths < Math.ceil(deaths * 0.35) &&
+    immigration === 0
+  ) {
+    return `${parts.join(" · ")} — вспышка болезни, не провал еды`;
   }
   if (deaths >= 3 && deathTrend === "rising" && immigration === 0) {
     return `${parts.join(" · ")} — смертность растёт без притока`;
@@ -420,6 +447,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("внутренний цикл слаб")) {
     return `Тревога: ${dayHistoryTrend.note}`;
+  }
+
+  if (dayHistoryTrend.note.includes("вспышка болезни")) {
+    return dayHistoryTrend.note;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

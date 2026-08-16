@@ -147,6 +147,15 @@ export const ZETTA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 12,
 };
 
+/** Пороги для 9360-дневного smoke — тринадцать игровых лет, долгий цикл эпидемий */
+export const YOTTA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.08,
+  maxDeathRatio: 1.85,
+  minBarnFood: 3,
+  maxAvgHunger: 94,
+  minBirths: 13,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;
