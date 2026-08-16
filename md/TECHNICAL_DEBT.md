@@ -52,6 +52,7 @@
 - [x] **2026-08-13:** динамическое открытие второй избы mid-epidemic (`maybeOpenSecondSickHut`, v2.1.0); smoke 7200 дней; `PETA_LONG_THRESHOLDS`
 - [x] **2026-08-14:** ранний drop при вымирании в daemon (`village-daemon.ts`, v2.2.0); smoke 7920 дней; `EXA_LONG_THRESHOLDS`
 - [x] **2026-08-15:** тренды смертей/миграции в инспекторе (`dossier.ts`, v2.3.0); smoke 8640 дней; `ZETTA_LONG_THRESHOLDS`
+- [x] **2026-08-16:** тренд смертей от болезни в инспекторе (`dossier.ts`, v2.4.0); smoke 9360 дней; `YOTTA_LONG_THRESHOLDS`
 
 ## Automation (Cursor)
 
@@ -105,6 +106,8 @@
 - [x] Smoke 7920 дней — `EXA_LONG_THRESHOLDS` (v2.2.0)
 - [x] Диагностика трендов миграции — `analyzeDayHistoryTrend` (v2.3.0)
 - [x] Smoke 8640 дней — `ZETTA_LONG_THRESHOLDS` (v2.3.0)
+- [x] Тренд смертей от болезни — `diseaseDeathsInWindow` (v2.4.0)
+- [x] Smoke 9360 дней — `YOTTA_LONG_THRESHOLDS` (v2.4.0)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
 - [x] Pathfinding (A*) — `pathfind.ts`, кэш пути на агента
