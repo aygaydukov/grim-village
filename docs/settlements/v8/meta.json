@@ -1,8 +1,8 @@
 {
   "version": 8,
-  "label": "after_10_days_v2.4.0",
-  "gameVersion": "2.4.0",
-  "capturedAt": "2026-08-16T06:17:05.863Z",
+  "label": "after_10_days_v2.5.0",
+  "gameVersion": "2.5.0",
+  "capturedAt": "2026-08-17T06:22:30.000Z",
   "source": "release smoke seed=2026",
   "stable": true,
   "finalAlive": 22
