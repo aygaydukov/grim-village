@@ -16,6 +16,7 @@ import {
   EXA_LONG_THRESHOLDS,
   ZETTA_LONG_THRESHOLDS,
   YOTTA_LONG_THRESHOLDS,
+  ROMA_LONG_THRESHOLDS,
 } from "../src/sim/modulate.ts";
 import { stepWorld } from "../src/sim/world.ts";
 
@@ -215,5 +216,15 @@ describe("стабильность деревни", () => {
       `9360d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
     );
     assert.ok(report.births >= 13, "ожидалось ≥13 рождений за ~13 лет симуляции");
+  });
+
+  it("10080 дней, seed=2026 — четырнадцать лет, миграция и демография", () => {
+    const { report } = runModulation(10080, 2026, undefined, { thresholds: ROMA_LONG_THRESHOLDS });
+    assert.equal(
+      report.stable,
+      true,
+      `10080d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
+    );
+    assert.ok(report.births >= 14, "ожидалось ≥14 рождений за ~14 лет симуляции");
   });
 });

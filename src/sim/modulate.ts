@@ -156,6 +156,15 @@ export const YOTTA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 13,
 };
 
+/** Пороги для 10080-дневного smoke — четырнадцать игровых лет, долгий цикл миграции */
+export const ROMA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.06,
+  maxDeathRatio: 1.95,
+  minBarnFood: 3,
+  maxAvgHunger: 95,
+  minBirths: 14,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

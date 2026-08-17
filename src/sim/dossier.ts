@@ -12,6 +12,7 @@ export interface DayHistoryTrend {
   deathsInWindow: number;
   immigrationInWindow: number;
   hungerDeathsInWindow: number;
+  coldDeathsInWindow: number;
   diseaseDeathsInWindow: number;
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
@@ -302,6 +303,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     deathsInWindow: 0,
     immigrationInWindow: 0,
     hungerDeathsInWindow: 0,
+    coldDeathsInWindow: 0,
     diseaseDeathsInWindow: 0,
     deathTrend: "none",
     note: "",
@@ -312,6 +314,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   let deathsInWindow = 0;
   let immigrationInWindow = 0;
   let hungerDeathsInWindow = 0;
+  let coldDeathsInWindow = 0;
   let diseaseDeathsInWindow = 0;
   const dailyDeaths: number[] = [];
 
@@ -323,7 +326,8 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     for (const event of snap.events ?? []) {
       if (event.kind !== "death") continue;
       const cause = event.detail ?? "";
-      if (cause === "голод" || cause === "холод и истощение") hungerDeathsInWindow += 1;
+      if (cause === "голод") hungerDeathsInWindow += 1;
+      else if (cause === "холод и истощение") coldDeathsInWindow += 1;
       else if (cause === "болезнь") diseaseDeathsInWindow += 1;
     }
   }
@@ -333,6 +337,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     deathsInWindow,
     immigrationInWindow,
     hungerDeathsInWindow,
+    coldDeathsInWindow,
     diseaseDeathsInWindow,
     deathTrend,
   );
@@ -342,6 +347,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     deathsInWindow,
     immigrationInWindow,
     hungerDeathsInWindow,
+    coldDeathsInWindow,
     diseaseDeathsInWindow,
     deathTrend,
     note,
@@ -363,6 +369,7 @@ function buildTrendNote(
   deaths: number,
   immigration: number,
   hungerDeaths: number,
+  coldDeaths: number,
   diseaseDeaths: number,
   deathTrend: DayHistoryTrend["deathTrend"],
 ): string {
@@ -375,13 +382,17 @@ function buildTrendNote(
     parts.push(`смерти за ${TREND_WINDOW_DAYS} дн.: ${deaths} (${trendLabel})`);
   }
   if (immigration > 0) parts.push(`беженцы: +${immigration}`);
-  if (hungerDeaths > 0 && hungerDeaths >= Math.ceil(deaths * 0.5)) {
-    parts.push(`голод/холод: ${hungerDeaths}`);
+  const foodDeaths = hungerDeaths + coldDeaths;
+  if (hungerDeaths > 0 && hungerDeaths >= Math.ceil(deaths * 0.4)) {
+    parts.push(`голод: ${hungerDeaths}`);
+  }
+  if (coldDeaths > 0 && coldDeaths >= Math.ceil(deaths * 0.35)) {
+    parts.push(`холод: ${coldDeaths}`);
   }
   if (
     diseaseDeaths > 0 &&
     diseaseDeaths >= Math.ceil(deaths * 0.45) &&
-    hungerDeaths < Math.ceil(deaths * 0.35)
+    foodDeaths < Math.ceil(deaths * 0.35)
   ) {
     parts.push(`болезнь: ${diseaseDeaths}`);
   }
@@ -390,8 +401,17 @@ function buildTrendNote(
   }
   if (
     deaths >= 2 &&
+    coldDeaths >= Math.ceil(deaths * 0.45) &&
+    hungerDeaths < Math.ceil(deaths * 0.3) &&
+    diseaseDeaths < Math.ceil(deaths * 0.25) &&
+    immigration === 0
+  ) {
+    return `${parts.join(" · ")} — ночной холод, не провал сбора`;
+  }
+  if (
+    deaths >= 2 &&
     diseaseDeaths >= Math.ceil(deaths * 0.45) &&
-    hungerDeaths < Math.ceil(deaths * 0.35) &&
+    foodDeaths < Math.ceil(deaths * 0.35) &&
     immigration === 0
   ) {
     return `${parts.join(" · ")} — вспышка болезни, не провал еды`;
@@ -451,6 +471,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("вспышка болезни")) {
     return dayHistoryTrend.note;
+  }
+
+  if (dayHistoryTrend.note.includes("ночной холод")) {
+    return `Тревога: ${dayHistoryTrend.note} — проверь запасы амбара, соль и ночной отдых.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

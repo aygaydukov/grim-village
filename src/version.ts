@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "2.4.0";
+export const GAME_VERSION = "2.5.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,15 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "2.5.0",
+    date: "2026-08-17",
+    changes: [
+      "Инспектор: тренд смертей от холода отдельно от голода — ночной холод vs провал сбора",
+      "Предупреждение «ночной холод, не провал сбора» при росте смертности от истощения",
+      "Smoke 10080 дней (14 игровых лет): ROMA_LONG_THRESHOLDS, ≥14 рождений на seed=2026",
+    ],
+  },
   {
     version: "2.4.0",
     date: "2026-08-16",
