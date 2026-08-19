@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "2.5.0";
+export const GAME_VERSION = "2.6.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,15 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "2.6.0",
+    date: "2026-08-19",
+    changes: [
+      "Инспектор: тренд исхода семей за 7 дней — отделение перенаселения от голода и болезни",
+      "Предупреждение «исход семей, перенаселение или кризис жилья» при утечке населения",
+      "Smoke 10800 дней (15 игровых лет): NOVA_LONG_THRESHOLDS, ≥15 рождений на seed=2026",
+    ],
+  },
   {
     version: "2.5.0",
     date: "2026-08-17",

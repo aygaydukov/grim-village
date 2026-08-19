@@ -165,6 +165,15 @@ export const ROMA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 14,
 };
 
+/** Пороги для 10800-дневного smoke — пятнадцать игровых лет, исход и демография */
+export const NOVA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.04,
+  maxDeathRatio: 2.05,
+  minBarnFood: 3,
+  maxAvgHunger: 96,
+  minBirths: 15,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;
