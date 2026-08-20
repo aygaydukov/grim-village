@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "2.6.0";
+export const GAME_VERSION = "2.7.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,15 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "2.7.0",
+    date: "2026-08-20",
+    changes: [
+      "Инспектор: тренд рождений за 7 дней — отделение демографического застоя от миграционного притока",
+      "Предупреждение «приток беженцев без рождений» при удержании численности за счёт иммиграции",
+      "Smoke 11520 дней (16 игровых лет): LUNA_LONG_THRESHOLDS, ≥16 рождений на seed=2026",
+    ],
+  },
   {
     version: "2.6.0",
     date: "2026-08-19",

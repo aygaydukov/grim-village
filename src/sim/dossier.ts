@@ -10,6 +10,7 @@ import type { Agent, Profession, StarostaPolicy, World } from "./types";
 export interface DayHistoryTrend {
   windowDays: number;
   deathsInWindow: number;
+  birthsInWindow: number;
   immigrationInWindow: number;
   emigrationInWindow: number;
   hungerDeathsInWindow: number;
@@ -316,6 +317,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const empty: DayHistoryTrend = {
     windowDays: 0,
     deathsInWindow: 0,
+    birthsInWindow: 0,
     immigrationInWindow: 0,
     emigrationInWindow: 0,
     hungerDeathsInWindow: 0,
@@ -328,6 +330,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
 
   const window = world.dayHistory.slice(-TREND_WINDOW_DAYS);
   let deathsInWindow = 0;
+  let birthsInWindow = 0;
   let immigrationInWindow = 0;
   let emigrationInWindow = 0;
   let hungerDeathsInWindow = 0;
@@ -338,6 +341,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   for (const snap of window) {
     const dayDeaths = snap.deathsToday ?? 0;
     deathsInWindow += dayDeaths;
+    birthsInWindow += snap.birthsToday ?? 0;
     dailyDeaths.push(dayDeaths);
     immigrationInWindow += countImmigrationInSnapshot(snap);
     emigrationInWindow += countEmigrationInSnapshot(snap);
@@ -353,6 +357,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const deathTrend = computeDeathTrend(dailyDeaths);
   const note = buildTrendNote(
     deathsInWindow,
+    birthsInWindow,
     immigrationInWindow,
     emigrationInWindow,
     hungerDeathsInWindow,
@@ -364,6 +369,7 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   return {
     windowDays: window.length,
     deathsInWindow,
+    birthsInWindow,
     immigrationInWindow,
     emigrationInWindow,
     hungerDeathsInWindow,
@@ -387,6 +393,7 @@ function computeDeathTrend(dailyDeaths: number[]): DayHistoryTrend["deathTrend"]
 
 function buildTrendNote(
   deaths: number,
+  births: number,
   immigration: number,
   emigration: number,
   hungerDeaths: number,
@@ -394,9 +401,10 @@ function buildTrendNote(
   diseaseDeaths: number,
   deathTrend: DayHistoryTrend["deathTrend"],
 ): string {
-  if (deaths === 0 && immigration === 0 && emigration === 0) return "";
+  if (deaths === 0 && births === 0 && immigration === 0 && emigration === 0) return "";
 
   const parts: string[] = [];
+  if (births > 0) parts.push(`рождения: +${births}`);
   if (deaths > 0) {
     const trendLabel =
       deathTrend === "rising" ? "растёт" : deathTrend === "falling" ? "снижается" : "стабильно";
@@ -417,6 +425,14 @@ function buildTrendNote(
     foodDeaths < Math.ceil(deaths * 0.35)
   ) {
     parts.push(`болезнь: ${diseaseDeaths}`);
+  }
+  if (
+    immigration > 0 &&
+    births === 0 &&
+    (deaths >= 1 || emigration > 0) &&
+    immigration >= Math.max(1, deaths)
+  ) {
+    return `${parts.join(" · ")} — приток беженцев без рождений, демография слаба`;
   }
   if (emigration >= 2 && emigration > immigration && deaths < emigration) {
     return `${parts.join(" · ")} — исход семей, перенаселение или кризис жилья`;
@@ -504,6 +520,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("исход семей")) {
     return `Тревога: ${dayHistoryTrend.note} — строй хижины или снизь голод.`;
+  }
+
+  if (dayHistoryTrend.note.includes("демография слаба")) {
+    return `Тревога: ${dayHistoryTrend.note} — проверь пары, амбар и политику старосты.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

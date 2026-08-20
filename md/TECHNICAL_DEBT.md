@@ -55,6 +55,7 @@
 - [x] **2026-08-16:** тренд смертей от болезни в инспекторе (`dossier.ts`, v2.4.0); smoke 9360 дней; `YOTTA_LONG_THRESHOLDS`
 - [x] **2026-08-17:** тренд смертей от холода в инспекторе (`dossier.ts`, v2.5.0); smoke 10080 дней; `ROMA_LONG_THRESHOLDS`
 - [x] **2026-08-19:** тренд исхода семей в инспекторе (`dossier.ts`, v2.6.0); smoke 10800 дней; `NOVA_LONG_THRESHOLDS`
+- [x] **2026-08-20:** тренд рождений в инспекторе (`dossier.ts`, v2.7.0); smoke 11520 дней; `LUNA_LONG_THRESHOLDS`
 
 ## Automation (Cursor)
 
@@ -114,6 +115,8 @@
 - [x] Smoke 10080 дней — `ROMA_LONG_THRESHOLDS` (v2.5.0)
 - [x] Тренд исхода семей — `emigrationInWindow` (v2.6.0)
 - [x] Smoke 10800 дней — `NOVA_LONG_THRESHOLDS` (v2.6.0)
+- [x] Тренд рождений — `birthsInWindow` (v2.7.0)
+- [x] Smoke 11520 дней — `LUNA_LONG_THRESHOLDS` (v2.7.0)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
 - [x] Pathfinding (A*) — `pathfind.ts`, кэш пути на агента

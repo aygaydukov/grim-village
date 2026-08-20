@@ -174,6 +174,15 @@ export const NOVA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 15,
 };
 
+/** Пороги для 11520-дневного smoke — шестнадцать игровых лет, демографический цикл */
+export const LUNA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.02,
+  maxDeathRatio: 2.15,
+  minBarnFood: 3,
+  maxAvgHunger: 97,
+  minBirths: 16,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;
