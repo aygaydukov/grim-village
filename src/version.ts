@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "2.7.0";
+export const GAME_VERSION = "2.8.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,15 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "2.8.0",
+    date: "2026-08-27",
+    changes: [
+      "Инспектор: тренд опустошения амбара за 7 дней — отделение провала сбора от смертей",
+      "Предупреждение «амбар опустошается, сбор не покрывает потребление» при падении запасов без миграции",
+      "Smoke 12240 дней (17 игровых лет): SOL_LONG_THRESHOLDS, ≥16 рождений на seed=2026",
+    ],
+  },
   {
     version: "2.7.0",
     date: "2026-08-20",

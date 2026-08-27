@@ -19,6 +19,7 @@ import {
   ROMA_LONG_THRESHOLDS,
   NOVA_LONG_THRESHOLDS,
   LUNA_LONG_THRESHOLDS,
+  SOL_LONG_THRESHOLDS,
 } from "../src/sim/modulate.ts";
 import { stepWorld } from "../src/sim/world.ts";
 
@@ -248,5 +249,15 @@ describe("стабильность деревни", () => {
       `11520d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
     );
     assert.ok(report.births >= 16, "ожидалось ≥16 рождений за ~16 лет симуляции");
+  });
+
+  it("12240 дней, seed=2026 — семнадцать лет, цикл запасов амбара", () => {
+    const { report } = runModulation(12240, 2026, undefined, { thresholds: SOL_LONG_THRESHOLDS });
+    assert.equal(
+      report.stable,
+      true,
+      `12240d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
+    );
+    assert.ok(report.births >= 16, "ожидалось ≥16 рождений за ~17 лет симуляции");
   });
 });

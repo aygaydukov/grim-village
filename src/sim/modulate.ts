@@ -183,6 +183,15 @@ export const LUNA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 16,
 };
 
+/** Пороги для 12240-дневного smoke — семнадцать игровых лет, цикл запасов амбара */
+export const SOL_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.01,
+  maxDeathRatio: 2.25,
+  minBarnFood: 3,
+  maxAvgHunger: 98,
+  minBirths: 16,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

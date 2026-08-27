@@ -16,6 +16,9 @@ export interface DayHistoryTrend {
   hungerDeathsInWindow: number;
   coldDeathsInWindow: number;
   diseaseDeathsInWindow: number;
+  barnFoodStart: number;
+  barnFoodEnd: number;
+  barnFoodTrend: "declining" | "rising" | "stable" | "none";
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -323,6 +326,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     hungerDeathsInWindow: 0,
     coldDeathsInWindow: 0,
     diseaseDeathsInWindow: 0,
+    barnFoodStart: 0,
+    barnFoodEnd: 0,
+    barnFoodTrend: "none",
     deathTrend: "none",
     note: "",
   };
@@ -355,6 +361,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   }
 
   const deathTrend = computeDeathTrend(dailyDeaths);
+  const barnFoodStart = window[0]?.barnFood ?? 0;
+  const barnFoodEnd = window[window.length - 1]?.barnFood ?? 0;
+  const barnFoodTrend = computeBarnFoodTrend(window.map((s) => s.barnFood));
   const note = buildTrendNote(
     deathsInWindow,
     birthsInWindow,
@@ -364,6 +373,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     coldDeathsInWindow,
     diseaseDeathsInWindow,
     deathTrend,
+    barnFoodStart,
+    barnFoodEnd,
+    barnFoodTrend,
   );
 
   return {
@@ -375,9 +387,23 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     hungerDeathsInWindow,
     coldDeathsInWindow,
     diseaseDeathsInWindow,
+    barnFoodStart,
+    barnFoodEnd,
+    barnFoodTrend,
     deathTrend,
     note,
   };
+}
+
+function computeBarnFoodTrend(barnLevels: number[]): DayHistoryTrend["barnFoodTrend"] {
+  if (barnLevels.length < 3) return "none";
+  const mid = Math.floor(barnLevels.length / 2);
+  const firstAvg = barnLevels.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg = barnLevels.slice(mid).reduce((a, b) => a + b, 0) / (barnLevels.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg < firstAvg - 12) return "declining";
+  if (secondAvg > firstAvg + 12) return "rising";
+  return "stable";
 }
 
 function computeDeathTrend(dailyDeaths: number[]): DayHistoryTrend["deathTrend"] {
@@ -400,8 +426,19 @@ function buildTrendNote(
   coldDeaths: number,
   diseaseDeaths: number,
   deathTrend: DayHistoryTrend["deathTrend"],
+  barnFoodStart: number,
+  barnFoodEnd: number,
+  barnFoodTrend: DayHistoryTrend["barnFoodTrend"],
 ): string {
-  if (deaths === 0 && births === 0 && immigration === 0 && emigration === 0) return "";
+  if (
+    deaths === 0 &&
+    births === 0 &&
+    immigration === 0 &&
+    emigration === 0 &&
+    barnFoodTrend === "none"
+  ) {
+    return "";
+  }
 
   const parts: string[] = [];
   if (births > 0) parts.push(`рождения: +${births}`);
@@ -459,6 +496,24 @@ function buildTrendNote(
   }
   if (deaths >= 3 && deathTrend === "rising" && immigration === 0) {
     return `${parts.join(" · ")} — смертность растёт без притока`;
+  }
+  if (
+    barnFoodTrend === "declining" &&
+    barnFoodEnd < barnFoodStart - 15 &&
+    barnFoodEnd < 35 &&
+    deaths < 2 &&
+    hungerDeaths === 0 &&
+    immigration === 0
+  ) {
+    const barnPart =
+      barnFoodStart > 0
+        ? `амбар: ${barnFoodStart}→${barnFoodEnd} мер`
+        : `амбар: ${barnFoodEnd} мер`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${barnPart} — амбар опустошается, сбор не покрывает потребление`;
+  }
+  if (barnFoodTrend === "declining" && barnFoodEnd < barnFoodStart - 10) {
+    parts.push(`амбар: ${barnFoodStart}→${barnFoodEnd}`);
   }
   return parts.join(" · ");
 }
@@ -524,6 +579,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("демография слаба")) {
     return `Тревога: ${dayHistoryTrend.note} — проверь пары, амбар и политику старосты.`;
+  }
+
+  if (dayHistoryTrend.note.includes("амбар опустошается")) {
+    return `Тревога: ${dayHistoryTrend.note} — перераспредели сборщиков или снизь потребление.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {
