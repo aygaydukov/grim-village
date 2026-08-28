@@ -19,6 +19,9 @@ export interface DayHistoryTrend {
   barnFoodStart: number;
   barnFoodEnd: number;
   barnFoodTrend: "declining" | "rising" | "stable" | "none";
+  highHungerStart: number;
+  highHungerEnd: number;
+  highHungerTrend: "declining" | "rising" | "stable" | "none";
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -329,6 +332,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     barnFoodStart: 0,
     barnFoodEnd: 0,
     barnFoodTrend: "none",
+    highHungerStart: 0,
+    highHungerEnd: 0,
+    highHungerTrend: "none",
     deathTrend: "none",
     note: "",
   };
@@ -364,6 +370,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const barnFoodStart = window[0]?.barnFood ?? 0;
   const barnFoodEnd = window[window.length - 1]?.barnFood ?? 0;
   const barnFoodTrend = computeBarnFoodTrend(window.map((s) => s.barnFood));
+  const highHungerStart = window[0]?.highHunger ?? 0;
+  const highHungerEnd = window[window.length - 1]?.highHunger ?? 0;
+  const highHungerTrend = computeHighHungerTrend(window.map((s) => s.highHunger));
   const note = buildTrendNote(
     deathsInWindow,
     birthsInWindow,
@@ -376,6 +385,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     barnFoodStart,
     barnFoodEnd,
     barnFoodTrend,
+    highHungerStart,
+    highHungerEnd,
+    highHungerTrend,
   );
 
   return {
@@ -390,6 +402,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     barnFoodStart,
     barnFoodEnd,
     barnFoodTrend,
+    highHungerStart,
+    highHungerEnd,
+    highHungerTrend,
     deathTrend,
     note,
   };
@@ -403,6 +418,18 @@ function computeBarnFoodTrend(barnLevels: number[]): DayHistoryTrend["barnFoodTr
   if (firstAvg === 0 && secondAvg === 0) return "none";
   if (secondAvg < firstAvg - 12) return "declining";
   if (secondAvg > firstAvg + 12) return "rising";
+  return "stable";
+}
+
+function computeHighHungerTrend(highHungerCounts: number[]): DayHistoryTrend["highHungerTrend"] {
+  if (highHungerCounts.length < 3) return "none";
+  const mid = Math.floor(highHungerCounts.length / 2);
+  const firstAvg = highHungerCounts.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    highHungerCounts.slice(mid).reduce((a, b) => a + b, 0) / (highHungerCounts.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg > firstAvg + 1.5) return "rising";
+  if (firstAvg > secondAvg + 1.5) return "declining";
   return "stable";
 }
 
@@ -429,13 +456,17 @@ function buildTrendNote(
   barnFoodStart: number,
   barnFoodEnd: number,
   barnFoodTrend: DayHistoryTrend["barnFoodTrend"],
+  highHungerStart: number,
+  highHungerEnd: number,
+  highHungerTrend: DayHistoryTrend["highHungerTrend"],
 ): string {
   if (
     deaths === 0 &&
     births === 0 &&
     immigration === 0 &&
     emigration === 0 &&
-    barnFoodTrend === "none"
+    barnFoodTrend === "none" &&
+    highHungerTrend === "none"
   ) {
     return "";
   }
@@ -512,8 +543,24 @@ function buildTrendNote(
     const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
     return `${prefix}${barnPart} — амбар опустошается, сбор не покрывает потребление`;
   }
+  if (
+    highHungerTrend === "rising" &&
+    highHungerEnd > highHungerStart + 1 &&
+    highHungerEnd >= 3 &&
+    deaths < 2 &&
+    hungerDeaths === 0 &&
+    immigration === 0 &&
+    barnFoodTrend !== "declining"
+  ) {
+    const hungerPart = `голодных: ${highHungerStart}→${highHungerEnd}`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${hungerPart} — голод нарастает, смертей ещё нет`;
+  }
   if (barnFoodTrend === "declining" && barnFoodEnd < barnFoodStart - 10) {
     parts.push(`амбар: ${barnFoodStart}→${barnFoodEnd}`);
+  }
+  if (highHungerTrend === "rising" && highHungerEnd > highHungerStart) {
+    parts.push(`голодных: ${highHungerStart}→${highHungerEnd}`);
   }
   return parts.join(" · ");
 }
@@ -583,6 +630,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("амбар опустошается")) {
     return `Тревога: ${dayHistoryTrend.note} — перераспредели сборщиков или снизь потребление.`;
+  }
+
+  if (dayHistoryTrend.note.includes("голод нарастает")) {
+    return `Тревога: ${dayHistoryTrend.note} — усиль раздачу из амбара или перераспредели сборщиков.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

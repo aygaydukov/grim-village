@@ -192,6 +192,15 @@ export const SOL_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 16,
 };
 
+/** Пороги для 12960-дневного smoke — восемнадцать игровых лет, долгий демографический цикл */
+export const SOLA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.01,
+  maxDeathRatio: 2.35,
+  minBarnFood: 3,
+  maxAvgHunger: 99,
+  minBirths: 17,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

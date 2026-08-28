@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "2.8.0";
+export const GAME_VERSION = "2.9.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,15 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "2.9.0",
+    date: "2026-08-28",
+    changes: [
+      "Инспектор: тренд нарастающего голода за 7 дней — ранний сигнал до смертей",
+      "Предупреждение «голод нарастает, смертей ещё нет» при росте числа голодных без провала амбара",
+      "Smoke 12960 дней (18 игровых лет): SOLA_LONG_THRESHOLDS, ≥17 рождений на seed=2026",
+    ],
+  },
   {
     version: "2.8.0",
     date: "2026-08-27",

@@ -1,9 +1,9 @@
 {
   "version": 8,
-  "label": "after_10_days_v2.8.0",
-  "gameVersion": "2.8.0",
-  "capturedAt": "2026-08-27T17:32:37.896Z",
-  "source": "release smoke seed=24576",
+  "label": "after_10_days_v2.9.0",
+  "gameVersion": "2.9.0",
+  "capturedAt": "2026-08-28T06:41:20.678Z",
+  "source": "release smoke seed=2026",
   "stable": true,
   "finalAlive": 22
 }
