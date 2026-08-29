@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "2.9.0";
+export const GAME_VERSION = "3.0.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.0.0",
+    date: "2026-08-29",
+    changes: [
+      "Инспектор: тренд нарастающего застревания за 7 дней — ранний сигнал до смертей от голода",
+      "Предупреждение «застревание нарастает, смертей ещё нет» при росте числа застрявших у воды",
+      "dayHistory: поле stuckAgents в снимках дня для 7-дневной аналитики",
+      "Smoke 13680 дней (19 игровых лет): ASTRA_LONG_THRESHOLDS, ≥18 рождений на seed=2026",
+    ],
+  },
   {
     version: "2.9.0",
     date: "2026-08-28",

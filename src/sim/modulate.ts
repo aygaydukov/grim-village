@@ -201,6 +201,15 @@ export const SOLA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 17,
 };
 
+/** Пороги для 13680-дневного smoke — девятнадцать игровых лет, долгий цикл маршрутов */
+export const ASTRA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.01,
+  maxDeathRatio: 2.45,
+  minBarnFood: 3,
+  maxAvgHunger: 99,
+  minBirths: 18,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

@@ -22,6 +22,9 @@ export interface DayHistoryTrend {
   highHungerStart: number;
   highHungerEnd: number;
   highHungerTrend: "declining" | "rising" | "stable" | "none";
+  stuckAgentsStart: number;
+  stuckAgentsEnd: number;
+  stuckTrend: "declining" | "rising" | "stable" | "none";
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -335,6 +338,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     highHungerStart: 0,
     highHungerEnd: 0,
     highHungerTrend: "none",
+    stuckAgentsStart: 0,
+    stuckAgentsEnd: 0,
+    stuckTrend: "none",
     deathTrend: "none",
     note: "",
   };
@@ -373,6 +379,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const highHungerStart = window[0]?.highHunger ?? 0;
   const highHungerEnd = window[window.length - 1]?.highHunger ?? 0;
   const highHungerTrend = computeHighHungerTrend(window.map((s) => s.highHunger));
+  const stuckAgentsStart = window[0]?.stuckAgents ?? 0;
+  const stuckAgentsEnd = window[window.length - 1]?.stuckAgents ?? 0;
+  const stuckTrend = computeStuckTrend(window.map((s) => s.stuckAgents ?? 0));
   const note = buildTrendNote(
     deathsInWindow,
     birthsInWindow,
@@ -388,6 +397,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     highHungerStart,
     highHungerEnd,
     highHungerTrend,
+    stuckAgentsStart,
+    stuckAgentsEnd,
+    stuckTrend,
   );
 
   return {
@@ -405,6 +417,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     highHungerStart,
     highHungerEnd,
     highHungerTrend,
+    stuckAgentsStart,
+    stuckAgentsEnd,
+    stuckTrend,
     deathTrend,
     note,
   };
@@ -430,6 +445,18 @@ function computeHighHungerTrend(highHungerCounts: number[]): DayHistoryTrend["hi
   if (firstAvg === 0 && secondAvg === 0) return "none";
   if (secondAvg > firstAvg + 1.5) return "rising";
   if (firstAvg > secondAvg + 1.5) return "declining";
+  return "stable";
+}
+
+function computeStuckTrend(stuckCounts: number[]): DayHistoryTrend["stuckTrend"] {
+  if (stuckCounts.length < 3) return "none";
+  const mid = Math.floor(stuckCounts.length / 2);
+  const firstAvg = stuckCounts.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    stuckCounts.slice(mid).reduce((a, b) => a + b, 0) / (stuckCounts.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg > firstAvg + 0.5) return "rising";
+  if (firstAvg > secondAvg + 0.5) return "declining";
   return "stable";
 }
 
@@ -459,6 +486,9 @@ function buildTrendNote(
   highHungerStart: number,
   highHungerEnd: number,
   highHungerTrend: DayHistoryTrend["highHungerTrend"],
+  stuckAgentsStart: number,
+  stuckAgentsEnd: number,
+  stuckTrend: DayHistoryTrend["stuckTrend"],
 ): string {
   if (
     deaths === 0 &&
@@ -466,7 +496,8 @@ function buildTrendNote(
     immigration === 0 &&
     emigration === 0 &&
     barnFoodTrend === "none" &&
-    highHungerTrend === "none"
+    highHungerTrend === "none" &&
+    stuckTrend === "none"
   ) {
     return "";
   }
@@ -556,11 +587,26 @@ function buildTrendNote(
     const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
     return `${prefix}${hungerPart} — голод нарастает, смертей ещё нет`;
   }
+  if (
+    stuckTrend === "rising" &&
+    stuckAgentsEnd > stuckAgentsStart &&
+    stuckAgentsEnd >= 2 &&
+    deaths < 2 &&
+    hungerDeaths === 0 &&
+    immigration === 0
+  ) {
+    const stuckPart = `застряли: ${stuckAgentsStart}→${stuckAgentsEnd}`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${stuckPart} — застревание нарастает, смертей ещё нет`;
+  }
   if (barnFoodTrend === "declining" && barnFoodEnd < barnFoodStart - 10) {
     parts.push(`амбар: ${barnFoodStart}→${barnFoodEnd}`);
   }
   if (highHungerTrend === "rising" && highHungerEnd > highHungerStart) {
     parts.push(`голодных: ${highHungerStart}→${highHungerEnd}`);
+  }
+  if (stuckTrend === "rising" && stuckAgentsEnd > stuckAgentsStart) {
+    parts.push(`застряли: ${stuckAgentsStart}→${stuckAgentsEnd}`);
   }
   return parts.join(" · ");
 }
@@ -634,6 +680,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("голод нарастает")) {
     return `Тревога: ${dayHistoryTrend.note} — усиль раздачу из амбара или перераспредели сборщиков.`;
+  }
+
+  if (dayHistoryTrend.note.includes("застревание нарастает")) {
+    return `Тревога: ${dayHistoryTrend.note} — проверь пути у воды, leash и сброс маршрута.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

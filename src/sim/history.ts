@@ -20,10 +20,12 @@ export function recordDaySnapshot(world: World): void {
   let hungerSum = 0;
   let energySum = 0;
   let highHunger = 0;
+  let stuckAgents = 0;
   for (const a of alive) {
     hungerSum += a.hunger;
     energySum += a.energy;
     if (a.hunger > 70) highHunger += 1;
+    if ((a.stuckTicks ?? 0) >= 60) stuckAgents += 1;
   }
   const n = Math.max(1, alive.length);
 
@@ -39,6 +41,7 @@ export function recordDaySnapshot(world: World): void {
     deathsToday: Math.max(0, deathsToday),
     birthsToday: Math.max(0, birthsToday),
     highHunger,
+    stuckAgents,
     season: seasonForDay(world.stats.day),
     barnFood: barnStock(world),
     wildFood: wildFoodTotal(world),

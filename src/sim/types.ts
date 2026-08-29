@@ -110,6 +110,8 @@ export interface DaySnapshot {
   birthsToday: number;
   /** Жители с голодом > 70 */
   highHunger: number;
+  /** Жители с stuckTicks ≥ 60 (застряли у воды или за участком) */
+  stuckAgents: number;
   season: Season;
   barnFood: number;
   wildFood: number;
