@@ -25,6 +25,11 @@ export interface DayHistoryTrend {
   stuckAgentsStart: number;
   stuckAgentsEnd: number;
   stuckTrend: "declining" | "rising" | "stable" | "none";
+  gatherersStart: number;
+  gatherersEnd: number;
+  gathererRatioStart: number;
+  gathererRatioEnd: number;
+  gathererTrend: "declining" | "rising" | "stable" | "none";
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -341,6 +346,11 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     stuckAgentsStart: 0,
     stuckAgentsEnd: 0,
     stuckTrend: "none",
+    gatherersStart: 0,
+    gatherersEnd: 0,
+    gathererRatioStart: 0,
+    gathererRatioEnd: 0,
+    gathererTrend: "none",
     deathTrend: "none",
     note: "",
   };
@@ -382,6 +392,12 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const stuckAgentsStart = window[0]?.stuckAgents ?? 0;
   const stuckAgentsEnd = window[window.length - 1]?.stuckAgents ?? 0;
   const stuckTrend = computeStuckTrend(window.map((s) => s.stuckAgents ?? 0));
+  const gathererRatios = window.map((s) => gathererRatioFromSnapshot(s));
+  const gatherersStart = window[0]?.professions?.gatherer ?? 0;
+  const gatherersEnd = window[window.length - 1]?.professions?.gatherer ?? 0;
+  const gathererRatioStart = gathererRatios[0] ?? 0;
+  const gathererRatioEnd = gathererRatios[gathererRatios.length - 1] ?? 0;
+  const gathererTrend = computeGathererTrend(gathererRatios);
   const note = buildTrendNote(
     deathsInWindow,
     birthsInWindow,
@@ -400,6 +416,11 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     stuckAgentsStart,
     stuckAgentsEnd,
     stuckTrend,
+    gatherersStart,
+    gatherersEnd,
+    gathererRatioStart,
+    gathererRatioEnd,
+    gathererTrend,
   );
 
   return {
@@ -420,9 +441,38 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     stuckAgentsStart,
     stuckAgentsEnd,
     stuckTrend,
+    gatherersStart,
+    gatherersEnd,
+    gathererRatioStart,
+    gathererRatioEnd,
+    gathererTrend,
     deathTrend,
     note,
   };
+}
+
+function gathererRatioFromSnapshot(snap: {
+  alive: number;
+  professions?: Record<Profession, number>;
+}): number {
+  const gatherers = snap.professions?.gatherer ?? 0;
+  const children = snap.professions?.child ?? 0;
+  const workers = Math.max(1, snap.alive - children);
+  return gatherers / workers;
+}
+
+function computeGathererTrend(
+  ratios: number[],
+): DayHistoryTrend["gathererTrend"] {
+  if (ratios.length < 3) return "none";
+  const mid = Math.floor(ratios.length / 2);
+  const firstAvg = ratios.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    ratios.slice(mid).reduce((a, b) => a + b, 0) / (ratios.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg < firstAvg - 0.08) return "declining";
+  if (secondAvg > firstAvg + 0.08) return "rising";
+  return "stable";
 }
 
 function computeBarnFoodTrend(barnLevels: number[]): DayHistoryTrend["barnFoodTrend"] {
@@ -489,6 +539,11 @@ function buildTrendNote(
   stuckAgentsStart: number,
   stuckAgentsEnd: number,
   stuckTrend: DayHistoryTrend["stuckTrend"],
+  gatherersStart: number,
+  gatherersEnd: number,
+  gathererRatioStart: number,
+  gathererRatioEnd: number,
+  gathererTrend: DayHistoryTrend["gathererTrend"],
 ): string {
   if (
     deaths === 0 &&
@@ -497,7 +552,8 @@ function buildTrendNote(
     emigration === 0 &&
     barnFoodTrend === "none" &&
     highHungerTrend === "none" &&
-    stuckTrend === "none"
+    stuckTrend === "none" &&
+    gathererTrend === "none"
   ) {
     return "";
   }
@@ -599,6 +655,20 @@ function buildTrendNote(
     const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
     return `${prefix}${stuckPart} — застревание нарастает, смертей ещё нет`;
   }
+  if (
+    gathererTrend === "declining" &&
+    gatherersEnd < gatherersStart - 1 &&
+    gathererRatioEnd < gathererRatioStart - 0.06 &&
+    gatherersEnd <= 4 &&
+    deaths < 2 &&
+    hungerDeaths === 0 &&
+    immigration === 0 &&
+    barnFoodTrend !== "declining"
+  ) {
+    const gatherPart = `сборщики: ${gatherersStart}→${gatherersEnd}`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${gatherPart} — мало сборщиков, амбар пока держится`;
+  }
   if (barnFoodTrend === "declining" && barnFoodEnd < barnFoodStart - 10) {
     parts.push(`амбар: ${barnFoodStart}→${barnFoodEnd}`);
   }
@@ -607,6 +677,9 @@ function buildTrendNote(
   }
   if (stuckTrend === "rising" && stuckAgentsEnd > stuckAgentsStart) {
     parts.push(`застряли: ${stuckAgentsStart}→${stuckAgentsEnd}`);
+  }
+  if (gathererTrend === "declining" && gatherersEnd < gatherersStart) {
+    parts.push(`сборщики: ${gatherersStart}→${gatherersEnd}`);
   }
   return parts.join(" · ");
 }
@@ -684,6 +757,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("застревание нарастает")) {
     return `Тревога: ${dayHistoryTrend.note} — проверь пути у воды, leash и сброс маршрута.`;
+  }
+
+  if (dayHistoryTrend.note.includes("мало сборщиков")) {
+    return `Тревога: ${dayHistoryTrend.note} — перераспредели профессии или снизь ремесло.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

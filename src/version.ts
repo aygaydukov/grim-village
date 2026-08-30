@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.0.0";
+export const GAME_VERSION = "3.1.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.1.0",
+    date: "2026-08-30",
+    changes: [
+      "Инспектор: тренд сокращения сборщиков за 7 дней — ранний сигнал до провала амбара",
+      "Предупреждение «мало сборщиков, амбар пока держится» при падении доли сборщиков без смертей",
+      "dayHistory: доля сборщиков вычисляется из professions в 7-дневной аналитике",
+      "Smoke 14400 дней (20 игровых лет): BORA_LONG_THRESHOLDS, ≥19 рождений на seed=2026",
+    ],
+  },
   {
     version: "3.0.0",
     date: "2026-08-29",

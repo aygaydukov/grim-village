@@ -210,6 +210,15 @@ export const ASTRA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 18,
 };
 
+/** Пороги для 14400-дневного smoke — двадцать игровых лет, долгий демографический цикл */
+export const BORA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.01,
+  maxDeathRatio: 2.55,
+  minBarnFood: 3,
+  maxAvgHunger: 99,
+  minBirths: 19,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;
