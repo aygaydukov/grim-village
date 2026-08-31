@@ -219,6 +219,15 @@ export const BORA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 19,
 };
 
+/** Пороги для 15120-дневного smoke — двадцать один игровой год, ремесло и демография */
+export const KORA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.01,
+  maxDeathRatio: 2.65,
+  minBarnFood: 3,
+  maxAvgHunger: 99,
+  minBirths: 20,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

@@ -114,6 +114,8 @@ export interface DaySnapshot {
   stuckAgents: number;
   season: Season;
   barnFood: number;
+  /** Склад изделий мастерской на конец дня */
+  craftStock?: number;
   wildFood: number;
   avgHunger: number;
   avgEnergy: number;

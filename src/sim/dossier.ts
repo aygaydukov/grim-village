@@ -30,6 +30,12 @@ export interface DayHistoryTrend {
   gathererRatioStart: number;
   gathererRatioEnd: number;
   gathererTrend: "declining" | "rising" | "stable" | "none";
+  artisansStart: number;
+  artisansEnd: number;
+  artisanTrend: "declining" | "rising" | "stable" | "none";
+  craftStockStart: number;
+  craftStockEnd: number;
+  craftStockTrend: "declining" | "rising" | "stable" | "none";
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -351,6 +357,12 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     gathererRatioStart: 0,
     gathererRatioEnd: 0,
     gathererTrend: "none",
+    artisansStart: 0,
+    artisansEnd: 0,
+    artisanTrend: "none",
+    craftStockStart: 0,
+    craftStockEnd: 0,
+    craftStockTrend: "none",
     deathTrend: "none",
     note: "",
   };
@@ -398,6 +410,13 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const gathererRatioStart = gathererRatios[0] ?? 0;
   const gathererRatioEnd = gathererRatios[gathererRatios.length - 1] ?? 0;
   const gathererTrend = computeGathererTrend(gathererRatios);
+  const artisansStart = window[0]?.professions?.artisan ?? 0;
+  const artisansEnd = window[window.length - 1]?.professions?.artisan ?? 0;
+  const artisanTrend = computeArtisanTrend(window.map((s) => s.professions?.artisan ?? 0));
+  const craftStockLevels = window.map((s) => s.craftStock ?? 0);
+  const craftStockStart = craftStockLevels[0] ?? 0;
+  const craftStockEnd = craftStockLevels[craftStockLevels.length - 1] ?? 0;
+  const craftStockTrend = computeCraftStockTrend(craftStockLevels);
   const note = buildTrendNote(
     deathsInWindow,
     birthsInWindow,
@@ -421,6 +440,12 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     gathererRatioStart,
     gathererRatioEnd,
     gathererTrend,
+    artisansStart,
+    artisansEnd,
+    artisanTrend,
+    craftStockStart,
+    craftStockEnd,
+    craftStockTrend,
   );
 
   return {
@@ -446,6 +471,12 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     gathererRatioStart,
     gathererRatioEnd,
     gathererTrend,
+    artisansStart,
+    artisansEnd,
+    artisanTrend,
+    craftStockStart,
+    craftStockEnd,
+    craftStockTrend,
     deathTrend,
     note,
   };
@@ -472,6 +503,34 @@ function computeGathererTrend(
   if (firstAvg === 0 && secondAvg === 0) return "none";
   if (secondAvg < firstAvg - 0.08) return "declining";
   if (secondAvg > firstAvg + 0.08) return "rising";
+  return "stable";
+}
+
+function computeArtisanTrend(
+  counts: number[],
+): DayHistoryTrend["artisanTrend"] {
+  if (counts.length < 3) return "none";
+  const mid = Math.floor(counts.length / 2);
+  const firstAvg = counts.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    counts.slice(mid).reduce((a, b) => a + b, 0) / (counts.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg > firstAvg + 0.4) return "rising";
+  if (secondAvg < firstAvg - 0.4) return "declining";
+  return "stable";
+}
+
+function computeCraftStockTrend(
+  levels: number[],
+): DayHistoryTrend["craftStockTrend"] {
+  if (levels.length < 3) return "none";
+  const mid = Math.floor(levels.length / 2);
+  const firstAvg = levels.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    levels.slice(mid).reduce((a, b) => a + b, 0) / (levels.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg > firstAvg + 2) return "rising";
+  if (secondAvg < firstAvg - 2) return "declining";
   return "stable";
 }
 
@@ -544,6 +603,12 @@ function buildTrendNote(
   gathererRatioStart: number,
   gathererRatioEnd: number,
   gathererTrend: DayHistoryTrend["gathererTrend"],
+  artisansStart: number,
+  artisansEnd: number,
+  artisanTrend: DayHistoryTrend["artisanTrend"],
+  craftStockStart: number,
+  craftStockEnd: number,
+  craftStockTrend: DayHistoryTrend["craftStockTrend"],
 ): string {
   if (
     deaths === 0 &&
@@ -553,7 +618,9 @@ function buildTrendNote(
     barnFoodTrend === "none" &&
     highHungerTrend === "none" &&
     stuckTrend === "none" &&
-    gathererTrend === "none"
+    gathererTrend === "none" &&
+    artisanTrend === "none" &&
+    craftStockTrend === "none"
   ) {
     return "";
   }
@@ -669,6 +736,21 @@ function buildTrendNote(
     const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
     return `${prefix}${gatherPart} — мало сборщиков, амбар пока держится`;
   }
+  if (
+    craftStockTrend === "rising" &&
+    craftStockEnd > craftStockStart + 2 &&
+    craftStockEnd >= 4 &&
+    artisanTrend === "rising" &&
+    artisansEnd > artisansStart &&
+    deaths < 2 &&
+    hungerDeaths === 0 &&
+    immigration === 0 &&
+    barnFoodTrend !== "declining"
+  ) {
+    const craftPart = `изделия: ${craftStockStart}→${craftStockEnd}, ремесленники: ${artisansStart}→${artisansEnd}`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${craftPart} — изделий накапливается, амбар пока держится`;
+  }
   if (barnFoodTrend === "declining" && barnFoodEnd < barnFoodStart - 10) {
     parts.push(`амбар: ${barnFoodStart}→${barnFoodEnd}`);
   }
@@ -680,6 +762,12 @@ function buildTrendNote(
   }
   if (gathererTrend === "declining" && gatherersEnd < gatherersStart) {
     parts.push(`сборщики: ${gatherersStart}→${gatherersEnd}`);
+  }
+  if (artisanTrend === "rising" && artisansEnd > artisansStart) {
+    parts.push(`ремесленники: ${artisansStart}→${artisansEnd}`);
+  }
+  if (craftStockTrend === "rising" && craftStockEnd > craftStockStart) {
+    parts.push(`изделия: ${craftStockStart}→${craftStockEnd}`);
   }
   return parts.join(" · ");
 }
@@ -761,6 +849,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("мало сборщиков")) {
     return `Тревога: ${dayHistoryTrend.note} — перераспредели профессии или снизь ремесло.`;
+  }
+
+  if (dayHistoryTrend.note.includes("изделий накапливается")) {
+    return `Тревога: ${dayHistoryTrend.note} — снизь ремесло или усиль торговлю изделиями.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

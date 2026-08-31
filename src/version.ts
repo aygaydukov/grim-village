@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.1.0";
+export const GAME_VERSION = "3.2.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.2.0",
+    date: "2026-08-31",
+    changes: [
+      "Инспектор: тренд накопления изделий за 7 дней — ранний сигнал до провала амбара",
+      "Предупреждение «изделий накапливается, амбар пока держится» при росте ремесленников и склада",
+      "dayHistory: поле craftStock в 7-дневной аналитике ремесла",
+      "Smoke 15120 дней (21 игровой год): KORA_LONG_THRESHOLDS, ≥20 рождений на seed=2026",
+    ],
+  },
   {
     version: "3.1.0",
     date: "2026-08-30",

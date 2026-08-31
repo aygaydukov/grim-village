@@ -59,6 +59,7 @@
 - [x] **2026-08-28:** тренд нарастающего голода в инспекторе (`dossier.ts`, v2.9.0); smoke 12960 дней; `SOLA_LONG_THRESHOLDS`
 - [x] **2026-08-29:** тренд нарастающего застревания в инспекторе (`dossier.ts`, v3.0.0); `stuckAgents` в dayHistory; smoke 13680 дней; `ASTRA_LONG_THRESHOLDS`
 - [x] **2026-08-30:** тренд сокращения сборщиков в инспекторе (`dossier.ts`, v3.1.0); smoke 14400 дней; `BORA_LONG_THRESHOLDS`
+- [x] **2026-08-31:** тренд накопления изделий в инспекторе (`dossier.ts`, v3.2.0); `craftStock` в dayHistory; smoke 15120 дней; `KORA_LONG_THRESHOLDS`
 
 ## Automation (Cursor)
 
@@ -129,6 +130,8 @@
 - [x] Тренд нарастающего застревания — `stuckTrend`, `stuckAgents` в dayHistory (v3.0.0)
 - [x] Тренд сокращения сборщиков — `gathererTrend` (v3.1.0)
 - [x] Smoke 14400 дней — `BORA_LONG_THRESHOLDS` (v3.1.0)
+- [x] Тренд накопления изделий — `craftStockTrend`, `artisanTrend` (v3.2.0)
+- [x] Smoke 15120 дней — `KORA_LONG_THRESHOLDS` (v3.2.0)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
 - [x] Pathfinding (A*) — `pathfind.ts`, кэш пути на агента
