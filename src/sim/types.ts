@@ -116,6 +116,8 @@ export interface DaySnapshot {
   barnFood: number;
   /** Склад изделий мастерской на конец дня */
   craftStock?: number;
+  /** Запас соли в амбаре на конец дня */
+  saltStock?: number;
   wildFood: number;
   avgHunger: number;
   avgEnergy: number;

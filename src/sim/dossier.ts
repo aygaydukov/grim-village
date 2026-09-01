@@ -36,6 +36,9 @@ export interface DayHistoryTrend {
   craftStockStart: number;
   craftStockEnd: number;
   craftStockTrend: "declining" | "rising" | "stable" | "none";
+  saltStockStart: number;
+  saltStockEnd: number;
+  saltStockTrend: "declining" | "rising" | "stable" | "none";
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -363,6 +366,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     craftStockStart: 0,
     craftStockEnd: 0,
     craftStockTrend: "none",
+    saltStockStart: 0,
+    saltStockEnd: 0,
+    saltStockTrend: "none",
     deathTrend: "none",
     note: "",
   };
@@ -417,6 +423,10 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const craftStockStart = craftStockLevels[0] ?? 0;
   const craftStockEnd = craftStockLevels[craftStockLevels.length - 1] ?? 0;
   const craftStockTrend = computeCraftStockTrend(craftStockLevels);
+  const saltStockLevels = window.map((s) => s.saltStock ?? 0);
+  const saltStockStart = saltStockLevels[0] ?? 0;
+  const saltStockEnd = saltStockLevels[saltStockLevels.length - 1] ?? 0;
+  const saltStockTrend = computeSaltStockTrend(saltStockLevels);
   const note = buildTrendNote(
     deathsInWindow,
     birthsInWindow,
@@ -446,6 +456,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     craftStockStart,
     craftStockEnd,
     craftStockTrend,
+    saltStockStart,
+    saltStockEnd,
+    saltStockTrend,
   );
 
   return {
@@ -477,6 +490,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     craftStockStart,
     craftStockEnd,
     craftStockTrend,
+    saltStockStart,
+    saltStockEnd,
+    saltStockTrend,
     deathTrend,
     note,
   };
@@ -531,6 +547,20 @@ function computeCraftStockTrend(
   if (firstAvg === 0 && secondAvg === 0) return "none";
   if (secondAvg > firstAvg + 2) return "rising";
   if (secondAvg < firstAvg - 2) return "declining";
+  return "stable";
+}
+
+function computeSaltStockTrend(
+  levels: number[],
+): DayHistoryTrend["saltStockTrend"] {
+  if (levels.length < 3) return "none";
+  const mid = Math.floor(levels.length / 2);
+  const firstAvg = levels.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    levels.slice(mid).reduce((a, b) => a + b, 0) / (levels.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg < firstAvg - 1.5) return "declining";
+  if (secondAvg > firstAvg + 1.5) return "rising";
   return "stable";
 }
 
@@ -609,6 +639,9 @@ function buildTrendNote(
   craftStockStart: number,
   craftStockEnd: number,
   craftStockTrend: DayHistoryTrend["craftStockTrend"],
+  saltStockStart: number,
+  saltStockEnd: number,
+  saltStockTrend: DayHistoryTrend["saltStockTrend"],
 ): string {
   if (
     deaths === 0 &&
@@ -620,7 +653,8 @@ function buildTrendNote(
     stuckTrend === "none" &&
     gathererTrend === "none" &&
     artisanTrend === "none" &&
-    craftStockTrend === "none"
+    craftStockTrend === "none" &&
+    saltStockTrend === "none"
   ) {
     return "";
   }
@@ -751,6 +785,20 @@ function buildTrendNote(
     const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
     return `${prefix}${craftPart} — изделий накапливается, амбар пока держится`;
   }
+  if (
+    saltStockTrend === "declining" &&
+    saltStockEnd < saltStockStart - 1 &&
+    saltStockEnd <= 3 &&
+    coldDeaths === 0 &&
+    deaths < 2 &&
+    hungerDeaths === 0 &&
+    immigration === 0 &&
+    barnFoodTrend !== "declining"
+  ) {
+    const saltPart = `соль: ${saltStockStart}→${saltStockEnd}`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${saltPart} — соль истощается, холод ещё не убил`;
+  }
   if (barnFoodTrend === "declining" && barnFoodEnd < barnFoodStart - 10) {
     parts.push(`амбар: ${barnFoodStart}→${barnFoodEnd}`);
   }
@@ -768,6 +816,9 @@ function buildTrendNote(
   }
   if (craftStockTrend === "rising" && craftStockEnd > craftStockStart) {
     parts.push(`изделия: ${craftStockStart}→${craftStockEnd}`);
+  }
+  if (saltStockTrend === "declining" && saltStockEnd < saltStockStart) {
+    parts.push(`соль: ${saltStockStart}→${saltStockEnd}`);
   }
   return parts.join(" · ");
 }
@@ -853,6 +904,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("изделий накапливается")) {
     return `Тревога: ${dayHistoryTrend.note} — снизь ремесло или усиль торговлю изделиями.`;
+  }
+
+  if (dayHistoryTrend.note.includes("соль истощается")) {
+    return `Тревога: ${dayHistoryTrend.note} — закупи соль у каравана или снизь потребление.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

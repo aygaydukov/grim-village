@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.2.0";
+export const GAME_VERSION = "3.3.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.3.0",
+    date: "2026-09-01",
+    changes: [
+      "Инспектор: тренд истощения соли за 7 дней — ранний сигнал до смертей от холода",
+      "Предупреждение «соль истощается, холод ещё не убил» при падении запасов без смертей",
+      "dayHistory: поле saltStock в 7-дневной аналитике запасов",
+      "Smoke 15840 дней (22 игровых года): LORA_LONG_THRESHOLDS, ≥21 рождений на seed=2026",
+    ],
+  },
   {
     version: "3.2.0",
     date: "2026-08-31",

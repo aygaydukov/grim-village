@@ -45,6 +45,7 @@ export function recordDaySnapshot(world: World): void {
     season: seasonForDay(world.stats.day),
     barnFood: barnStock(world),
     craftStock: world.craftStock,
+    saltStock: world.saltStock,
     wildFood: wildFoodTotal(world),
     avgHunger: hungerSum / n,
     avgEnergy: energySum / n,

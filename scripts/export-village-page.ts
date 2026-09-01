@@ -10,6 +10,7 @@ import { buildVillageChronicle, currentSeasonLabel } from "../src/sim/chronicle.
 import { formatStabilityReport, runModulation } from "../src/sim/modulate.ts";
 import { countByProfession } from "../src/sim/jobs.ts";
 import { barnStock } from "../src/sim/map.ts";
+import { GAME_VERSION } from "../src/version.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const docsDir = join(root, "docs");
@@ -66,6 +67,7 @@ interface VillageStatus {
   changelog: ChangelogEntry[];
   settlementSnapshot?: string | null;
   settlementVersion?: number | null;
+  gameVersion?: string;
 }
 
 function latestSettlementSnapshot(): { path: string; version: number } | null {
@@ -163,6 +165,7 @@ const status: VillageStatus = {
   changelog: recentChangelog(14),
   settlementSnapshot: snap?.path ?? null,
   settlementVersion: snap?.version ?? null,
+  gameVersion: GAME_VERSION,
 };
 
 mkdirSync(docsDir, { recursive: true });
