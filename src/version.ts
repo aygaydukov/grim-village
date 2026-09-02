@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.3.0";
+export const GAME_VERSION = "3.4.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.4.0",
+    date: "2026-09-02",
+    changes: [
+      "Инспектор: тренд истощения железа за 7 дней — ранний сигнал до замедления стройки",
+      "Предупреждение «железо истощается, стройка замедлится» при падении запасов без смертей",
+      "dayHistory: поле ironStock в 7-дневной аналитике запасов",
+      "Smoke 16560 дней (23 игровых года): NORA_LONG_THRESHOLDS, ≥22 рождений на seed=2026",
+    ],
+  },
   {
     version: "3.3.0",
     date: "2026-09-01",

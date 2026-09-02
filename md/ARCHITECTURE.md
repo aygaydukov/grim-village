@@ -60,7 +60,7 @@ src/
 
 ## История и модуляция
 
-- `dayHistory` — до 30 снимков (`history.ts`): население, амбар, дикая еда, профессии, **дельты дня** (`birthsToday`, `deathsToday`), **сезон**, **highHunger**, **stuckAgents**, **именованные события** (`events`).
+- `dayHistory` — до 30 снимков (`history.ts`): население, амбар, дикая еда, профессии, **дельты дня** (`birthsToday`, `deathsToday`), **сезон**, **highHunger**, **stuckAgents**, **craftStock**, **saltStock**, **ironStock**, **именованные события** (`events`).
 - `events.ts` — буфер событий дня: рождения, смерти (с причиной), смена профессий при `rebalanceVillageLabor`.
 - `chronicle.ts` — текстовые записи летописи для UI (имена, не только счётчики).
 - `persist.ts` — JSON serialize/deserialize `World` (+ PRNG state) for server saves / tests (no browser save UI).

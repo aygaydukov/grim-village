@@ -237,6 +237,15 @@ export const LORA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 21,
 };
 
+/** Пороги для 16560-дневного smoke — двадцать три игровых года, железо и стройка */
+export const NORA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.01,
+  maxDeathRatio: 2.85,
+  minBarnFood: 3,
+  maxAvgHunger: 99,
+  minBirths: 22,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;
