@@ -26,6 +26,7 @@ import {
   KORA_LONG_THRESHOLDS,
   LORA_LONG_THRESHOLDS,
   NORA_LONG_THRESHOLDS,
+  MORA_LONG_THRESHOLDS,
 } from "../src/sim/modulate.ts";
 import { stepWorld } from "../src/sim/world.ts";
 
@@ -325,5 +326,15 @@ describe("стабильность деревни", () => {
       `16560d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
     );
     assert.ok(report.births >= 22, "ожидалось ≥22 рождений за ~23 года симуляции");
+  });
+
+  it("17280 дней, seed=2026 — двадцать четыре года, казна и субсидии", () => {
+    const { report } = runModulation(17280, 2026, undefined, { thresholds: MORA_LONG_THRESHOLDS });
+    assert.equal(
+      report.stable,
+      true,
+      `17280d: ${report.issues.join("; ")} | alive=${report.finalAlive} births=${report.births} dead=${report.dead}`,
+    );
+    assert.ok(report.births >= 23, "ожидалось ≥23 рождений за ~24 года симуляции");
   });
 });

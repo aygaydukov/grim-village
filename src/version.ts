@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.4.0";
+export const GAME_VERSION = "3.5.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.5.0",
+    date: "2026-09-03",
+    changes: [
+      "Инспектор: тренд истощения казны за 7 дней — ранний сигнал до провала субсидий амбара",
+      "Предупреждение «казна истощается, субсидии амбара под угрозой» при падении запасов без смертей",
+      "dayHistory: поле treasury в 7-дневной аналитике казны",
+      "Smoke 17280 дней (24 игровых года): MORA_LONG_THRESHOLDS, ≥23 рождений на seed=2026",
+    ],
+  },
   {
     version: "3.4.0",
     date: "2026-09-02",

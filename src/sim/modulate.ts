@@ -246,6 +246,15 @@ export const NORA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 22,
 };
 
+/** Пороги для 17280-дневного smoke — двадцать четыре игровых года, казна и субсидии */
+export const MORA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.01,
+  maxDeathRatio: 2.95,
+  minBarnFood: 3,
+  maxAvgHunger: 99,
+  minBirths: 23,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

@@ -42,6 +42,9 @@ export interface DayHistoryTrend {
   ironStockStart: number;
   ironStockEnd: number;
   ironStockTrend: "declining" | "rising" | "stable" | "none";
+  treasuryStart: number;
+  treasuryEnd: number;
+  treasuryTrend: "declining" | "rising" | "stable" | "none";
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -375,6 +378,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     ironStockStart: 0,
     ironStockEnd: 0,
     ironStockTrend: "none",
+    treasuryStart: 0,
+    treasuryEnd: 0,
+    treasuryTrend: "none",
     deathTrend: "none",
     note: "",
   };
@@ -437,6 +443,10 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const ironStockStart = ironStockLevels[0] ?? 0;
   const ironStockEnd = ironStockLevels[ironStockLevels.length - 1] ?? 0;
   const ironStockTrend = computeIronStockTrend(ironStockLevels);
+  const treasuryLevels = window.map((s) => s.treasury ?? 0);
+  const treasuryStart = treasuryLevels[0] ?? 0;
+  const treasuryEnd = treasuryLevels[treasuryLevels.length - 1] ?? 0;
+  const treasuryTrend = computeTreasuryTrend(treasuryLevels);
   const note = buildTrendNote(
     deathsInWindow,
     birthsInWindow,
@@ -472,6 +482,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     ironStockStart,
     ironStockEnd,
     ironStockTrend,
+    treasuryStart,
+    treasuryEnd,
+    treasuryTrend,
   );
 
   return {
@@ -509,6 +522,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     ironStockStart,
     ironStockEnd,
     ironStockTrend,
+    treasuryStart,
+    treasuryEnd,
+    treasuryTrend,
     deathTrend,
     note,
   };
@@ -594,6 +610,20 @@ function computeIronStockTrend(
   return "stable";
 }
 
+function computeTreasuryTrend(
+  levels: number[],
+): DayHistoryTrend["treasuryTrend"] {
+  if (levels.length < 3) return "none";
+  const mid = Math.floor(levels.length / 2);
+  const firstAvg = levels.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    levels.slice(mid).reduce((a, b) => a + b, 0) / (levels.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg < firstAvg - 8) return "declining";
+  if (secondAvg > firstAvg + 8) return "rising";
+  return "stable";
+}
+
 function computeBarnFoodTrend(barnLevels: number[]): DayHistoryTrend["barnFoodTrend"] {
   if (barnLevels.length < 3) return "none";
   const mid = Math.floor(barnLevels.length / 2);
@@ -675,6 +705,9 @@ function buildTrendNote(
   ironStockStart: number,
   ironStockEnd: number,
   ironStockTrend: DayHistoryTrend["ironStockTrend"],
+  treasuryStart: number,
+  treasuryEnd: number,
+  treasuryTrend: DayHistoryTrend["treasuryTrend"],
 ): string {
   if (
     deaths === 0 &&
@@ -688,7 +721,8 @@ function buildTrendNote(
     artisanTrend === "none" &&
     craftStockTrend === "none" &&
     saltStockTrend === "none" &&
-    ironStockTrend === "none"
+    ironStockTrend === "none" &&
+    treasuryTrend === "none"
   ) {
     return "";
   }
@@ -846,6 +880,19 @@ function buildTrendNote(
     const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
     return `${prefix}${ironPart} — железо истощается, стройка замедлится`;
   }
+  if (
+    treasuryTrend === "declining" &&
+    treasuryEnd < treasuryStart - 8 &&
+    treasuryEnd <= 15 &&
+    deaths < 2 &&
+    hungerDeaths === 0 &&
+    immigration === 0 &&
+    barnFoodTrend !== "declining"
+  ) {
+    const treasuryPart = `казна: ${treasuryStart}→${treasuryEnd}`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${treasuryPart} — казна истощается, субсидии амбара под угрозой`;
+  }
   if (barnFoodTrend === "declining" && barnFoodEnd < barnFoodStart - 10) {
     parts.push(`амбар: ${barnFoodStart}→${barnFoodEnd}`);
   }
@@ -869,6 +916,9 @@ function buildTrendNote(
   }
   if (ironStockTrend === "declining" && ironStockEnd < ironStockStart) {
     parts.push(`железо: ${ironStockStart}→${ironStockEnd}`);
+  }
+  if (treasuryTrend === "declining" && treasuryEnd < treasuryStart) {
+    parts.push(`казна: ${treasuryStart}→${treasuryEnd}`);
   }
   return parts.join(" · ");
 }
@@ -962,6 +1012,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("железо истощается")) {
     return `Тревога: ${dayHistoryTrend.note} — закупи железо у каравана или снизь темп стройки.`;
+  }
+
+  if (dayHistoryTrend.note.includes("казна истощается")) {
+    return `Тревога: ${dayHistoryTrend.note} — снизь субсидии, усиль торговлю или смени политику старосты.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

@@ -120,6 +120,8 @@ export interface DaySnapshot {
   saltStock?: number;
   /** Запас железа на конец дня */
   ironStock?: number;
+  /** Казна старосты на конец дня */
+  treasury?: number;
   wildFood: number;
   avgHunger: number;
   avgEnergy: number;
