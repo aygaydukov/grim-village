@@ -45,6 +45,9 @@ export interface DayHistoryTrend {
   treasuryStart: number;
   treasuryEnd: number;
   treasuryTrend: "declining" | "rising" | "stable" | "none";
+  wildFoodStart: number;
+  wildFoodEnd: number;
+  wildFoodTrend: "declining" | "rising" | "stable" | "none";
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -381,6 +384,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     treasuryStart: 0,
     treasuryEnd: 0,
     treasuryTrend: "none",
+    wildFoodStart: 0,
+    wildFoodEnd: 0,
+    wildFoodTrend: "none",
     deathTrend: "none",
     note: "",
   };
@@ -447,6 +453,10 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const treasuryStart = treasuryLevels[0] ?? 0;
   const treasuryEnd = treasuryLevels[treasuryLevels.length - 1] ?? 0;
   const treasuryTrend = computeTreasuryTrend(treasuryLevels);
+  const wildFoodLevels = window.map((s) => s.wildFood ?? 0);
+  const wildFoodStart = wildFoodLevels[0] ?? 0;
+  const wildFoodEnd = wildFoodLevels[wildFoodLevels.length - 1] ?? 0;
+  const wildFoodTrend = computeWildFoodTrend(wildFoodLevels);
   const note = buildTrendNote(
     deathsInWindow,
     birthsInWindow,
@@ -485,6 +495,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     treasuryStart,
     treasuryEnd,
     treasuryTrend,
+    wildFoodStart,
+    wildFoodEnd,
+    wildFoodTrend,
   );
 
   return {
@@ -525,6 +538,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     treasuryStart,
     treasuryEnd,
     treasuryTrend,
+    wildFoodStart,
+    wildFoodEnd,
+    wildFoodTrend,
     deathTrend,
     note,
   };
@@ -624,6 +640,20 @@ function computeTreasuryTrend(
   return "stable";
 }
 
+function computeWildFoodTrend(
+  levels: number[],
+): DayHistoryTrend["wildFoodTrend"] {
+  if (levels.length < 3) return "none";
+  const mid = Math.floor(levels.length / 2);
+  const firstAvg = levels.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    levels.slice(mid).reduce((a, b) => a + b, 0) / (levels.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg < firstAvg - 400) return "declining";
+  if (secondAvg > firstAvg + 400) return "rising";
+  return "stable";
+}
+
 function computeBarnFoodTrend(barnLevels: number[]): DayHistoryTrend["barnFoodTrend"] {
   if (barnLevels.length < 3) return "none";
   const mid = Math.floor(barnLevels.length / 2);
@@ -708,6 +738,9 @@ function buildTrendNote(
   treasuryStart: number,
   treasuryEnd: number,
   treasuryTrend: DayHistoryTrend["treasuryTrend"],
+  wildFoodStart: number,
+  wildFoodEnd: number,
+  wildFoodTrend: DayHistoryTrend["wildFoodTrend"],
 ): string {
   if (
     deaths === 0 &&
@@ -722,7 +755,8 @@ function buildTrendNote(
     craftStockTrend === "none" &&
     saltStockTrend === "none" &&
     ironStockTrend === "none" &&
-    treasuryTrend === "none"
+    treasuryTrend === "none" &&
+    wildFoodTrend === "none"
   ) {
     return "";
   }
@@ -893,6 +927,19 @@ function buildTrendNote(
     const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
     return `${prefix}${treasuryPart} — казна истощается, субсидии амбара под угрозой`;
   }
+  if (
+    wildFoodTrend === "declining" &&
+    wildFoodEnd < wildFoodStart - 600 &&
+    wildFoodEnd <= 9500 &&
+    deaths < 2 &&
+    hungerDeaths === 0 &&
+    immigration === 0 &&
+    barnFoodTrend !== "declining"
+  ) {
+    const wildPart = `дикая еда: ${wildFoodStart}→${wildFoodEnd}`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${wildPart} — лес истощается, амбар пока держится`;
+  }
   if (barnFoodTrend === "declining" && barnFoodEnd < barnFoodStart - 10) {
     parts.push(`амбар: ${barnFoodStart}→${barnFoodEnd}`);
   }
@@ -919,6 +966,9 @@ function buildTrendNote(
   }
   if (treasuryTrend === "declining" && treasuryEnd < treasuryStart) {
     parts.push(`казна: ${treasuryStart}→${treasuryEnd}`);
+  }
+  if (wildFoodTrend === "declining" && wildFoodEnd < wildFoodStart) {
+    parts.push(`дикая еда: ${wildFoodStart}→${wildFoodEnd}`);
   }
   return parts.join(" · ");
 }
@@ -1016,6 +1066,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("казна истощается")) {
     return `Тревога: ${dayHistoryTrend.note} — снизь субсидии, усиль торговлю или смени политику старосты.`;
+  }
+
+  if (dayHistoryTrend.note.includes("лес истощается")) {
+    return `Тревога: ${dayHistoryTrend.note} — усиль сборщиков или снизь потребление дикой еды.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

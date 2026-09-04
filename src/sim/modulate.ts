@@ -255,6 +255,15 @@ export const MORA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 23,
 };
 
+/** Пороги для 18000-дневного smoke — двадцать пять игровых лет, лес и долгий цикл */
+export const PORA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.01,
+  maxDeathRatio: 3.05,
+  minBarnFood: 3,
+  maxAvgHunger: 99,
+  minBirths: 24,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

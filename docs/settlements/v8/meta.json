@@ -1,9 +1,7 @@
 {
   "version": 8,
-  "label": "after_10_days_v3.5.0",
-  "gameVersion": "3.5.0",
-  "capturedAt": "2026-09-03T06:37:52.702Z",
-  "source": "release smoke seed=2026",
-  "stable": true,
-  "finalAlive": 22
+  "label": "after_10_days",
+  "gameVersion": "3.6.0",
+  "capturedAt": "2026-09-04T06:56:27.356Z",
+  "source": "automation v3.6.0 release"
 }
