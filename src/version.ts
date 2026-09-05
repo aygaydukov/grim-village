@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.6.0";
+export const GAME_VERSION = "3.7.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.7.0",
+    date: "2026-09-05",
+    changes: [
+      "Инспектор: тренд падения средних сил за 7 дней — ранний сигнал до смертей от истощения",
+      "Предупреждение «силы падают, смертей ещё нет» при снижении энергии без провала амбара",
+      "dayHistory: поле avgEnergy в 7-дневной аналитике сил жителей",
+      "Smoke 18720 дней (26 игровых лет): QORA_LONG_THRESHOLDS, ≥25 рождений на seed=2026",
+    ],
+  },
   {
     version: "3.6.0",
     date: "2026-09-04",

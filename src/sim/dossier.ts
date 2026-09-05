@@ -48,6 +48,9 @@ export interface DayHistoryTrend {
   wildFoodStart: number;
   wildFoodEnd: number;
   wildFoodTrend: "declining" | "rising" | "stable" | "none";
+  avgEnergyStart: number;
+  avgEnergyEnd: number;
+  avgEnergyTrend: "declining" | "rising" | "stable" | "none";
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -387,6 +390,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     wildFoodStart: 0,
     wildFoodEnd: 0,
     wildFoodTrend: "none",
+    avgEnergyStart: 0,
+    avgEnergyEnd: 0,
+    avgEnergyTrend: "none",
     deathTrend: "none",
     note: "",
   };
@@ -457,6 +463,10 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const wildFoodStart = wildFoodLevels[0] ?? 0;
   const wildFoodEnd = wildFoodLevels[wildFoodLevels.length - 1] ?? 0;
   const wildFoodTrend = computeWildFoodTrend(wildFoodLevels);
+  const avgEnergyLevels = window.map((s) => s.avgEnergy ?? 0);
+  const avgEnergyStart = avgEnergyLevels[0] ?? 0;
+  const avgEnergyEnd = avgEnergyLevels[avgEnergyLevels.length - 1] ?? 0;
+  const avgEnergyTrend = computeAvgEnergyTrend(avgEnergyLevels);
   const note = buildTrendNote(
     deathsInWindow,
     birthsInWindow,
@@ -498,6 +508,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     wildFoodStart,
     wildFoodEnd,
     wildFoodTrend,
+    avgEnergyStart,
+    avgEnergyEnd,
+    avgEnergyTrend,
   );
 
   return {
@@ -541,6 +554,9 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     wildFoodStart,
     wildFoodEnd,
     wildFoodTrend,
+    avgEnergyStart,
+    avgEnergyEnd,
+    avgEnergyTrend,
     deathTrend,
     note,
   };
@@ -654,6 +670,20 @@ function computeWildFoodTrend(
   return "stable";
 }
 
+function computeAvgEnergyTrend(
+  levels: number[],
+): DayHistoryTrend["avgEnergyTrend"] {
+  if (levels.length < 3) return "none";
+  const mid = Math.floor(levels.length / 2);
+  const firstAvg = levels.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    levels.slice(mid).reduce((a, b) => a + b, 0) / (levels.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg < firstAvg - 6) return "declining";
+  if (secondAvg > firstAvg + 6) return "rising";
+  return "stable";
+}
+
 function computeBarnFoodTrend(barnLevels: number[]): DayHistoryTrend["barnFoodTrend"] {
   if (barnLevels.length < 3) return "none";
   const mid = Math.floor(barnLevels.length / 2);
@@ -741,6 +771,9 @@ function buildTrendNote(
   wildFoodStart: number,
   wildFoodEnd: number,
   wildFoodTrend: DayHistoryTrend["wildFoodTrend"],
+  avgEnergyStart: number,
+  avgEnergyEnd: number,
+  avgEnergyTrend: DayHistoryTrend["avgEnergyTrend"],
 ): string {
   if (
     deaths === 0 &&
@@ -756,7 +789,8 @@ function buildTrendNote(
     saltStockTrend === "none" &&
     ironStockTrend === "none" &&
     treasuryTrend === "none" &&
-    wildFoodTrend === "none"
+    wildFoodTrend === "none" &&
+    avgEnergyTrend === "none"
   ) {
     return "";
   }
@@ -940,6 +974,20 @@ function buildTrendNote(
     const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
     return `${prefix}${wildPart} — лес истощается, амбар пока держится`;
   }
+  if (
+    avgEnergyTrend === "declining" &&
+    avgEnergyEnd < avgEnergyStart - 5 &&
+    avgEnergyEnd <= 82 &&
+    deaths < 2 &&
+    coldDeaths === 0 &&
+    hungerDeaths === 0 &&
+    immigration === 0 &&
+    barnFoodTrend !== "declining"
+  ) {
+    const energyPart = `силы ср.: ${avgEnergyStart.toFixed(0)}→${avgEnergyEnd.toFixed(0)}`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${energyPart} — силы падают, смертей ещё нет`;
+  }
   if (barnFoodTrend === "declining" && barnFoodEnd < barnFoodStart - 10) {
     parts.push(`амбар: ${barnFoodStart}→${barnFoodEnd}`);
   }
@@ -969,6 +1017,9 @@ function buildTrendNote(
   }
   if (wildFoodTrend === "declining" && wildFoodEnd < wildFoodStart) {
     parts.push(`дикая еда: ${wildFoodStart}→${wildFoodEnd}`);
+  }
+  if (avgEnergyTrend === "declining" && avgEnergyEnd < avgEnergyStart) {
+    parts.push(`силы ср.: ${avgEnergyStart.toFixed(0)}→${avgEnergyEnd.toFixed(0)}`);
   }
   return parts.join(" · ");
 }
@@ -1070,6 +1121,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("лес истощается")) {
     return `Тревога: ${dayHistoryTrend.note} — усиль сборщиков или снизь потребление дикой еды.`;
+  }
+
+  if (dayHistoryTrend.note.includes("силы падают")) {
+    return `Тревога: ${dayHistoryTrend.note} — проверь ночной отдых, сон и нагрузку на жителей.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

@@ -64,6 +64,7 @@
 - [x] **2026-09-02:** тренд истощения железа в инспекторе (`dossier.ts`, v3.4.0); `ironStock` в dayHistory; smoke 16560 дней; `NORA_LONG_THRESHOLDS`
 - [x] **2026-09-03:** тренд истощения казны в инспекторе (`dossier.ts`, v3.5.0); `treasury` в dayHistory; smoke 17280 дней; `MORA_LONG_THRESHOLDS`
 - [x] **2026-09-04:** тренд истощения дикой еды в инспекторе (`dossier.ts`, v3.6.0); `wildFood` в dayHistory; smoke 18000 дней; `PORA_LONG_THRESHOLDS`
+- [x] **2026-09-05:** тренд падения средних сил в инспекторе (`dossier.ts`, v3.7.0); `avgEnergy` в dayHistory; smoke 18720 дней; `QORA_LONG_THRESHOLDS`
 
 ## Automation (Cursor)
 
@@ -144,6 +145,8 @@
 - [x] Smoke 17280 дней — `MORA_LONG_THRESHOLDS` (v3.5.0)
 - [x] Тренд истощения дикой еды — `wildFoodTrend` (v3.6.0)
 - [x] Smoke 18000 дней — `PORA_LONG_THRESHOLDS` (v3.6.0)
+- [x] Тренд падения средних сил — `avgEnergyTrend` (v3.7.0)
+- [x] Smoke 18720 дней — `QORA_LONG_THRESHOLDS` (v3.7.0)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
 - [x] Pathfinding (A*) — `pathfind.ts`, кэш пути на агента
