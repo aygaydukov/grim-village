@@ -273,6 +273,15 @@ export const QORA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 25,
 };
 
+/** Пороги для 19440-дневного smoke — двадцать семь игровых лет, перенаселение и долгий цикл */
+export const RORA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.01,
+  maxDeathRatio: 3.25,
+  minBarnFood: 3,
+  maxAvgHunger: 99,
+  minBirths: 26,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;

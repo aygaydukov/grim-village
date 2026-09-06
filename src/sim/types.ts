@@ -125,6 +125,8 @@ export interface DaySnapshot {
   wildFood: number;
   avgHunger: number;
   avgEnergy: number;
+  /** Число хижин на конец дня */
+  hutCount?: number;
   professions: Record<Profession, number>;
   /** Именованные события дня (рождения, смерти, смена профессий) */
   events?: DayEvent[];

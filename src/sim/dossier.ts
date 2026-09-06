@@ -51,6 +51,11 @@ export interface DayHistoryTrend {
   avgEnergyStart: number;
   avgEnergyEnd: number;
   avgEnergyTrend: "declining" | "rising" | "stable" | "none";
+  hutCountStart: number;
+  hutCountEnd: number;
+  overcrowdingRatioStart: number;
+  overcrowdingRatioEnd: number;
+  overcrowdingTrend: "declining" | "rising" | "stable" | "none";
   deathTrend: "rising" | "falling" | "stable" | "none";
   note: string;
 }
@@ -393,6 +398,11 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     avgEnergyStart: 0,
     avgEnergyEnd: 0,
     avgEnergyTrend: "none",
+    hutCountStart: 0,
+    hutCountEnd: 0,
+    overcrowdingRatioStart: 0,
+    overcrowdingRatioEnd: 0,
+    overcrowdingTrend: "none",
     deathTrend: "none",
     note: "",
   };
@@ -467,6 +477,12 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const avgEnergyStart = avgEnergyLevels[0] ?? 0;
   const avgEnergyEnd = avgEnergyLevels[avgEnergyLevels.length - 1] ?? 0;
   const avgEnergyTrend = computeAvgEnergyTrend(avgEnergyLevels);
+  const overcrowdingRatios = window.map((s) => overcrowdingRatioFromSnapshot(s));
+  const hutCountStart = window[0]?.hutCount ?? 0;
+  const hutCountEnd = window[window.length - 1]?.hutCount ?? 0;
+  const overcrowdingRatioStart = overcrowdingRatios[0] ?? 0;
+  const overcrowdingRatioEnd = overcrowdingRatios[overcrowdingRatios.length - 1] ?? 0;
+  const overcrowdingTrend = computeOvercrowdingTrend(overcrowdingRatios);
   const note = buildTrendNote(
     deathsInWindow,
     birthsInWindow,
@@ -511,6 +527,11 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     avgEnergyStart,
     avgEnergyEnd,
     avgEnergyTrend,
+    hutCountStart,
+    hutCountEnd,
+    overcrowdingRatioStart,
+    overcrowdingRatioEnd,
+    overcrowdingTrend,
   );
 
   return {
@@ -557,9 +578,37 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     avgEnergyStart,
     avgEnergyEnd,
     avgEnergyTrend,
+    hutCountStart,
+    hutCountEnd,
+    overcrowdingRatioStart,
+    overcrowdingRatioEnd,
+    overcrowdingTrend,
     deathTrend,
     note,
   };
+}
+
+function overcrowdingRatioFromSnapshot(snap: {
+  alive: number;
+  hutCount?: number;
+}): number {
+  const huts = snap.hutCount ?? 0;
+  if (huts <= 0) return snap.alive;
+  return snap.alive / huts;
+}
+
+function computeOvercrowdingTrend(
+  ratios: number[],
+): DayHistoryTrend["overcrowdingTrend"] {
+  if (ratios.length < 3) return "none";
+  const mid = Math.floor(ratios.length / 2);
+  const firstAvg = ratios.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    ratios.slice(mid).reduce((a, b) => a + b, 0) / (ratios.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg > firstAvg + 0.12) return "rising";
+  if (secondAvg < firstAvg - 0.12) return "declining";
+  return "stable";
 }
 
 function gathererRatioFromSnapshot(snap: {
@@ -774,6 +823,11 @@ function buildTrendNote(
   avgEnergyStart: number,
   avgEnergyEnd: number,
   avgEnergyTrend: DayHistoryTrend["avgEnergyTrend"],
+  hutCountStart: number,
+  hutCountEnd: number,
+  overcrowdingRatioStart: number,
+  overcrowdingRatioEnd: number,
+  overcrowdingTrend: DayHistoryTrend["overcrowdingTrend"],
 ): string {
   if (
     deaths === 0 &&
@@ -790,7 +844,8 @@ function buildTrendNote(
     ironStockTrend === "none" &&
     treasuryTrend === "none" &&
     wildFoodTrend === "none" &&
-    avgEnergyTrend === "none"
+    avgEnergyTrend === "none" &&
+    overcrowdingTrend === "none"
   ) {
     return "";
   }
@@ -988,6 +1043,19 @@ function buildTrendNote(
     const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
     return `${prefix}${energyPart} — силы падают, смертей ещё нет`;
   }
+  if (
+    overcrowdingTrend === "rising" &&
+    overcrowdingRatioEnd > overcrowdingRatioStart + 0.1 &&
+    overcrowdingRatioEnd >= 2.4 &&
+    emigration === 0 &&
+    deaths < 2 &&
+    hungerDeaths === 0 &&
+    immigration === 0
+  ) {
+    const crowdPart = `жителей/хижину: ${overcrowdingRatioStart.toFixed(1)}→${overcrowdingRatioEnd.toFixed(1)} (${hutCountStart}→${hutCountEnd} хиж.)`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${crowdPart} — перенаселение нарастает, исхода ещё не было`;
+  }
   if (barnFoodTrend === "declining" && barnFoodEnd < barnFoodStart - 10) {
     parts.push(`амбар: ${barnFoodStart}→${barnFoodEnd}`);
   }
@@ -1020,6 +1088,11 @@ function buildTrendNote(
   }
   if (avgEnergyTrend === "declining" && avgEnergyEnd < avgEnergyStart) {
     parts.push(`силы ср.: ${avgEnergyStart.toFixed(0)}→${avgEnergyEnd.toFixed(0)}`);
+  }
+  if (overcrowdingTrend === "rising" && overcrowdingRatioEnd > overcrowdingRatioStart) {
+    parts.push(
+      `жителей/хижину: ${overcrowdingRatioStart.toFixed(1)}→${overcrowdingRatioEnd.toFixed(1)}`,
+    );
   }
   return parts.join(" · ");
 }
@@ -1125,6 +1198,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("силы падают")) {
     return `Тревога: ${dayHistoryTrend.note} — проверь ночной отдых, сон и нагрузку на жителей.`;
+  }
+
+  if (dayHistoryTrend.note.includes("перенаселение нарастает")) {
+    return `Тревога: ${dayHistoryTrend.note} — строй хижины или снизь рождаемость.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

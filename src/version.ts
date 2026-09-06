@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.7.0";
+export const GAME_VERSION = "3.8.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.8.0",
+    date: "2026-09-06",
+    changes: [
+      "Инспектор: тренд перенаселения за 7 дней — ранний сигнал до исхода семей",
+      "Предупреждение «перенаселение нарастает, исхода ещё не было» при росте жителей на хижину",
+      "dayHistory: поле hutCount в 7-дневной аналитике жилья",
+      "Smoke 19440 дней (27 игровых лет): RORA_LONG_THRESHOLDS, ≥26 рождений на seed=2026",
+    ],
+  },
   {
     version: "3.7.0",
     date: "2026-09-05",

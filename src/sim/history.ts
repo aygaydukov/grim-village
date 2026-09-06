@@ -1,3 +1,4 @@
+import { countHuts } from "./housing";
 import { countByProfession } from "./jobs";
 import { barnStock } from "./map";
 import { seasonForDay } from "./season";
@@ -51,6 +52,7 @@ export function recordDaySnapshot(world: World): void {
     wildFood: wildFoodTotal(world),
     avgHunger: hungerSum / n,
     avgEnergy: energySum / n,
+    hutCount: countHuts(world),
     professions: countByProfession(world),
     events: takeDayEvents(world),
   };
