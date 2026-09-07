@@ -1,9 +1,9 @@
 {
   "version": 8,
   "label": "after_10_days",
-  "gameVersion": "3.9.0",
-  "capturedAt": "2026-09-07T07:37:53.056Z",
-  "seed": 2026,
+  "gameVersion": "3.10.0",
+  "capturedAt": "2026-09-07T20:49:26.036Z",
+  "seed": 165834,
   "day": 11,
-  "alive": 22
+  "alive": 23
 }

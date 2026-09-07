@@ -67,6 +67,7 @@
 - [x] **2026-09-05:** тренд падения средних сил в инспекторе (`dossier.ts`, v3.7.0); `avgEnergy` в dayHistory; smoke 18720 дней; `QORA_LONG_THRESHOLDS`
 - [x] **2026-09-06:** тренд перенаселения в инспекторе (`dossier.ts`, v3.8.0); `hutCount` в dayHistory; smoke 19440 дней; `RORA_LONG_THRESHOLDS`
 - [x] **2026-09-07:** тренд сокращения батраков в инспекторе (`dossier.ts`, v3.9.0); `laborerTrend`; smoke 20160 дней; `SORA_LONG_THRESHOLDS`
+- [x] **2026-09-07:** тренд сокращения сторожей в инспекторе (`dossier.ts`, v3.10.0); `keeperTrend`; smoke 20880 дней; `TORA_LONG_THRESHOLDS`
 
 ## Automation (Cursor)
 
@@ -154,6 +155,8 @@
 - [x] Smoke 19440 дней — `RORA_LONG_THRESHOLDS` (v3.8.0)
 - [x] Тренд сокращения батраков — `laborerTrend` (v3.9.0)
 - [x] Smoke 20160 дней — `SORA_LONG_THRESHOLDS` (v3.9.0)
+- [x] Тренд сокращения сторожей — `keeperTrend` (v3.10.0)
+- [x] Smoke 20880 дней — `TORA_LONG_THRESHOLDS` (v3.10.0)
 - [ ] **Похороны / кладбище** — трупы на карте, нет обряда (P0, `md/FEATURE_BACKLOG.md`)
 - [ ] **Колодец** — здание у воды (P0)
 - [ ] **Пекарня / сушка** — переработка еды (P0)

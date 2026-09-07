@@ -35,6 +35,11 @@ export interface DayHistoryTrend {
   laborerRatioStart: number;
   laborerRatioEnd: number;
   laborerTrend: "declining" | "rising" | "stable" | "none";
+  keepersStart: number;
+  keepersEnd: number;
+  keeperRatioStart: number;
+  keeperRatioEnd: number;
+  keeperTrend: "declining" | "rising" | "stable" | "none";
   artisansStart: number;
   artisansEnd: number;
   artisanTrend: "declining" | "rising" | "stable" | "none";
@@ -387,6 +392,11 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     laborerRatioStart: 0,
     laborerRatioEnd: 0,
     laborerTrend: "none",
+    keepersStart: 0,
+    keepersEnd: 0,
+    keeperRatioStart: 0,
+    keeperRatioEnd: 0,
+    keeperTrend: "none",
     artisansStart: 0,
     artisansEnd: 0,
     artisanTrend: "none",
@@ -466,6 +476,12 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
   const laborerRatioStart = laborerRatios[0] ?? 0;
   const laborerRatioEnd = laborerRatios[laborerRatios.length - 1] ?? 0;
   const laborerTrend = computeLaborerTrend(laborerRatios);
+  const keeperRatios = window.map((s) => keeperRatioFromSnapshot(s));
+  const keepersStart = window[0]?.professions?.keeper ?? 0;
+  const keepersEnd = window[window.length - 1]?.professions?.keeper ?? 0;
+  const keeperRatioStart = keeperRatios[0] ?? 0;
+  const keeperRatioEnd = keeperRatios[keeperRatios.length - 1] ?? 0;
+  const keeperTrend = computeKeeperTrend(keeperRatios);
   const artisansStart = window[0]?.professions?.artisan ?? 0;
   const artisansEnd = window[window.length - 1]?.professions?.artisan ?? 0;
   const artisanTrend = computeArtisanTrend(window.map((s) => s.professions?.artisan ?? 0));
@@ -527,6 +543,11 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     laborerRatioStart,
     laborerRatioEnd,
     laborerTrend,
+    keepersStart,
+    keepersEnd,
+    keeperRatioStart,
+    keeperRatioEnd,
+    keeperTrend,
     artisansStart,
     artisansEnd,
     artisanTrend,
@@ -583,6 +604,11 @@ export function analyzeDayHistoryTrend(world: World): DayHistoryTrend {
     laborerRatioStart,
     laborerRatioEnd,
     laborerTrend,
+    keepersStart,
+    keepersEnd,
+    keeperRatioStart,
+    keeperRatioEnd,
+    keeperTrend,
     artisansStart,
     artisansEnd,
     artisanTrend,
@@ -682,6 +708,30 @@ function computeLaborerTrend(
   if (firstAvg === 0 && secondAvg === 0) return "none";
   if (secondAvg < firstAvg - 0.07) return "declining";
   if (secondAvg > firstAvg + 0.07) return "rising";
+  return "stable";
+}
+
+function keeperRatioFromSnapshot(snap: {
+  alive: number;
+  professions?: Record<Profession, number>;
+}): number {
+  const keepers = snap.professions?.keeper ?? 0;
+  const children = snap.professions?.child ?? 0;
+  const workers = Math.max(1, snap.alive - children);
+  return keepers / workers;
+}
+
+function computeKeeperTrend(
+  ratios: number[],
+): DayHistoryTrend["keeperTrend"] {
+  if (ratios.length < 3) return "none";
+  const mid = Math.floor(ratios.length / 2);
+  const firstAvg = ratios.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
+  const secondAvg =
+    ratios.slice(mid).reduce((a, b) => a + b, 0) / (ratios.length - mid);
+  if (firstAvg === 0 && secondAvg === 0) return "none";
+  if (secondAvg < firstAvg - 0.06) return "declining";
+  if (secondAvg > firstAvg + 0.06) return "rising";
   return "stable";
 }
 
@@ -857,6 +907,11 @@ function buildTrendNote(
   laborerRatioStart: number,
   laborerRatioEnd: number,
   laborerTrend: DayHistoryTrend["laborerTrend"],
+  keepersStart: number,
+  keepersEnd: number,
+  keeperRatioStart: number,
+  keeperRatioEnd: number,
+  keeperTrend: DayHistoryTrend["keeperTrend"],
   artisansStart: number,
   artisansEnd: number,
   artisanTrend: DayHistoryTrend["artisanTrend"],
@@ -894,6 +949,7 @@ function buildTrendNote(
     stuckTrend === "none" &&
     gathererTrend === "none" &&
     laborerTrend === "none" &&
+    keeperTrend === "none" &&
     artisanTrend === "none" &&
     craftStockTrend === "none" &&
     saltStockTrend === "none" &&
@@ -1115,6 +1171,20 @@ function buildTrendNote(
     return `${prefix}${laborPart} — мало батраков, стройка замедлится`;
   }
   if (
+    keeperTrend === "declining" &&
+    keepersEnd < keepersStart - 1 &&
+    keeperRatioEnd < keeperRatioStart - 0.05 &&
+    keepersEnd <= 2 &&
+    deaths < 2 &&
+    hungerDeaths === 0 &&
+    immigration === 0 &&
+    barnFoodTrend !== "declining"
+  ) {
+    const keeperPart = `сторожа: ${keepersStart}→${keepersEnd}`;
+    const prefix = parts.length > 0 ? `${parts.join(" · ")} · ` : "";
+    return `${prefix}${keeperPart} — мало сторожей, амбар пока держится`;
+  }
+  if (
     overcrowdingTrend === "rising" &&
     overcrowdingRatioEnd > overcrowdingRatioStart + 0.1 &&
     overcrowdingRatioEnd >= 2.4 &&
@@ -1141,6 +1211,9 @@ function buildTrendNote(
   }
   if (laborerTrend === "declining" && laborersEnd < laborersStart) {
     parts.push(`батраки: ${laborersStart}→${laborersEnd}`);
+  }
+  if (keeperTrend === "declining" && keepersEnd < keepersStart) {
+    parts.push(`сторожа: ${keepersStart}→${keepersEnd}`);
   }
   if (artisanTrend === "rising" && artisansEnd > artisansStart) {
     parts.push(`ремесленники: ${artisansStart}→${artisansEnd}`);
@@ -1280,6 +1353,10 @@ function buildStabilityNote(
 
   if (dayHistoryTrend.note.includes("мало батраков")) {
     return `Тревога: ${dayHistoryTrend.note} — перераспредели профессии или снизь ремесло.`;
+  }
+
+  if (dayHistoryTrend.note.includes("мало сторожей")) {
+    return `Тревога: ${dayHistoryTrend.note} — перераспредели профессии или усиль охрану амбара.`;
   }
 
   if (dayHistoryTrend.deathTrend === "rising" && dayHistoryTrend.deathsInWindow >= 3) {

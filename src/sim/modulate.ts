@@ -291,6 +291,15 @@ export const SORA_LONG_THRESHOLDS: StabilityThresholds = {
   minBirths: 27,
 };
 
+/** Пороги для 20880-дневного smoke — двадцать девять игровых лет, сторожа и долгий цикл */
+export const TORA_LONG_THRESHOLDS: StabilityThresholds = {
+  minAliveRatio: 0.01,
+  maxDeathRatio: 3.45,
+  minBarnFood: 0,
+  maxAvgHunger: 99,
+  minBirths: 28,
+};
+
 export interface ModulationOptions {
   ciMode?: boolean;
   thresholds?: StabilityThresholds;
