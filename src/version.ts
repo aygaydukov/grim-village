@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.8.0";
+export const GAME_VERSION = "3.9.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,16 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.9.0",
+    date: "2026-09-07",
+    changes: [
+      "Инспектор: тренд сокращения батраков за 7 дней — ранний сигнал до замедления стройки",
+      "Предупреждение «мало батраков, стройка замедлится» при падении доли батраков без исхода",
+      "dayHistory: доля батраков вычисляется из professions в 7-дневной аналитике",
+      "Smoke 20160 дней (28 игровых лет): SORA_LONG_THRESHOLDS, ≥27 рождений на seed=2026",
+    ],
+  },
   {
     version: "3.8.0",
     date: "2026-09-06",
