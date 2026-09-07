@@ -74,7 +74,8 @@
 - Репозиторий: `https://github.com/aygaydukov/grim-village` (**public**).
 - Витрина GitHub Pages: https://aygaydukov.github.io/grim-village/
 - CI/CD: Pages (`docs/`) + deploy `dist/` на сервер (secrets `DEPLOY_*`).
-- Инструкция для промпта: [md/AUTOMATION.md](AUTOMATION.md)
+- Инструкция для промпта: [md/AUTOMATION.md](AUTOMATION.md) — **обновлён 2026-09-07**: запрет релизов «только инспектор + smoke»
+- Бэклог фич: [md/FEATURE_BACKLOG.md](FEATURE_BACKLOG.md)
 - План развития: [md/DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
 - **2026-08-11:** CD снова зелёный — фикс `tsc` (`behavior.ts` unused import, `quarantine.ts` dead `"sleep"` compare после сужения типа). С v1.6.0 по v1.8.0 деплой падал после тестов на `npm run build`.
 
@@ -153,6 +154,9 @@
 - [x] Smoke 19440 дней — `RORA_LONG_THRESHOLDS` (v3.8.0)
 - [x] Тренд сокращения батраков — `laborerTrend` (v3.9.0)
 - [x] Smoke 20160 дней — `SORA_LONG_THRESHOLDS` (v3.9.0)
+- [ ] **Похороны / кладбище** — трупы на карте, нет обряда (P0, `md/FEATURE_BACKLOG.md`)
+- [ ] **Колодец** — здание у воды (P0)
+- [ ] **Пекарня / сушка** — переработка еды (P0)
 - [ ] Звук (ветер, шаги, ночь)
 - [ ] Спрайты вместо силуэтов
 - [x] Pathfinding (A*) — `pathfind.ts`, кэш пути на агента
@@ -169,7 +173,7 @@
 - Амбар сглаживает голод, но при пустом складе и выбитом лесе деревня всё ещё мрёт — так и задумано.
 - Десятина 10% снижает приток в амбар, но казна подпитывает склад при кризисе — баланс проверен на 10-дневных прогонах.
 - Супружество пока «мягкое»: пара закрепляется при ухаживании.
-- Трупы копятся (обрезка старых тел при >40).
+- Трупы копятся на карте (`renderer.ts` рисует `!alive`); из памяти обрезаются только при `agents.length > 220` и `bodies > 40` (`behavior.ts`) — **нужны похороны/кладбище** (P0).
 - Центр поселения принудительно очищается от воды (радиус ~7 клеток) — иначе голод у амбара.
 - Сохранение в localStorage — только локально в браузере; экспорт файла — в бэклог.
 - `SAVE_VERSION = 14` — `sickHut2X`, `sickHut2Y`; v13 — `sickHutX`, `sickHutY`; v12 — `lastEpidemicDay`, шок `epidemic`; v11 — `saltStock`, `ironStock`; v10 — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
