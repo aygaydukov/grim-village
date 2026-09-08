@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.10.0";
+export const GAME_VERSION = "3.11.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,17 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.11.0",
+    date: "2026-09-08",
+    changes: [
+      "Похороны: старцы уносят тела на кладбище через 2 дня (при амбаре ≥ 15 мер)",
+      "Кладбище на окраине — появляется при первой смерти, могилы на карте (без тропы через лес)",
+      "Трупы исчезают с площади после обряда; запись в летописи",
+      "Инспектор: счётчики «Непогребённые» и «Кладбище»",
+      "SAVE_VERSION=15 — graveyardX/Y, burialCount, deathDay",
+    ],
+  },
   {
     version: "3.10.0",
     date: "2026-09-07",

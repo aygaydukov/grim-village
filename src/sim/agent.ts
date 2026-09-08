@@ -54,6 +54,8 @@ export function createAgent(
     homeY: opts.homeY ?? opts.y,
     alive: true,
     deathCause: null,
+    deathDay: null,
+    burialCarrierId: null,
     cooldown: 0,
     stuckTicks: 0,
   };
@@ -89,9 +91,11 @@ export function ageLabel(age: number): string {
   return "старец";
 }
 
-export function killAgent(agent: Agent, cause: string): void {
+export function killAgent(world: World, agent: Agent, cause: string): void {
   agent.alive = false;
   agent.deathCause = cause;
+  agent.deathDay = world.stats.day;
+  agent.burialCarrierId = null;
   agent.state = "idle";
   agent.task = "idle";
   agent.targetX = null;

@@ -222,6 +222,12 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   const trendRow = elOptional("live-v-trend-row");
   if (trendRow) trendRow.hidden = !r.dayHistoryTrend.note;
   setText("live-v-stuck", String(r.stuckAgents));
+  setText("live-v-unburied", String(r.unburiedBodies));
+  const unburiedRow = elOptional("live-v-unburied-row");
+  if (unburiedRow) unburiedRow.hidden = r.unburiedBodies <= 0;
+  setText("live-v-burials", `${r.burialCount} могил`);
+  const graveyardRow = elOptional("live-v-graveyard-row");
+  if (graveyardRow) graveyardRow.hidden = !r.graveyardActive;
   setText("live-v-quarantine", String(r.quarantineIsolated));
   const quarantineRow = elOptional("live-v-quarantine-row");
   if (quarantineRow) quarantineRow.hidden = r.quarantineIsolated <= 0;
@@ -384,6 +390,8 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="row"><span>Приход беженцев</span><span id="live-v-immigration">${r.immigrationArrivals}</span></div>
     <div class="row" id="live-v-trend-row" ${r.dayHistoryTrend.note ? "" : "hidden"}><span>Тренд (${r.dayHistoryTrend.windowDays} дн.)</span><span id="live-v-trend">${escapeHtml(r.dayHistoryTrend.note)}</span></div>
     <div class="row"><span>Застряли</span><span id="live-v-stuck">${r.stuckAgents}</span></div>
+    <div class="row" id="live-v-unburied-row" ${r.unburiedBodies > 0 ? "" : "hidden"}><span>Непогребённые</span><span id="live-v-unburied">${r.unburiedBodies}</span></div>
+    <div class="row" id="live-v-graveyard-row" ${r.graveyardActive ? "" : "hidden"}><span>Кладбище</span><span id="live-v-burials">${r.burialCount} могил</span></div>
     <div class="row" id="live-v-quarantine-row" ${r.quarantineIsolated > 0 ? "" : "hidden"}><span>В больной избе</span><span id="live-v-quarantine">${r.quarantineIsolated}</span></div>
     <div class="row" id="live-v-quarantine-households-row" ${r.quarantineHouseholds > 0 ? "" : "hidden"}><span>Семей в карантине</span><span id="live-v-quarantine-households">${r.quarantineHouseholds}</span></div>
     <div class="row" id="live-v-sick-hut-row" ${r.sickHutActive ? "" : "hidden"}><span>Больные избы</span><span id="live-v-sick-hut-count">${r.sickHutCount}</span></div>

@@ -65,6 +65,8 @@ describe("сохранение мира", () => {
     assert.equal(loaded.sickHut2Y, original.sickHut2Y);
     assert.equal(loaded.settlementVersion, original.settlementVersion);
     assert.equal(loaded.settlementId, original.settlementId);
+    assert.equal(loaded.graveyardX, original.graveyardX);
+    assert.equal(loaded.burialCount, original.burialCount);
     assert.equal(loaded.workshopX, original.workshopX);
     assert.equal(loaded.workshopY, original.workshopY);
     assert.equal(loaded.ciMode, false);

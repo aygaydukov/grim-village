@@ -15,6 +15,12 @@ import {
   shouldLaborerBuild,
   tickBuildProject,
 } from "./housing";
+import {
+  isActiveBurialCarrier,
+  syncCarriedBodies,
+  tickBurialCarrier,
+  tickDailyBurials,
+} from "./burial";
 import { tickDailyCaravan } from "./caravan";
 import { tickDailyCraft } from "./craft";
 import { mayTakeFromBarn, applyDepositTithe, tickDailyGovernment } from "./government";
@@ -227,21 +233,21 @@ function tickNeeds(world: World, agent: Agent): void {
   }
 
   if (agent.hunger >= 100) {
-    killAgent(agent, "голод");
+    killAgent(world, agent, "голод");
     world.stats.dead += 1;
     recordDeath(world, agent, "голод");
     return;
   }
 
   if (agent.energy <= 0 && night) {
-    killAgent(agent, "холод и истощение");
+    killAgent(world, agent, "холод и истощение");
     world.stats.dead += 1;
     recordDeath(world, agent, "холод и истощение");
     return;
   }
 
   if (agent.age >= MAX_AGE + world.rng() * 12) {
-    killAgent(agent, "старость");
+    killAgent(world, agent, "старость");
     world.stats.dead += 1;
     recordDeath(world, agent, "старость");
     return;
@@ -776,6 +782,15 @@ function forceNightRestIfNeeded(world: World, agent: Agent): void {
 function tickAgent(world: World, agent: Agent): void {
   if (!agent.alive) return;
 
+  if (isActiveBurialCarrier(world, agent)) {
+    const prevX = agent.x;
+    const prevY = agent.y;
+    agent.energy = Math.max(0, agent.energy - 0.012);
+    tickBurialCarrier(world, agent);
+    trackAndRecoverStuck(world, agent, prevX, prevY);
+    return;
+  }
+
   const prevX = agent.x;
   const prevY = agent.y;
 
@@ -807,6 +822,8 @@ function tickAgent(world: World, agent: Agent): void {
     "seekBuild",
     "build",
     "craft",
+    "seekBurial",
+    "carryBody",
   ];
 
   if (!busy.includes(agent.state)) {
@@ -902,6 +919,7 @@ export function simulateTick(world: World): void {
     tickDailyCaravan(world);
     tickDailyResources(world);
     rebalanceVillageLabor(world);
+    tickDailyBurials(world);
     recordDaySnapshot(world);
   }
 
@@ -910,6 +928,8 @@ export function simulateTick(world: World): void {
   for (const agent of world.agents) {
     tickAgent(world, agent);
   }
+
+  syncCarriedBodies(world);
 
   if (world.agents.length > 220) {
     const bodies = world.agents.filter((a) => !a.alive);

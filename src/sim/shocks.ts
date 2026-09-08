@@ -125,7 +125,7 @@ export function tickEpidemicMortality(world: World): void {
     if (!agent.alive) continue;
     const vuln = epidemicVulnerability(agent) * epidemicIsolationFactor(world, agent);
     if (!chance(world.rng, rate * vuln)) continue;
-    killAgent(agent, "болезнь");
+    killAgent(world, agent, "болезнь");
     world.stats.dead += 1;
     recordDeath(world, agent, "болезнь");
   }

@@ -219,6 +219,8 @@ export function taskLabel(t: TaskKind): string {
       return "строит хижину";
     case "craft":
       return "мастерит изделия";
+    case "bury":
+      return "похороны";
   }
 }
 

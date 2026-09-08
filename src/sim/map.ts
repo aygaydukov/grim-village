@@ -28,6 +28,9 @@ export function setTileKind(world: World, x: number, y: number, kind: TileKind):
   } else if (kind === "workshop") {
     tile.maxFood = 0;
     tile.food = 0;
+  } else if (kind === "graveyard") {
+    tile.maxFood = 0;
+    tile.food = 0;
   } else {
     tile.maxFood = 0;
     tile.food = 0;
@@ -169,10 +172,39 @@ export function generateMap(
   return { tiles, hutSpots, barn, workshop };
 }
 
+/** Поставить кладбище и протянуть тропу к амбару */
+export function placeGraveyard(world: World, x: number, y: number): void {
+  const tile = getTile(world, x, y);
+  if (!tile || tile.kind === "water" || tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop") {
+    return;
+  }
+
+  tile.kind = "graveyard";
+  tile.food = 0;
+  tile.maxFood = 0;
+  // Тропа к амбару не нужна — похороны редки, а carvePath съедает лес у сборщиков
+
+  for (const [ax, ay] of [
+    [0, 1],
+    [1, 0],
+    [-1, 0],
+    [0, -1],
+  ]) {
+    const nx = x + ax!;
+    const ny = y + ay!;
+    const n = getTile(world, nx, ny);
+    if (n && n.kind !== "water" && n.kind !== "hut" && n.kind !== "barn" && n.kind !== "workshop" && n.kind !== "graveyard") {
+      n.kind = "dirt";
+      n.food = 0;
+      n.maxFood = 0;
+    }
+  }
+}
+
 /** Поставить хижину и протянуть тропу к амбару */
 export function placeHut(world: World, x: number, y: number): void {
   const tile = getTile(world, x, y);
-  if (!tile || tile.kind === "water" || tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop") return;
+  if (!tile || tile.kind === "water" || tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop" || tile.kind === "graveyard") return;
 
   tile.kind = "hut";
   tile.food = 0;
@@ -212,7 +244,7 @@ function carvePath(
 
   while (x !== x1 || y !== y1) {
     const tile = tiles[y * width + x];
-    if (tile && tile.kind !== "hut" && tile.kind !== "barn" && tile.kind !== "workshop") {
+    if (tile && tile.kind !== "hut" && tile.kind !== "barn" && tile.kind !== "workshop" && tile.kind !== "graveyard") {
       tile.kind = "dirt";
       tile.food = 0;
       tile.maxFood = 0;
@@ -254,7 +286,7 @@ export function findNearestWildFood(
     for (let x = fx - r; x <= fx + r; x++) {
       const tile = getTile(world, x, y);
       if (!tile || tile.food <= 0) continue;
-      if (tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop") continue;
+      if (tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop" || tile.kind === "graveyard") continue;
       const d = Math.hypot(x + 0.5 - fromX, y + 0.5 - fromY);
       if (d > maxDist) continue;
       if (!best || d < best.d) best = { x, y, d };

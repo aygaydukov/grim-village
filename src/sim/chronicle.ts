@@ -22,6 +22,8 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
   const namedCraft = events.filter((e) => e.kind === "craft");
   const namedTrade = events.filter((e) => e.kind === "trade");
   const namedCaravans = events.filter((e) => e.kind === "caravan");
+  const namedBurials = events.filter((e) => e.kind === "burial");
+  const namedGraveyards = events.filter((e) => e.kind === "graveyard");
 
   if (namedShocks.length > 0) {
     parts.push(formatShocks(namedShocks));
@@ -55,6 +57,10 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
     parts.push(formatCaravan(namedCaravans));
   }
 
+  if (namedGraveyards.length > 0) {
+    parts.push(formatGraveyard(namedGraveyards));
+  }
+
   if (namedBirths.length > 0) {
     parts.push(formatNamedList("родился", namedBirths.map((e) => e.name)));
   } else if (birthsToday > 0) {
@@ -65,6 +71,10 @@ export function formatDayEntry(snap: DaySnapshot, prev?: DaySnapshot): string {
     parts.push(formatDeaths(namedDeaths));
   } else if (deathsToday > 0) {
     parts.push(deathWord(deathsToday));
+  }
+
+  if (namedBurials.length > 0) {
+    parts.push(formatBurials(namedBurials));
   }
 
   if (namedProf.length > 0) {
@@ -185,6 +195,25 @@ function formatCaravan(events: DayEvent[]): string {
     return e.detail ? `караван ${e.detail}.` : "караван прибыл.";
   }
   return events.map((e) => (e.detail ? `караван ${e.detail}` : "караван")).join("; ") + ".";
+}
+
+function formatGraveyard(events: DayEvent[]): string {
+  if (events.length === 1) {
+    const e = events[0]!;
+    return e.detail ? `отведено кладбище ${e.detail}.` : "отведено кладбище на окраине.";
+  }
+  return "расширено кладбище на окраине.";
+}
+
+function formatBurials(events: DayEvent[]): string {
+  if (events.length === 1) {
+    const e = events[0]!;
+    return e.detail ? `похоронен ${e.name} (${e.detail} уложил в землю).` : `похоронен ${e.name}.`;
+  }
+  return `похоронено ${events.length}: ${events
+    .slice(0, 2)
+    .map((e) => e.name)
+    .join(", ")}.`;
 }
 
 function formatConstruction(events: DayEvent[]): string {

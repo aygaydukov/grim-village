@@ -56,6 +56,16 @@ export function recordCaravan(world: World, detail: string): void {
   pushEvent(world, { kind: "caravan", name: "караван", detail });
 }
 
+/** Записать основание кладбища */
+export function recordGraveyardFounded(world: World, detail: string): void {
+  pushEvent(world, { kind: "graveyard", name: "кладбище", detail });
+}
+
+/** Записать похороны */
+export function recordBurial(world: World, name: string, byWhom: string): void {
+  pushEvent(world, { kind: "burial", name, detail: byWhom });
+}
+
 /** Записать смену профессии (только если реально изменилась) */
 export function recordProfessionChange(
   world: World,

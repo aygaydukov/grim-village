@@ -78,6 +78,9 @@ export const STATE_LABELS: Record<string, string> = {
   idle: "у дома",
   seekBuild: "идёт на стройку",
   build: "строит хижину",
+  craft: "мастерит",
+  seekBurial: "идёт за телом",
+  carryBody: "несёт на кладбище",
 };
 
 export const SEX_LABELS = {

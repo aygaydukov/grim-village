@@ -119,6 +119,19 @@ export function renderWorld(
             ctx.fillRect(px + 3 + (i % 3) * 3, py + TILE_SIZE - 5 - Math.floor(i / 3) * 3, 2, 2);
           }
         }
+      } else if (tile.kind === "graveyard") {
+        ctx.fillStyle = TILE_EDGE.graveyard;
+        ctx.fillRect(px + 2, py + 4, TILE_SIZE - 4, TILE_SIZE - 6);
+        const graves = Math.min(4, Math.max(1, world.burialCount));
+        ctx.fillStyle = "#5a5850";
+        for (let i = 0; i < graves; i++) {
+          const gx = px + 4 + (i % 2) * 5;
+          const gy = py + 6 + Math.floor(i / 2) * 4;
+          ctx.fillRect(gx, gy, 3, 4);
+          ctx.fillStyle = "#6a6860";
+          ctx.fillRect(gx + 1, gy - 1, 1, 2);
+          ctx.fillStyle = "#5a5850";
+        }
       } else if (tile.kind === "forest") {
         ctx.fillStyle = "#141c12";
         ctx.beginPath();

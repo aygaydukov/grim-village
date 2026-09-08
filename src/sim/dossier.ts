@@ -1,4 +1,5 @@
 import { ageLabel, childrenOf, isAdult, isChild } from "./agent";
+import { countUnburiedBodies, hasGraveyard } from "./burial";
 import { policyLabel, starostaName } from "./government";
 import { countByProfession, professionLabel, taskLabel } from "./jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "./names";
@@ -115,6 +116,9 @@ export interface VillageReport {
   quarantineHouseholds: number;
   sickHutActive: boolean;
   sickHutCount: number;
+  unburiedBodies: number;
+  burialCount: number;
+  graveyardActive: boolean;
 }
 
 export function timePhase(world: World): string {
@@ -218,6 +222,9 @@ export function collectVillageReport(world: World): VillageReport {
   const quarantineHouseholds = countQuarantinedHouseholds(world);
   const sickHutActive = isEpidemicActive(world) && hasSickHut(world);
   const sickHutCount = countActiveSickHuts(world);
+  const unburiedBodies = countUnburiedBodies(world);
+  const burialCount = world.burialCount;
+  const graveyardActive = hasGraveyard(world);
   const stabilityNote = buildStabilityNote(
     world,
     deathCauses,
@@ -260,6 +267,8 @@ export function collectVillageReport(world: World): VillageReport {
     world.stats.dead > 0
       ? `Земля приняла ${world.stats.dead}${formatDeathCauseSummary(deathCauses)}.`
       : "Смерть пока молчит.",
+    unburiedBodies > 0 ? `На площади лежат ${unburiedBodies} непогребённых.` : "",
+    graveyardActive ? `На кладбище ${burialCount} могил.` : "",
   ].join(" ");
 
   return {
@@ -307,6 +316,9 @@ export function collectVillageReport(world: World): VillageReport {
     quarantineHouseholds,
     sickHutActive,
     sickHutCount,
+    unburiedBodies,
+    burialCount,
+    graveyardActive,
   };
 }
 
@@ -1254,6 +1266,11 @@ function buildStabilityNote(
   const totalDead = world.stats.dead;
   if (stuckAgents >= 2) {
     return `Тревога: ${stuckAgents} жителей застряли у воды или за участком — проверь путь и leash.`;
+  }
+
+  const unburied = countUnburiedBodies(world);
+  if (unburied >= 3) {
+    return `Тревога: ${unburied} трупов ждут похорон — деревня не успевает убирать мёртвых с площади.`;
   }
 
   if (totalDead === 0) return "";

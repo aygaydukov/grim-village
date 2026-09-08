@@ -68,6 +68,7 @@
 - [x] **2026-09-06:** тренд перенаселения в инспекторе (`dossier.ts`, v3.8.0); `hutCount` в dayHistory; smoke 19440 дней; `RORA_LONG_THRESHOLDS`
 - [x] **2026-09-07:** тренд сокращения батраков в инспекторе (`dossier.ts`, v3.9.0); `laborerTrend`; smoke 20160 дней; `SORA_LONG_THRESHOLDS`
 - [x] **2026-09-07:** тренд сокращения сторожей в инспекторе (`dossier.ts`, v3.10.0); `keeperTrend`; smoke 20880 дней; `TORA_LONG_THRESHOLDS`
+- [x] **2026-09-08:** похороны и кладбище (`burial.ts`, v3.11.0); старцы/батраки уносят тела; `SAVE_VERSION=15`
 
 ## Automation (Cursor)
 
@@ -157,7 +158,7 @@
 - [x] Smoke 20160 дней — `SORA_LONG_THRESHOLDS` (v3.9.0)
 - [x] Тренд сокращения сторожей — `keeperTrend` (v3.10.0)
 - [x] Smoke 20880 дней — `TORA_LONG_THRESHOLDS` (v3.10.0)
-- [ ] **Похороны / кладбище** — трупы на карте, нет обряда (P0, `md/FEATURE_BACKLOG.md`)
+- [x] **Похороны / кладбище** — `burial.ts`, уборка трупов (v3.11.0, SAVE_VERSION=15)
 - [ ] **Колодец** — здание у воды (P0)
 - [ ] **Пекарня / сушка** — переработка еды (P0)
 - [ ] Звук (ветер, шаги, ночь)
@@ -176,10 +177,10 @@
 - Амбар сглаживает голод, но при пустом складе и выбитом лесе деревня всё ещё мрёт — так и задумано.
 - Десятина 10% снижает приток в амбар, но казна подпитывает склад при кризисе — баланс проверен на 10-дневных прогонах.
 - Супружество пока «мягкое»: пара закрепляется при ухаживании.
-- Трупы копятся на карте (`renderer.ts` рисует `!alive`); из памяти обрезаются только при `agents.length > 220` и `bodies > 40` (`behavior.ts`) — **нужны похороны/кладбище** (P0).
+- Трупы убираются похоронами (`burial.ts`); обрезка памяти при >220 агентах сохранена как запасной клапан.
 - Центр поселения принудительно очищается от воды (радиус ~7 клеток) — иначе голод у амбара.
 - Сохранение в localStorage — только локально в браузере; экспорт файла — в бэклог.
-- `SAVE_VERSION = 14` — `sickHut2X`, `sickHut2Y`; v13 — `sickHutX`, `sickHutY`; v12 — `lastEpidemicDay`, шок `epidemic`; v11 — `saltStock`, `ironStock`; v10 — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
+- `SAVE_VERSION = 15` — `graveyardX/Y`, `burialCount`, `deathDay`, `burialCarrierId`; v14 — `sickHut2X`, `sickHut2Y`; v12 — `lastEpidemicDay`, шок `epidemic`; v11 — `saltStock`, `ironStock`; v10 — `workshopX`, `workshopY`, tile `workshop`; v9 — `lastCaravanDay`, `settlementVersion`, `settlementId`; v8 — `craftStock`; v7 — `lastImmigrationDay`; v6 — `starostaPolicy`; v5 — `lastMigrationDay`; v4 — `treasury`, `starostaId`; v3 — `buildProject`, `lastHutBuiltDay`; v2 — `activeShock`; v1 — `activeShock = null`.
 
 ## Полезные ссылки
 

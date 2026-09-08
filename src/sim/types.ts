@@ -1,6 +1,14 @@
 export const TILE_SIZE = 16;
 
-export type TileKind = "grass" | "dirt" | "forest" | "water" | "hut" | "barn" | "workshop";
+export type TileKind =
+  | "grass"
+  | "dirt"
+  | "forest"
+  | "water"
+  | "hut"
+  | "barn"
+  | "workshop"
+  | "graveyard";
 
 export type AgentSex = "male" | "female";
 
@@ -25,7 +33,8 @@ export type TaskKind =
   | "social"
   | "play"
   | "build"
-  | "craft";
+  | "craft"
+  | "bury";
 
 export type AgentState =
   | "wander"
@@ -43,7 +52,9 @@ export type AgentState =
   | "idle"
   | "seekBuild"
   | "build"
-  | "craft";
+  | "craft"
+  | "seekBurial"
+  | "carryBody";
 
 export interface Tile {
   kind: TileKind;
@@ -83,7 +94,9 @@ export type DayEventKind =
   | "immigration"
   | "craft"
   | "trade"
-  | "caravan";
+  | "caravan"
+  | "burial"
+  | "graveyard";
 
 export interface BuildProject {
   x: number;
@@ -157,6 +170,10 @@ export interface Agent {
   homeY: number;
   alive: boolean;
   deathCause: string | null;
+  /** Игровой день смерти — для очереди похорон */
+  deathDay: number | null;
+  /** Кто несёт тело к кладбищу */
+  burialCarrierId: number | null;
   cooldown: number;
   /** Тики без движения при поиске еды/дома — для диагностики застревания */
   stuckTicks: number;
@@ -229,6 +246,14 @@ export interface World {
   /** Вторая больная изба при переполнении первой (≥5 семей в карантине) */
   sickHut2X: number | null;
   sickHut2Y: number | null;
+  /** Кладбище на окраине */
+  graveyardX: number | null;
+  graveyardY: number | null;
+  /** Сколько похоронено с начала поселения */
+  burialCount: number;
+  /** Текущее перенесение тела */
+  activeBurialBodyId: number | null;
+  activeBurialCarrierId: number | null;
   /** Номер итерации поселения (перезапуск после фатала) */
   settlementVersion: number;
   /** Идентификатор текущего поселения */

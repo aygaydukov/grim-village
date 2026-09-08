@@ -10,12 +10,13 @@ import type {
   WorldStats,
 } from "./types";
 import { ensureWorkshop } from "./map";
+import { migrateUnburiedDeathDays } from "./burial";
 import { assignSickHut, hasSickHut } from "./quarantine";
 import { isEpidemicActive } from "./shocks";
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 14;
+export const SAVE_VERSION = 15;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -54,6 +55,11 @@ export interface WorldSave {
   sickHutY?: number | null;
   sickHut2X?: number | null;
   sickHut2Y?: number | null;
+  graveyardX?: number | null;
+  graveyardY?: number | null;
+  burialCount?: number;
+  activeBurialBodyId?: number | null;
+  activeBurialCarrierId?: number | null;
   settlementVersion?: number;
   settlementId?: string;
 }
@@ -98,6 +104,11 @@ export function serializeWorld(world: World): WorldSave {
     sickHutY: world.sickHutY,
     sickHut2X: world.sickHut2X,
     sickHut2Y: world.sickHut2Y,
+    graveyardX: world.graveyardX,
+    graveyardY: world.graveyardY,
+    burialCount: world.burialCount,
+    activeBurialBodyId: world.activeBurialBodyId,
+    activeBurialCarrierId: world.activeBurialCarrierId,
     settlementVersion: world.settlementVersion,
     settlementId: world.settlementId,
   };
@@ -106,6 +117,7 @@ export function serializeWorld(world: World): WorldSave {
 export function deserializeWorld(data: WorldSave): World {
   if (
     data.version !== SAVE_VERSION &&
+    data.version !== 14 &&
     data.version !== 13 &&
     data.version !== 12 &&
     data.version !== 11 &&
@@ -155,6 +167,11 @@ export function deserializeWorld(data: WorldSave): World {
     sickHutY: data.sickHutY ?? null,
     sickHut2X: data.sickHut2X ?? null,
     sickHut2Y: data.sickHut2Y ?? null,
+    graveyardX: data.graveyardX ?? null,
+    graveyardY: data.graveyardY ?? null,
+    burialCount: data.burialCount ?? 0,
+    activeBurialBodyId: data.activeBurialBodyId ?? null,
+    activeBurialCarrierId: data.activeBurialCarrierId ?? null,
     settlementVersion: data.settlementVersion ?? 1,
     settlementId: data.settlementId ?? "unknown",
     ciMode: false,
@@ -163,9 +180,14 @@ export function deserializeWorld(data: WorldSave): World {
   restoreRng(world, data.rngState);
   for (const agent of world.agents) {
     if (agent.stuckTicks == null) agent.stuckTicks = 0;
+    if (agent.deathDay === undefined) agent.deathDay = agent.alive ? null : world.stats.day;
+    if (agent.burialCarrierId === undefined) agent.burialCarrierId = null;
   }
   if (data.version < SAVE_VERSION) {
     ensureWorkshop(world);
+  }
+  if (data.version < 15) {
+    migrateUnburiedDeathDays(world);
   }
   if (data.version < 14) {
     if (isEpidemicActive(world)) assignSickHut(world);
