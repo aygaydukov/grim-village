@@ -9,14 +9,14 @@ import type {
   World,
   WorldStats,
 } from "./types";
-import { ensureWorkshop } from "./map";
+import { ensureWorkshop, ensureWell } from "./map";
 import { migrateUnburiedDeathDays } from "./burial";
 import { assignSickHut, hasSickHut } from "./quarantine";
 import { isEpidemicActive } from "./shocks";
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 15;
+export const SAVE_VERSION = 16;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -35,6 +35,8 @@ export interface WorldSave {
   barnY: number;
   workshopX?: number;
   workshopY?: number;
+  wellX?: number | null;
+  wellY?: number | null;
   stats: WorldStats;
   dayHistory: DaySnapshot[];
   pendingDayEvents: DayEvent[];
@@ -81,6 +83,8 @@ export function serializeWorld(world: World): WorldSave {
     barnY: world.barnY,
     workshopX: world.workshopX,
     workshopY: world.workshopY,
+    wellX: world.wellX,
+    wellY: world.wellY,
     stats: { ...world.stats },
     dayHistory: world.dayHistory.map((s) => ({
       ...s,
@@ -146,6 +150,8 @@ export function deserializeWorld(data: WorldSave): World {
     barnY: data.barnY,
     workshopX: data.workshopX ?? data.barnX + 2,
     workshopY: data.workshopY ?? data.barnY + 1,
+    wellX: data.wellX ?? null,
+    wellY: data.wellY ?? null,
     stats: { ...data.stats },
     dayHistory: data.dayHistory,
     seed: data.seed,
@@ -185,6 +191,9 @@ export function deserializeWorld(data: WorldSave): World {
   }
   if (data.version < SAVE_VERSION) {
     ensureWorkshop(world);
+  }
+  if (data.version < 16) {
+    ensureWell(world);
   }
   if (data.version < 15) {
     migrateUnburiedDeathDays(world);

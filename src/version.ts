@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.11.0";
+export const GAME_VERSION = "3.12.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,18 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.12.0",
+    date: "2026-09-09",
+    changes: [
+      "Колодец у воды — здание на карте, тропа к амбару",
+      "Очередь у колодца: не более 3 жителей одновременно",
+      "Застревание у воды — сброс пути к колодцу (порог 120 тиков вместо 200)",
+      "У колодца — лёгкий бонус к силам и жажде",
+      "Инспектор: «У колодца N / 3»; легенда карты",
+      "SAVE_VERSION=16 — wellX, wellY",
+    ],
+  },
   {
     version: "3.11.0",
     date: "2026-09-08",

@@ -31,6 +31,9 @@ export function setTileKind(world: World, x: number, y: number, kind: TileKind):
   } else if (kind === "graveyard") {
     tile.maxFood = 0;
     tile.food = 0;
+  } else if (kind === "well") {
+    tile.maxFood = 0;
+    tile.food = 0;
   } else {
     tile.maxFood = 0;
     tile.food = 0;
@@ -51,6 +54,7 @@ export function generateMap(
   hutSpots: { x: number; y: number }[];
   barn: { x: number; y: number };
   workshop: { x: number; y: number };
+  well: { x: number; y: number } | null;
 } {
   const rng = createRng(seed);
   const tiles: Tile[] = [];
@@ -169,13 +173,108 @@ export function generateMap(
     }
   }
 
-  return { tiles, hutSpots, barn, workshop };
+  const well = findWellSite(tiles, width, height, barn.x, barn.y, rng);
+  if (well) {
+    placeWellOnTiles(tiles, width, well.x, well.y, barn.x, barn.y);
+  }
+
+  return { tiles, hutSpots, barn, workshop, well };
+}
+
+/** Найти место для колодца — соседняя с водой клетка, ближе всего к амбару */
+function findWellSite(
+  tiles: Tile[],
+  width: number,
+  height: number,
+  barnX: number,
+  barnY: number,
+  rng: () => number,
+): { x: number; y: number } | null {
+  const candidates: { x: number; y: number; d: number }[] = [];
+
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const tile = tiles[y * width + x]!;
+      if (tile.kind === "water" || tile.kind === "barn" || tile.kind === "hut") continue;
+
+      let touchesWater = false;
+      for (const [dx, dy] of [
+        [0, 1],
+        [1, 0],
+        [-1, 0],
+        [0, -1],
+      ]) {
+        const n = tiles[(y + dy!) * width + (x + dx!)]!;
+        if (n.kind === "water") {
+          touchesWater = true;
+          break;
+        }
+      }
+      if (!touchesWater) continue;
+
+      const d = Math.hypot(x - barnX, y - barnY);
+      if (d > 22) continue;
+      candidates.push({ x, y, d });
+    }
+  }
+
+  if (candidates.length === 0) return null;
+  candidates.sort((a, b) => a.d - b.d);
+  const bestDist = candidates[0]!.d;
+  const near = candidates.filter((c) => c.d <= bestDist + 2);
+  return near[Math.floor(rng() * near.length)]!;
+}
+
+function placeWellOnTiles(
+  tiles: Tile[],
+  width: number,
+  x: number,
+  y: number,
+  barnX: number,
+  barnY: number,
+): void {
+  const tile = tiles[y * width + x]!;
+  tile.kind = "well";
+  tile.food = 0;
+  tile.maxFood = 0;
+  carvePath(tiles, width, x, y, barnX, barnY);
+
+  for (const [ax, ay] of [
+    [0, 1],
+    [1, 0],
+    [-1, 0],
+    [0, -1],
+  ]) {
+    const nx = x + ax!;
+    const ny = y + ay!;
+    const n = tiles[ny * width + nx];
+    if (
+      n &&
+      n.kind !== "water" &&
+      n.kind !== "hut" &&
+      n.kind !== "barn" &&
+      n.kind !== "workshop" &&
+      n.kind !== "graveyard" &&
+      n.kind !== "well"
+    ) {
+      n.kind = "dirt";
+      n.food = 0;
+      n.maxFood = 0;
+    }
+  }
 }
 
 /** Поставить кладбище и протянуть тропу к амбару */
 export function placeGraveyard(world: World, x: number, y: number): void {
   const tile = getTile(world, x, y);
-  if (!tile || tile.kind === "water" || tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop") {
+  if (
+    !tile ||
+    tile.kind === "water" ||
+    tile.kind === "barn" ||
+    tile.kind === "hut" ||
+    tile.kind === "workshop" ||
+    tile.kind === "well"
+  ) {
     return;
   }
 
@@ -193,7 +292,15 @@ export function placeGraveyard(world: World, x: number, y: number): void {
     const nx = x + ax!;
     const ny = y + ay!;
     const n = getTile(world, nx, ny);
-    if (n && n.kind !== "water" && n.kind !== "hut" && n.kind !== "barn" && n.kind !== "workshop" && n.kind !== "graveyard") {
+    if (
+      n &&
+      n.kind !== "water" &&
+      n.kind !== "hut" &&
+      n.kind !== "barn" &&
+      n.kind !== "workshop" &&
+      n.kind !== "graveyard" &&
+      n.kind !== "well"
+    ) {
       n.kind = "dirt";
       n.food = 0;
       n.maxFood = 0;
@@ -204,7 +311,16 @@ export function placeGraveyard(world: World, x: number, y: number): void {
 /** Поставить хижину и протянуть тропу к амбару */
 export function placeHut(world: World, x: number, y: number): void {
   const tile = getTile(world, x, y);
-  if (!tile || tile.kind === "water" || tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop" || tile.kind === "graveyard") return;
+  if (
+    !tile ||
+    tile.kind === "water" ||
+    tile.kind === "barn" ||
+    tile.kind === "hut" ||
+    tile.kind === "workshop" ||
+    tile.kind === "graveyard" ||
+    tile.kind === "well"
+  )
+    return;
 
   tile.kind = "hut";
   tile.food = 0;
@@ -244,7 +360,7 @@ function carvePath(
 
   while (x !== x1 || y !== y1) {
     const tile = tiles[y * width + x];
-    if (tile && tile.kind !== "hut" && tile.kind !== "barn" && tile.kind !== "workshop" && tile.kind !== "graveyard") {
+    if (tile && tile.kind !== "hut" && tile.kind !== "barn" && tile.kind !== "workshop" && tile.kind !== "graveyard" && tile.kind !== "well") {
       tile.kind = "dirt";
       tile.food = 0;
       tile.maxFood = 0;
@@ -286,7 +402,7 @@ export function findNearestWildFood(
     for (let x = fx - r; x <= fx + r; x++) {
       const tile = getTile(world, x, y);
       if (!tile || tile.food <= 0) continue;
-      if (tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop" || tile.kind === "graveyard") continue;
+      if (tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop" || tile.kind === "graveyard" || tile.kind === "well") continue;
       const d = Math.hypot(x + 0.5 - fromX, y + 0.5 - fromY);
       if (d > maxDist) continue;
       if (!best || d < best.d) best = { x, y, d };
@@ -336,6 +452,41 @@ export function barnPos(world: World): { x: number; y: number } {
 
 export function workshopPos(world: World): { x: number; y: number } {
   return { x: world.workshopX + 0.5, y: world.workshopY + 0.5 };
+}
+
+export function wellPosFromWorld(world: World): { x: number; y: number } | null {
+  if (world.wellX == null || world.wellY == null) return null;
+  return { x: world.wellX + 0.5, y: world.wellY + 0.5 };
+}
+
+export function hasWellTile(world: World): boolean {
+  return world.wellX != null && world.wellY != null;
+}
+
+/** Поставить колодец для старых сейвов без него */
+export function ensureWell(world: World): void {
+  if (hasWellTile(world)) {
+    for (let y = 0; y < world.height; y++) {
+      for (let x = 0; x < world.width; x++) {
+        if (world.tiles[y * world.width + x]!.kind === "well") {
+          world.wellX = x;
+          world.wellY = y;
+          return;
+        }
+      }
+    }
+  }
+
+  const site = findWellSite(world.tiles, world.width, world.height, world.barnX, world.barnY, world.rng);
+  if (!site) {
+    world.wellX = null;
+    world.wellY = null;
+    return;
+  }
+
+  placeWellOnTiles(world.tiles, world.width, site.x, site.y, world.barnX, world.barnY);
+  world.wellX = site.x;
+  world.wellY = site.y;
 }
 
 export function ensureWorkshop(world: World): void {

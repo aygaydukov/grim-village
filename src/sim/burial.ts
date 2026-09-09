@@ -36,7 +36,7 @@ function findGraveyardSite(world: World): { x: number; y: number } | null {
     for (let x = 2; x < world.width - 2; x++) {
       const tile = getTile(world, x, y);
       if (!tile) continue;
-      if (tile.kind === "water" || tile.kind === "hut" || tile.kind === "barn" || tile.kind === "workshop") {
+      if (tile.kind === "water" || tile.kind === "hut" || tile.kind === "barn" || tile.kind === "workshop" || tile.kind === "well") {
         continue;
       }
       if (tile.kind === "graveyard") continue;
@@ -53,6 +53,7 @@ function findGraveyardSite(world: World): { x: number; y: number } | null {
             (n.kind === "hut" ||
               n.kind === "barn" ||
               n.kind === "workshop" ||
+              n.kind === "well" ||
               n.kind === "graveyard")
           ) {
             nearBuilding = true;

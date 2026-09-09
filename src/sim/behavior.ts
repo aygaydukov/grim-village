@@ -65,6 +65,13 @@ import {
   pregnancyGameDays,
 } from "./time";
 import { clearAgentPath } from "./pathfind";
+import {
+  canApproachWell,
+  hasWell,
+  isNearWater,
+  tickWellHydration,
+  wellPos,
+} from "./well";
 import { chance, clamp, dist } from "./util";
 
 const HUNGER_RATE = 0.032;
@@ -724,6 +731,7 @@ const NIGHT_WORK_STATES: Agent["state"][] = [
 ];
 
 const STUCK_TICK_THRESHOLD = 200;
+const STUCK_NEAR_WATER_THRESHOLD = 120;
 const STUCK_MOVE_EPS = 0.025;
 
 /** Сброс пути и новая цель, если агент не двигается у воды или за leash */
@@ -747,12 +755,20 @@ function trackAndRecoverStuck(
     agent.stuckTicks = 0;
   }
 
-  if (agent.stuckTicks < STUCK_TICK_THRESHOLD) return;
+  if (agent.stuckTicks < stuckThreshold(world, agent)) return;
 
   clearAgentPath(agent.id);
   agent.targetX = null;
   agent.targetY = null;
   agent.stuckTicks = 0;
+
+  const wp = wellPos(world);
+  if (wp && canApproachWell(world, agent)) {
+    setTask(agent, "returnHome", "returnHome");
+    agent.targetX = wp.x;
+    agent.targetY = wp.y;
+    return;
+  }
 
   const barn = barnPos(world);
   if (agent.hunger > 58 && barnStock(world) > 0 && mayTakeFromBarn(world, agent)) {
@@ -766,6 +782,13 @@ function trackAndRecoverStuck(
   setTask(agent, "returnHome", "returnHome");
   agent.targetX = anchor.x;
   agent.targetY = anchor.y;
+}
+
+function stuckThreshold(world: World, agent: Agent): number {
+  if (hasWell(world) && isNearWater(world, agent.x, agent.y, 3)) {
+    return STUCK_NEAR_WATER_THRESHOLD;
+  }
+  return STUCK_TICK_THRESHOLD;
 }
 
 function forceNightRestIfNeeded(world: World, agent: Agent): void {
@@ -902,6 +925,7 @@ function tickAgent(world: World, agent: Agent): void {
   }
 
   trackAndRecoverStuck(world, agent, prevX, prevY);
+  tickWellHydration(world, agent);
 }
 
 export function simulateTick(world: World): void {

@@ -8,7 +8,8 @@ export type TileKind =
   | "hut"
   | "barn"
   | "workshop"
-  | "graveyard";
+  | "graveyard"
+  | "well";
 
 export type AgentSex = "male" | "female";
 
@@ -208,6 +209,9 @@ export interface World {
   barnY: number;
   workshopX: number;
   workshopY: number;
+  /** Колодец у воды — безопасная точка у берега */
+  wellX: number | null;
+  wellY: number | null;
   stats: WorldStats;
   dayHistory: DaySnapshot[];
   /** Seed генерации карты и начального PRNG */

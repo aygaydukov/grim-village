@@ -68,6 +68,7 @@
 - [x] **2026-09-06:** тренд перенаселения в инспекторе (`dossier.ts`, v3.8.0); `hutCount` в dayHistory; smoke 19440 дней; `RORA_LONG_THRESHOLDS`
 - [x] **2026-09-07:** тренд сокращения батраков в инспекторе (`dossier.ts`, v3.9.0); `laborerTrend`; smoke 20160 дней; `SORA_LONG_THRESHOLDS`
 - [x] **2026-09-07:** тренд сокращения сторожей в инспекторе (`dossier.ts`, v3.10.0); `keeperTrend`; smoke 20880 дней; `TORA_LONG_THRESHOLDS`
+- [x] **2026-09-09:** колодец у воды (`well.ts`, v3.12.0); очередь 3, сброс застревания; `SAVE_VERSION=16`
 - [x] **2026-09-08:** похороны и кладбище (`burial.ts`, v3.11.0); старцы/батраки уносят тела; `SAVE_VERSION=15`
 
 ## Automation (Cursor)

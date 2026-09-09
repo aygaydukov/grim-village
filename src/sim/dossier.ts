@@ -1,5 +1,6 @@
 import { ageLabel, childrenOf, isAdult, isChild } from "./agent";
 import { countUnburiedBodies, hasGraveyard } from "./burial";
+import { countAtWell, hasWell, MAX_AT_WELL } from "./well";
 import { policyLabel, starostaName } from "./government";
 import { countByProfession, professionLabel, taskLabel } from "./jobs";
 import { fullName, SEX_LABELS, STATE_LABELS } from "./names";
@@ -119,6 +120,8 @@ export interface VillageReport {
   unburiedBodies: number;
   burialCount: number;
   graveyardActive: boolean;
+  wellActive: boolean;
+  atWell: number;
 }
 
 export function timePhase(world: World): string {
@@ -225,6 +228,8 @@ export function collectVillageReport(world: World): VillageReport {
   const unburiedBodies = countUnburiedBodies(world);
   const burialCount = world.burialCount;
   const graveyardActive = hasGraveyard(world);
+  const wellActive = hasWell(world);
+  const atWell = countAtWell(world);
   const stabilityNote = buildStabilityNote(
     world,
     deathCauses,
@@ -269,6 +274,7 @@ export function collectVillageReport(world: World): VillageReport {
       : "Смерть пока молчит.",
     unburiedBodies > 0 ? `На площади лежат ${unburiedBodies} непогребённых.` : "",
     graveyardActive ? `На кладбище ${burialCount} могил.` : "",
+    wellActive ? `У колодца ${atWell} из ${MAX_AT_WELL} (очередь за водой).` : "",
   ].join(" ");
 
   return {
@@ -319,6 +325,8 @@ export function collectVillageReport(world: World): VillageReport {
     unburiedBodies,
     burialCount,
     graveyardActive,
+    wellActive,
+    atWell,
   };
 }
 

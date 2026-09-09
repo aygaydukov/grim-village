@@ -132,6 +132,15 @@ export function renderWorld(
           ctx.fillRect(gx + 1, gy - 1, 1, 2);
           ctx.fillStyle = "#5a5850";
         }
+      } else if (tile.kind === "well") {
+        ctx.fillStyle = TILE_EDGE.well;
+        ctx.fillRect(px + 3, py + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+        ctx.fillStyle = "#1a2838";
+        ctx.fillRect(px + 5, py + 5, TILE_SIZE - 10, TILE_SIZE - 10);
+        ctx.fillStyle = "#4a7898";
+        ctx.fillRect(px + 6, py + 7, TILE_SIZE - 12, 4);
+        ctx.fillStyle = "#6a98b8";
+        ctx.fillRect(px + 7, py + 8, 2, 2);
       } else if (tile.kind === "forest") {
         ctx.fillStyle = "#141c12";
         ctx.beginPath();
