@@ -42,7 +42,7 @@ function findBuildSite(world: World): { x: number; y: number } | null {
     for (let x = 1; x < world.width - 1; x++) {
       const tile = getTile(world, x, y);
       if (!tile) continue;
-      if (tile.kind === "water" || tile.kind === "hut" || tile.kind === "barn" || tile.kind === "workshop" || tile.kind === "graveyard" || tile.kind === "well") continue;
+      if (tile.kind === "water" || tile.kind === "hut" || tile.kind === "barn" || tile.kind === "workshop" || tile.kind === "bakery" || tile.kind === "graveyard" || tile.kind === "well") continue;
 
       const d = Math.hypot(x - cx, y - cy);
       if (d < 4 || d > 13) continue;

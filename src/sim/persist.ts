@@ -9,14 +9,14 @@ import type {
   World,
   WorldStats,
 } from "./types";
-import { ensureWorkshop, ensureWell } from "./map";
+import { ensureWorkshop, ensureWell, ensureBakery } from "./map";
 import { migrateUnburiedDeathDays } from "./burial";
 import { assignSickHut, hasSickHut } from "./quarantine";
 import { isEpidemicActive } from "./shocks";
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 16;
+export const SAVE_VERSION = 17;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -37,6 +37,8 @@ export interface WorldSave {
   workshopY?: number;
   wellX?: number | null;
   wellY?: number | null;
+  bakeryX?: number;
+  bakeryY?: number;
   stats: WorldStats;
   dayHistory: DaySnapshot[];
   pendingDayEvents: DayEvent[];
@@ -49,6 +51,7 @@ export interface WorldSave {
   lastMigrationDay?: number;
   lastImmigrationDay?: number;
   craftStock?: number;
+  driedStock?: number;
   saltStock?: number;
   ironStock?: number;
   lastCaravanDay?: number;
@@ -85,6 +88,8 @@ export function serializeWorld(world: World): WorldSave {
     workshopY: world.workshopY,
     wellX: world.wellX,
     wellY: world.wellY,
+    bakeryX: world.bakeryX,
+    bakeryY: world.bakeryY,
     stats: { ...world.stats },
     dayHistory: world.dayHistory.map((s) => ({
       ...s,
@@ -100,6 +105,7 @@ export function serializeWorld(world: World): WorldSave {
     lastMigrationDay: world.lastMigrationDay,
     lastImmigrationDay: world.lastImmigrationDay,
     craftStock: world.craftStock,
+    driedStock: world.driedStock,
     saltStock: world.saltStock,
     ironStock: world.ironStock,
     lastCaravanDay: world.lastCaravanDay,
@@ -152,6 +158,8 @@ export function deserializeWorld(data: WorldSave): World {
     workshopY: data.workshopY ?? data.barnY + 1,
     wellX: data.wellX ?? null,
     wellY: data.wellY ?? null,
+    bakeryX: data.bakeryX ?? data.barnX - 2,
+    bakeryY: data.bakeryY ?? data.barnY + 1,
     stats: { ...data.stats },
     dayHistory: data.dayHistory,
     seed: data.seed,
@@ -165,6 +173,7 @@ export function deserializeWorld(data: WorldSave): World {
     lastMigrationDay: data.lastMigrationDay ?? 0,
     lastImmigrationDay: data.lastImmigrationDay ?? 0,
     craftStock: data.craftStock ?? 0,
+    driedStock: data.driedStock ?? 0,
     saltStock: data.saltStock ?? 0,
     ironStock: data.ironStock ?? 0,
     lastCaravanDay: data.lastCaravanDay ?? 0,
@@ -194,6 +203,9 @@ export function deserializeWorld(data: WorldSave): World {
   }
   if (data.version < 16) {
     ensureWell(world);
+  }
+  if (data.version < 17) {
+    ensureBakery(world);
   }
   if (data.version < 15) {
     migrateUnburiedDeathDays(world);

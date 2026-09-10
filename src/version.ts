@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.12.0";
+export const GAME_VERSION = "3.13.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,17 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.13.0",
+    date: "2026-09-10",
+    changes: [
+      "Пекарня к западу от амбара — здание на карте, тропа к площади",
+      "Профессия «пекарь» — сушка излишков амбара при запасах ≥ 78 мер",
+      "Сушёный запас (driedStock) — осень/зима подпитывает амбар при нехватке",
+      "Инспектор: пекари, сушёный запас; легенда карты",
+      "SAVE_VERSION=17 — bakeryX/Y, driedStock",
+    ],
+  },
   {
     version: "3.12.0",
     date: "2026-09-09",

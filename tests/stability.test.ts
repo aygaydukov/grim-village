@@ -71,6 +71,9 @@ describe("сохранение мира", () => {
     assert.equal(loaded.workshopY, original.workshopY);
     assert.equal(loaded.wellX, original.wellX);
     assert.equal(loaded.wellY, original.wellY);
+    assert.equal(loaded.bakeryX, original.bakeryX);
+    assert.equal(loaded.bakeryY, original.bakeryY);
+    assert.equal(loaded.driedStock, original.driedStock);
     assert.equal(loaded.ciMode, false);
     for (const a of loaded.agents) {
       assert.equal(a.stuckTicks ?? 0, original.agents.find((o) => o.id === a.id)?.stuckTicks ?? 0);

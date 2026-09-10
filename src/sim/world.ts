@@ -15,7 +15,7 @@ export const DEFAULT_CONFIG: WorldConfig = {
 };
 
 export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): World {
-  const { tiles, hutSpots, barn, workshop, well } = generateMap(config.width, config.height, seed);
+  const { tiles, hutSpots, barn, workshop, bakery, well } = generateMap(config.width, config.height, seed);
   const rng = createRng(seed);
   const world: World = {
     width: config.width,
@@ -29,6 +29,8 @@ export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): Wo
     barnY: barn.y,
     workshopX: workshop.x,
     workshopY: workshop.y,
+    bakeryX: bakery.x,
+    bakeryY: bakery.y,
     wellX: well?.x ?? null,
     wellY: well?.y ?? null,
     stats: {
@@ -51,6 +53,7 @@ export function initWorld(config: WorldConfig = DEFAULT_CONFIG, seed = 1337): Wo
     lastMigrationDay: 0,
     lastImmigrationDay: 0,
     craftStock: 0,
+    driedStock: 0,
     saltStock: 0,
     ironStock: 0,
     lastCaravanDay: 0,

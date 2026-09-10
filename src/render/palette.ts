@@ -9,6 +9,7 @@ export const TILE_COLORS: Record<TileKind, string> = {
   hut: "#4a3428",
   barn: "#5a4028",
   workshop: "#4a3848",
+  bakery: "#4a4030",
   graveyard: "#2a2824",
   well: "#283848",
 };
@@ -21,6 +22,7 @@ export const TILE_EDGE: Record<TileKind, string> = {
   hut: "#5c4030",
   barn: "#6e5030",
   workshop: "#5a4860",
+  bakery: "#5a4838",
   graveyard: "#3a3630",
   well: "#3a5068",
 };
@@ -35,6 +37,7 @@ export const AGENT_DEAD = "#3a3030";
 export const AGENT_SLEEP = "#4a5a68";
 export const AGENT_HUNGRY = "#8a3030";
 export const AGENT_ARTISAN = "#6a5878";
+export const AGENT_BAKER = "#8a6848";
 export const SELECT_RING = "#c4a878";
 export const CARRY_DOT = "#c4a050";
 

@@ -22,6 +22,7 @@ import {
   tickDailyBurials,
 } from "./burial";
 import { tickDailyCaravan } from "./caravan";
+import { tickDailyBakery } from "./bakery";
 import { tickDailyCraft } from "./craft";
 import { mayTakeFromBarn, applyDepositTithe, tickDailyGovernment } from "./government";
 import { recordDaySnapshot } from "./history";
@@ -56,6 +57,7 @@ import {
   regenerateFood,
   syncBarnStat,
   workshopPos,
+  bakeryPosFromWorld,
 } from "./map";
 import type { Agent, TaskKind, World } from "./types";
 import {
@@ -136,6 +138,14 @@ function applyWorkPlan(world: World, agent: Agent): void {
         const wp = workshopPos(world);
         agent.targetX = wp.x;
         agent.targetY = wp.y;
+      }
+      break;
+    case "bake":
+      agent.state = "bake";
+      {
+        const bp = bakeryPosFromWorld(world);
+        agent.targetX = bp.x;
+        agent.targetY = bp.y;
       }
       break;
     case "idle":
@@ -225,7 +235,8 @@ function tickNeeds(world: World, agent: Agent): void {
       agent.state === "seekGather" ||
       agent.state === "gather" ||
       agent.state === "deposit" ||
-      agent.state === "craft"
+      agent.state === "craft" ||
+      agent.state === "bake"
         ? 0.01
         : 0;
     const coldDrain = night ? NIGHT_COLD * saltColdMultiplier(world) * barnWarmthMultiplier(world) : 0;
@@ -612,6 +623,23 @@ function actCraft(world: World, agent: Agent): void {
   }
 }
 
+function actBake(world: World, agent: Agent): void {
+  if (isBeyondLeash(world, agent)) {
+    setTask(agent, "returnHome", "returnHome");
+    return;
+  }
+  const bp = bakeryPosFromWorld(world);
+  if (agent.targetX == null || agent.targetY == null) {
+    agent.targetX = bp.x;
+    agent.targetY = bp.y;
+  }
+  const arrived = moveToward(world, agent, agent.targetX!, agent.targetY!, MOVE_SPEED * 0.55);
+  if (arrived) {
+    agent.targetX = bp.x + (world.rng() - 0.5) * 0.6;
+    agent.targetY = bp.y + (world.rng() - 0.5) * 0.6;
+  }
+}
+
 function actIdle(world: World, agent: Agent): void {
   if (isBeyondLeash(world, agent)) {
     setTask(agent, "returnHome", "returnHome");
@@ -725,6 +753,7 @@ const NIGHT_WORK_STATES: Agent["state"][] = [
   "seekGather",
   "deposit",
   "craft",
+  "bake",
   "build",
   "seekBuild",
   "patrol",
@@ -845,6 +874,7 @@ function tickAgent(world: World, agent: Agent): void {
     "seekBuild",
     "build",
     "craft",
+    "bake",
     "seekBurial",
     "carryBody",
   ];
@@ -913,6 +943,9 @@ function tickAgent(world: World, agent: Agent): void {
     case "craft":
       actCraft(world, agent);
       break;
+    case "bake":
+      actBake(world, agent);
+      break;
     case "idle":
       actIdle(world, agent);
       break;
@@ -940,6 +973,7 @@ export function simulateTick(world: World): void {
     tickDailyMigration(world);
     tickDailyImmigration(world);
     tickDailyCraft(world);
+    tickDailyBakery(world);
     tickDailyCaravan(world);
     tickDailyResources(world);
     rebalanceVillageLabor(world);

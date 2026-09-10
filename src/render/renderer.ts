@@ -10,6 +10,7 @@ import {
   AGENT_FEMALE,
   AGENT_HUNGRY,
   AGENT_ARTISAN,
+  AGENT_BAKER,
   AGENT_MALE,
   AGENT_SLEEP,
   BARN_FILL,
@@ -116,6 +117,20 @@ export function renderWorld(
           const craftDots = Math.min(5, Math.ceil(world.craftStock / 6));
           ctx.fillStyle = "#9a88a8";
           for (let i = 0; i < craftDots; i++) {
+            ctx.fillRect(px + 3 + (i % 3) * 3, py + TILE_SIZE - 5 - Math.floor(i / 3) * 3, 2, 2);
+          }
+        }
+      } else if (tile.kind === "bakery") {
+        ctx.fillStyle = TILE_EDGE.bakery;
+        ctx.fillRect(px + 2, py + 3, TILE_SIZE - 4, TILE_SIZE - 5);
+        ctx.fillStyle = "#3a2818";
+        ctx.fillRect(px + 3, py + 1, TILE_SIZE - 6, 4);
+        ctx.fillStyle = "#8a6848";
+        ctx.fillRect(px + 5, py + 8, TILE_SIZE - 10, 4);
+        if (world.driedStock > 0) {
+          const driedDots = Math.min(5, Math.ceil(world.driedStock / 8));
+          ctx.fillStyle = "#c4a878";
+          for (let i = 0; i < driedDots; i++) {
             ctx.fillRect(px + 3 + (i % 3) * 3, py + TILE_SIZE - 5 - Math.floor(i / 3) * 3, 2, 2);
           }
         }
@@ -273,6 +288,7 @@ function drawAgent(
   let color = agent.sex === "male" ? AGENT_MALE : AGENT_FEMALE;
   if (isChild(agent)) color = AGENT_CHILD;
   if (agent.profession === "artisan") color = AGENT_ARTISAN;
+  if (agent.profession === "baker") color = AGENT_BAKER;
   if (agent.state === "sleep") color = AGENT_SLEEP;
   if (agent.hunger > 75) color = AGENT_HUNGRY;
 

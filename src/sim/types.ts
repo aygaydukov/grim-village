@@ -8,6 +8,7 @@ export type TileKind =
   | "hut"
   | "barn"
   | "workshop"
+  | "bakery"
   | "graveyard"
   | "well";
 
@@ -20,6 +21,7 @@ export type Profession =
   | "laborer"
   | "keeper"
   | "artisan"
+  | "baker"
   | "elder";
 
 /** Высокоуровневая задача (что сейчас должен делать) */
@@ -35,6 +37,7 @@ export type TaskKind =
   | "play"
   | "build"
   | "craft"
+  | "bake"
   | "bury";
 
 export type AgentState =
@@ -54,6 +57,7 @@ export type AgentState =
   | "seekBuild"
   | "build"
   | "craft"
+  | "bake"
   | "seekBurial"
   | "carryBody";
 
@@ -130,6 +134,8 @@ export interface DaySnapshot {
   barnFood: number;
   /** Склад изделий мастерской на конец дня */
   craftStock?: number;
+  /** Сушёный запас пекарни на конец дня */
+  driedStock?: number;
   /** Запас соли в амбаре на конец дня */
   saltStock?: number;
   /** Запас железа на конец дня */
@@ -236,6 +242,10 @@ export interface World {
   lastImmigrationDay: number;
   /** Склад ремесленных изделий (ткань, посуда) */
   craftStock: number;
+  /** Сушёный запас пекарни — зимний резерв */
+  driedStock: number;
+  bakeryX: number;
+  bakeryY: number;
   /** Склад соли (консервация, ночной холод) */
   saltStock: number;
   /** Склад железа (стройка, инструменты) */

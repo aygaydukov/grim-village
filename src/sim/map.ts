@@ -28,6 +28,9 @@ export function setTileKind(world: World, x: number, y: number, kind: TileKind):
   } else if (kind === "workshop") {
     tile.maxFood = 0;
     tile.food = 0;
+  } else if (kind === "bakery") {
+    tile.maxFood = 0;
+    tile.food = 0;
   } else if (kind === "graveyard") {
     tile.maxFood = 0;
     tile.food = 0;
@@ -54,6 +57,7 @@ export function generateMap(
   hutSpots: { x: number; y: number }[];
   barn: { x: number; y: number };
   workshop: { x: number; y: number };
+  bakery: { x: number; y: number };
   well: { x: number; y: number } | null;
 } {
   const rng = createRng(seed);
@@ -126,7 +130,39 @@ export function generateMap(
       const nx = workshop.x + ax!;
       const ny = workshop.y + ay!;
       const n = tiles[ny * width + nx];
-      if (n && n.kind !== "water" && n.kind !== "hut" && n.kind !== "barn" && n.kind !== "workshop") {
+      if (n && n.kind !== "water" && n.kind !== "hut" && n.kind !== "barn" && n.kind !== "workshop" && n.kind !== "bakery") {
+        n.kind = "dirt";
+        n.food = 0;
+        n.maxFood = 0;
+      }
+    }
+  }
+
+  // Пекарня к западу от амбара — сушка излишков амбара
+  const bakery = { x: cx - 2, y: cy + 1 };
+  {
+    const t = tiles[bakery.y * width + bakery.x]!;
+    t.kind = "bakery";
+    t.food = 0;
+    t.maxFood = 0;
+    carvePath(tiles, width, bakery.x, bakery.y, barn.x, barn.y);
+    for (const [ax, ay] of [
+      [0, 1],
+      [1, 0],
+      [-1, 0],
+      [0, -1],
+    ]) {
+      const nx = bakery.x + ax!;
+      const ny = bakery.y + ay!;
+      const n = tiles[ny * width + nx];
+      if (
+        n &&
+        n.kind !== "water" &&
+        n.kind !== "hut" &&
+        n.kind !== "barn" &&
+        n.kind !== "workshop" &&
+        n.kind !== "bakery"
+      ) {
         n.kind = "dirt";
         n.food = 0;
         n.maxFood = 0;
@@ -165,7 +201,7 @@ export function generateMap(
       const nx = x + ax!;
       const ny = y + ay!;
       const n = tiles[ny * width + nx];
-      if (n && n.kind !== "water" && n.kind !== "hut" && n.kind !== "barn" && n.kind !== "workshop") {
+      if (n && n.kind !== "water" && n.kind !== "hut" && n.kind !== "barn" && n.kind !== "workshop" && n.kind !== "bakery") {
         n.kind = "dirt";
         n.food = 0;
         n.maxFood = 0;
@@ -178,7 +214,7 @@ export function generateMap(
     placeWellOnTiles(tiles, width, well.x, well.y, barn.x, barn.y);
   }
 
-  return { tiles, hutSpots, barn, workshop, well };
+  return { tiles, hutSpots, barn, workshop, bakery, well };
 }
 
 /** Найти место для колодца — соседняя с водой клетка, ближе всего к амбару */
@@ -254,6 +290,7 @@ function placeWellOnTiles(
       n.kind !== "hut" &&
       n.kind !== "barn" &&
       n.kind !== "workshop" &&
+      n.kind !== "bakery" &&
       n.kind !== "graveyard" &&
       n.kind !== "well"
     ) {
@@ -273,6 +310,7 @@ export function placeGraveyard(world: World, x: number, y: number): void {
     tile.kind === "barn" ||
     tile.kind === "hut" ||
     tile.kind === "workshop" ||
+    tile.kind === "bakery" ||
     tile.kind === "well"
   ) {
     return;
@@ -298,6 +336,7 @@ export function placeGraveyard(world: World, x: number, y: number): void {
       n.kind !== "hut" &&
       n.kind !== "barn" &&
       n.kind !== "workshop" &&
+      n.kind !== "bakery" &&
       n.kind !== "graveyard" &&
       n.kind !== "well"
     ) {
@@ -317,6 +356,7 @@ export function placeHut(world: World, x: number, y: number): void {
     tile.kind === "barn" ||
     tile.kind === "hut" ||
     tile.kind === "workshop" ||
+    tile.kind === "bakery" ||
     tile.kind === "graveyard" ||
     tile.kind === "well"
   )
@@ -336,7 +376,7 @@ export function placeHut(world: World, x: number, y: number): void {
     const nx = x + ax!;
     const ny = y + ay!;
     const n = getTile(world, nx, ny);
-    if (n && n.kind !== "water" && n.kind !== "hut" && n.kind !== "barn" && n.kind !== "workshop") {
+    if (n && n.kind !== "water" && n.kind !== "hut" && n.kind !== "barn" && n.kind !== "workshop" && n.kind !== "bakery") {
       n.kind = "dirt";
       n.food = 0;
       n.maxFood = 0;
@@ -360,7 +400,7 @@ function carvePath(
 
   while (x !== x1 || y !== y1) {
     const tile = tiles[y * width + x];
-    if (tile && tile.kind !== "hut" && tile.kind !== "barn" && tile.kind !== "workshop" && tile.kind !== "graveyard" && tile.kind !== "well") {
+    if (tile && tile.kind !== "hut" && tile.kind !== "barn" && tile.kind !== "workshop" && tile.kind !== "bakery" && tile.kind !== "graveyard" && tile.kind !== "well") {
       tile.kind = "dirt";
       tile.food = 0;
       tile.maxFood = 0;
@@ -402,7 +442,7 @@ export function findNearestWildFood(
     for (let x = fx - r; x <= fx + r; x++) {
       const tile = getTile(world, x, y);
       if (!tile || tile.food <= 0) continue;
-      if (tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop" || tile.kind === "graveyard" || tile.kind === "well") continue;
+      if (tile.kind === "barn" || tile.kind === "hut" || tile.kind === "workshop" || tile.kind === "bakery" || tile.kind === "graveyard" || tile.kind === "well") continue;
       const d = Math.hypot(x + 0.5 - fromX, y + 0.5 - fromY);
       if (d > maxDist) continue;
       if (!best || d < best.d) best = { x, y, d };
@@ -452,6 +492,10 @@ export function barnPos(world: World): { x: number; y: number } {
 
 export function workshopPos(world: World): { x: number; y: number } {
   return { x: world.workshopX + 0.5, y: world.workshopY + 0.5 };
+}
+
+export function bakeryPosFromWorld(world: World): { x: number; y: number } {
+  return { x: world.bakeryX + 0.5, y: world.bakeryY + 0.5 };
 }
 
 export function wellPosFromWorld(world: World): { x: number; y: number } | null {
@@ -522,4 +566,39 @@ export function ensureWorkshop(world: World): void {
   world.workshopX = world.barnX + 1;
   world.workshopY = world.barnY;
   setTileKind(world, world.workshopX, world.workshopY, "workshop");
+}
+
+export function ensureBakery(world: World): void {
+  for (let y = 0; y < world.height; y++) {
+    for (let x = 0; x < world.width; x++) {
+      if (world.tiles[y * world.width + x]!.kind === "bakery") {
+        world.bakeryX = x;
+        world.bakeryY = y;
+        return;
+      }
+    }
+  }
+
+  const offsets = [
+    [-2, 1],
+    [-2, 0],
+    [-1, 2],
+    [0, -2],
+    [-3, 1],
+  ];
+  for (const [ox, oy] of offsets) {
+    const x = world.barnX + ox!;
+    const y = world.barnY + oy!;
+    const tile = getTile(world, x, y);
+    if (!tile || tile.kind === "water" || tile.kind === "barn" || tile.kind === "hut") continue;
+    setTileKind(world, x, y, "bakery");
+    world.bakeryX = x;
+    world.bakeryY = y;
+    carvePath(world.tiles, world.width, x, y, world.barnX, world.barnY);
+    return;
+  }
+
+  world.bakeryX = world.barnX - 1;
+  world.bakeryY = world.barnY;
+  setTileKind(world, world.bakeryX, world.bakeryY, "bakery");
 }
