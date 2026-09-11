@@ -9,14 +9,14 @@ import type {
   World,
   WorldStats,
 } from "./types";
-import { ensureWorkshop, ensureWell, ensureBakery } from "./map";
+import { ensureWorkshop, ensureWell, ensureBakery, ensureFarm } from "./map";
 import { migrateUnburiedDeathDays } from "./burial";
 import { assignSickHut, hasSickHut } from "./quarantine";
 import { isEpidemicActive } from "./shocks";
 import { createRng } from "./util";
 import { restoreRng, rngState } from "./world";
 
-export const SAVE_VERSION = 17;
+export const SAVE_VERSION = 18;
 export const STORAGE_KEY = "grim-village-save";
 
 export interface WorldSave {
@@ -39,6 +39,9 @@ export interface WorldSave {
   wellY?: number | null;
   bakeryX?: number;
   bakeryY?: number;
+  farmX?: number;
+  farmY?: number;
+  fieldGrowth?: number;
   stats: WorldStats;
   dayHistory: DaySnapshot[];
   pendingDayEvents: DayEvent[];
@@ -90,6 +93,9 @@ export function serializeWorld(world: World): WorldSave {
     wellY: world.wellY,
     bakeryX: world.bakeryX,
     bakeryY: world.bakeryY,
+    farmX: world.farmX,
+    farmY: world.farmY,
+    fieldGrowth: world.fieldGrowth,
     stats: { ...world.stats },
     dayHistory: world.dayHistory.map((s) => ({
       ...s,
@@ -160,6 +166,9 @@ export function deserializeWorld(data: WorldSave): World {
     wellY: data.wellY ?? null,
     bakeryX: data.bakeryX ?? data.barnX - 2,
     bakeryY: data.bakeryY ?? data.barnY + 1,
+    farmX: data.farmX ?? data.barnX,
+    farmY: data.farmY ?? data.barnY + 2,
+    fieldGrowth: data.fieldGrowth ?? 0,
     stats: { ...data.stats },
     dayHistory: data.dayHistory,
     seed: data.seed,
@@ -206,6 +215,10 @@ export function deserializeWorld(data: WorldSave): World {
   }
   if (data.version < 17) {
     ensureBakery(world);
+  }
+  if (data.version < 18) {
+    ensureFarm(world);
+    if (world.fieldGrowth <= 0) world.fieldGrowth = 10;
   }
   if (data.version < 15) {
     migrateUnburiedDeathDays(world);

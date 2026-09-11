@@ -98,6 +98,7 @@ export interface VillageReport {
   treasury: number;
   craftStock: number;
   driedStock: number;
+  fieldGrowth: number;
   saltStock: number;
   ironStock: number;
   starosta: string | null;
@@ -247,7 +248,7 @@ export function collectVillageReport(world: World): VillageReport {
   else if (stabilityNote) outlook = stabilityNote;
   else outlook = "Деревня дышит ровно. Пока ровно.";
 
-  const jobsLine = `Роли: сборщики ${professions.gatherer}, батраки ${professions.laborer}, сторожа ${professions.keeper}, ремесленники ${professions.artisan}, пекари ${professions.baker}, старцы ${professions.elder}, дети ${professions.child}.`;
+  const jobsLine = `Роли: сборщики ${professions.gatherer}, батраки ${professions.laborer}, сторожа ${professions.keeper}, ремесленники ${professions.artisan}, пекари ${professions.baker}, земледельцы ${professions.farmer}, старцы ${professions.elder}, дети ${professions.child}.`;
   const starosta = starostaName(world);
 
   const chronicle = [
@@ -257,6 +258,7 @@ export function collectVillageReport(world: World): VillageReport {
     world.treasury > 0 ? `В казне старосты ${world.treasury} мер.` : "Казна пуста — десятина ещё не накопилась.",
     world.craftStock > 0 ? `В мастерской ${world.craftStock} изделий.` : "",
     world.driedStock > 0 ? `В пекарне ${world.driedStock} мер сушёного запаса.` : "",
+    world.fieldGrowth > 0 ? `На пашне посевы ${world.fieldGrowth}% зрелости.` : "",
     world.saltStock > 0 ? `Соль в амбаре: ${Math.round(world.saltStock)} мешков.` : "",
     world.ironStock > 0 ? `Железо на складе: ${Math.round(world.ironStock)} слитков.` : "",
     sickHutActive
@@ -305,6 +307,7 @@ export function collectVillageReport(world: World): VillageReport {
     treasury: world.treasury,
     craftStock: world.craftStock,
     driedStock: world.driedStock,
+    fieldGrowth: world.fieldGrowth,
     saltStock: world.saltStock,
     ironStock: world.ironStock,
     starosta,

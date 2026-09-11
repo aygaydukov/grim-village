@@ -8,6 +8,10 @@ const KIND_COLOR: Record<string, string> = {
   hut: "#4a3428",
   barn: "#5a4028",
   workshop: "#4a3848",
+  bakery: "#4a4030",
+  farm: "#3a4828",
+  graveyard: "#2a2824",
+  well: "#283848",
 };
 
 /** Lightweight map snapshot (SVG) for settlement archives — no browser needed. */

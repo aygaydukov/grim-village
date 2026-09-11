@@ -11,6 +11,7 @@ import {
   AGENT_HUNGRY,
   AGENT_ARTISAN,
   AGENT_BAKER,
+  AGENT_FARMER,
   AGENT_MALE,
   AGENT_SLEEP,
   BARN_FILL,
@@ -133,6 +134,19 @@ export function renderWorld(
           for (let i = 0; i < driedDots; i++) {
             ctx.fillRect(px + 3 + (i % 3) * 3, py + TILE_SIZE - 5 - Math.floor(i / 3) * 3, 2, 2);
           }
+        }
+      } else if (tile.kind === "farm") {
+        ctx.fillStyle = TILE_EDGE.farm;
+        ctx.fillRect(px + 1, py + 4, TILE_SIZE - 2, TILE_SIZE - 5);
+        ctx.fillStyle = "#2a3820";
+        for (let row = 0; row < 3; row++) {
+          ctx.fillRect(px + 3, py + 6 + row * 3, TILE_SIZE - 6, 2);
+        }
+        const growth = world.fieldGrowth / 100;
+        if (growth > 0.05) {
+          const barH = Math.max(1, Math.floor((TILE_SIZE - 8) * growth));
+          ctx.fillStyle = growth >= 0.7 ? "#6a9850" : "#4a6838";
+          ctx.fillRect(px + TILE_SIZE - 5, py + TILE_SIZE - 3 - barH, 3, barH);
         }
       } else if (tile.kind === "graveyard") {
         ctx.fillStyle = TILE_EDGE.graveyard;
@@ -289,6 +303,7 @@ function drawAgent(
   if (isChild(agent)) color = AGENT_CHILD;
   if (agent.profession === "artisan") color = AGENT_ARTISAN;
   if (agent.profession === "baker") color = AGENT_BAKER;
+  if (agent.profession === "farmer") color = AGENT_FARMER;
   if (agent.state === "sleep") color = AGENT_SLEEP;
   if (agent.hunger > 75) color = AGENT_HUNGRY;
 

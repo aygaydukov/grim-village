@@ -73,6 +73,9 @@ describe("сохранение мира", () => {
     assert.equal(loaded.wellY, original.wellY);
     assert.equal(loaded.bakeryX, original.bakeryX);
     assert.equal(loaded.bakeryY, original.bakeryY);
+    assert.equal(loaded.farmX, original.farmX);
+    assert.equal(loaded.farmY, original.farmY);
+    assert.equal(loaded.fieldGrowth, original.fieldGrowth);
     assert.equal(loaded.driedStock, original.driedStock);
     assert.equal(loaded.ciMode, false);
     for (const a of loaded.agents) {

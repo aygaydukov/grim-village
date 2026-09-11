@@ -205,6 +205,7 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-keep", String(r.professions.keeper));
   setText("live-v-art", String(r.professions.artisan));
   setText("live-v-baker", String(r.professions.baker));
+  setText("live-v-farmer", String(r.professions.farmer));
   setText("live-v-eld", String(r.professions.elder));
   setText("live-v-ch", String(r.professions.child));
   setText("live-v-day", `${r.day} · ${r.phase}`);
@@ -214,6 +215,7 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-treasury", String(r.treasury));
   setText("live-v-craft", String(r.craftStock));
   setText("live-v-dried", String(r.driedStock));
+  setText("live-v-field", `${r.fieldGrowth}%`);
   setText("live-v-salt", String(Math.round(r.saltStock)));
   setText("live-v-iron", String(Math.round(r.ironStock)));
   setText("live-v-stability", r.stabilityNote || "—");
@@ -415,6 +417,7 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="row"><span>Сторожа</span><span id="live-v-keep">${r.professions.keeper}</span></div>
     <div class="row"><span>Ремесленники</span><span id="live-v-art">${r.professions.artisan}</span></div>
     <div class="row"><span>Пекари</span><span id="live-v-baker">${r.professions.baker}</span></div>
+    <div class="row"><span>Земледельцы</span><span id="live-v-farmer">${r.professions.farmer}</span></div>
     <div class="row"><span>Старцы</span><span id="live-v-eld">${r.professions.elder}</span></div>
     <div class="row"><span>Дети</span><span id="live-v-ch">${r.professions.child}</span></div>
 
@@ -422,6 +425,7 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="row"><span>Казна</span><span id="live-v-treasury">${r.treasury}</span></div>
     <div class="row"><span>Ремесло</span><span id="live-v-craft">${r.craftStock}</span></div>
     <div class="row"><span>Сушёный запас</span><span id="live-v-dried">${r.driedStock}</span></div>
+    <div class="row"><span>Посевы</span><span id="live-v-field">${r.fieldGrowth}%</span></div>
     <div class="row"><span>Соль</span><span id="live-v-salt">${Math.round(r.saltStock)}</span></div>
     <div class="row"><span>Железо</span><span id="live-v-iron">${Math.round(r.ironStock)}</span></div>
     <div class="row"><span>Староста</span><span id="live-v-starosta">${escapeHtml(r.starosta ?? "—")}</span></div>

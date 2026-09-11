@@ -16,7 +16,7 @@ describe("колодец", () => {
     assert.equal(tile.kind, "well");
   });
 
-  it("сохраняется в сейве SAVE_VERSION=17", () => {
+  it("сохраняется в сейве SAVE_VERSION=18", () => {
     const world = initWorld(undefined, 4242);
     const saved = serializeWorld(world);
     assert.equal(saved.version, SAVE_VERSION);

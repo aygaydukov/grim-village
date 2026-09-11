@@ -1,5 +1,5 @@
 /** Версия игры — отображается в HUD и в истории изменений */
-export const GAME_VERSION = "3.13.0";
+export const GAME_VERSION = "3.14.0";
 
 export interface VersionEntry {
   version: string;
@@ -9,6 +9,17 @@ export interface VersionEntry {
 
 /** История изменений по версиям (новые сверху) — единственный публичный changelog релизов */
 export const CHANGELOG: VersionEntry[] = [
+  {
+    version: "3.14.0",
+    date: "2026-09-11",
+    changes: [
+      "Пашня к югу от амбара — здание на карте, тропа к амбару",
+      "Профессия «земледелец» — посевы весной/летом, урожай осенью",
+      "fieldGrowth 0–100% — зрелость посевов, урожай в амбар",
+      "Инспектор: земледельцы, зрелость посевов; визуал роста на карте",
+      "SAVE_VERSION=18 — farmX/Y, fieldGrowth",
+    ],
+  },
   {
     version: "3.13.0",
     date: "2026-09-10",

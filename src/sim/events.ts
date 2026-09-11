@@ -46,6 +46,11 @@ export function recordBake(world: World, detail: string): void {
   pushEvent(world, { kind: "craft", name: "пекарня", detail });
 }
 
+/** Записать урожай с пашни */
+export function recordHarvest(world: World, detail: string): void {
+  pushEvent(world, { kind: "craft", name: "пашня", detail });
+}
+
 /** Записать ремесленное производство */
 export function recordCraft(world: World, detail: string): void {
   pushEvent(world, { kind: "craft", name: "ремесло", detail });
