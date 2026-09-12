@@ -12,6 +12,7 @@ import {
   AGENT_ARTISAN,
   AGENT_BAKER,
   AGENT_FARMER,
+  AGENT_GRAVEDIGGER,
   AGENT_MALE,
   AGENT_SLEEP,
   BARN_FILL,
@@ -304,6 +305,7 @@ function drawAgent(
   if (agent.profession === "artisan") color = AGENT_ARTISAN;
   if (agent.profession === "baker") color = AGENT_BAKER;
   if (agent.profession === "farmer") color = AGENT_FARMER;
+  if (agent.profession === "gravedigger") color = AGENT_GRAVEDIGGER;
   if (agent.state === "sleep") color = AGENT_SLEEP;
   if (agent.hunger > 75) color = AGENT_HUNGRY;
 

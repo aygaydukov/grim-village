@@ -1,6 +1,8 @@
 import { artisanTarget } from "./craft";
 import { bakerTarget } from "./bakery";
 import { farmerTarget } from "./farm";
+import { graveyardPos, hasGraveyard } from "./burial";
+import { gravediggerTarget } from "./gravedigger";
 import { barnPos, barnStock, bakeryPosFromWorld, farmPosFromWorld, findNearestWildFood, workshopPos } from "./map";
 import { shouldLaborerBuild } from "./housing";
 import { recordProfessionChange } from "./events";
@@ -33,6 +35,8 @@ export function leashRadius(agent: Agent): number {
       return 6;
     case "farmer":
       return 7;
+    case "gravedigger":
+      return 8;
     case "laborer":
       return 11;
     case "gatherer":
@@ -53,6 +57,11 @@ export function anchorPoint(world: World, agent: Agent): { x: number; y: number 
   }
   if (agent.profession === "farmer") {
     return farmPosFromWorld(world);
+  }
+  if (agent.profession === "gravedigger") {
+    const gy = graveyardPos(world);
+    if (gy) return gy;
+    return barnPos(world);
   }
   return { x: agent.homeX, y: agent.homeY };
 }
@@ -197,6 +206,13 @@ export function planWorkTask(world: World, agent: Agent): TaskKind {
       if (agent.carriedFood > 0) return "deposit";
       if (agent.energy > 30 && agent.hunger < 60 && !night) return "farm";
       return chance(world.rng, 0.4) ? "patrol" : "idle";
+
+    case "gravedigger":
+      if (agent.carriedFood > 0) return "deposit";
+      if (hasGraveyard(world) && stock < 85 && agent.energy > 38 && agent.hunger < 55 && findWorkFood(world, agent)) {
+        return "gather";
+      }
+      return chance(world.rng, 0.55) ? "patrol" : "idle";
   }
 }
 
@@ -216,6 +232,8 @@ export function professionLabel(p: Profession): string {
       return "пекарь";
     case "farmer":
       return "земледелец";
+    case "gravedigger":
+      return "могильщик";
     case "elder":
       return "старец";
   }
@@ -263,6 +281,7 @@ export function countByProfession(world: World): Record<Profession, number> {
     artisan: 0,
     baker: 0,
     farmer: 0,
+    gravedigger: 0,
     elder: 0,
   };
   for (const a of world.agents) {
@@ -283,7 +302,8 @@ function workingAdults(world: World): Agent[] {
         a.profession === "laborer" ||
         a.profession === "artisan" ||
         a.profession === "baker" ||
-        a.profession === "farmer"),
+        a.profession === "farmer" ||
+        a.profession === "gravedigger"),
   );
 }
 
@@ -298,7 +318,15 @@ function gathererScore(agent: Agent): number {
 /** Целевые квоты профессий от запасов амбара */
 export function laborTargets(
   world: World,
-): { gatherer: number; keeper: number; artisan: number; baker: number; farmer: number; laborer: number } {
+): {
+  gatherer: number;
+  keeper: number;
+  artisan: number;
+  baker: number;
+  farmer: number;
+  gravedigger: number;
+  laborer: number;
+} {
   const adults = world.agents.filter((a) => a.alive && isAdultAge(a.age) && a.age < 65);
   const n = Math.max(1, adults.length);
   const stock = barnStock(world);
@@ -322,13 +350,17 @@ export function laborTargets(
   const artisan = artisanTarget(world, n);
   const baker = bakerTarget(world, n);
   const farmer = farmerTarget(world, n);
+  const gravedigger = gravediggerTarget(world, n);
   const gatherer = Math.max(1, Math.round(n * gatherRatio));
   const keeper = Math.max(
     1,
-    Math.min(Math.round(n * keeperRatio), n - gatherer - artisan - baker - farmer - 1),
+    Math.min(
+      Math.round(n * keeperRatio),
+      n - gatherer - artisan - baker - farmer - gravedigger - 1,
+    ),
   );
-  const laborer = Math.max(0, n - gatherer - keeper - artisan - baker - farmer);
-  return { gatherer, keeper, artisan, baker, farmer, laborer };
+  const laborer = Math.max(0, n - gatherer - keeper - artisan - baker - farmer - gravedigger);
+  return { gatherer, keeper, artisan, baker, farmer, gravedigger, laborer };
 }
 
 /**
@@ -352,6 +384,11 @@ export function rebalanceVillageLabor(world: World): void {
     else if (i < targets.gatherer + targets.keeper + targets.artisan + targets.baker) next = "baker";
     else if (i < targets.gatherer + targets.keeper + targets.artisan + targets.baker + targets.farmer)
       next = "farmer";
+    else if (
+      i <
+      targets.gatherer + targets.keeper + targets.artisan + targets.baker + targets.farmer + targets.gravedigger
+    )
+      next = "gravedigger";
     else next = "laborer";
     if (next !== prev) {
       agent.profession = next;

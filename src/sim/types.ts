@@ -24,6 +24,7 @@ export type Profession =
   | "artisan"
   | "baker"
   | "farmer"
+  | "gravedigger"
   | "elder";
 
 /** Высокоуровневая задача (что сейчас должен делать) */

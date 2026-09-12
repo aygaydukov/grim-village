@@ -41,6 +41,7 @@ export const AGENT_HUNGRY = "#8a3030";
 export const AGENT_ARTISAN = "#6a5878";
 export const AGENT_BAKER = "#8a6848";
 export const AGENT_FARMER = "#6a7848";
+export const AGENT_GRAVEDIGGER = "#5a6068";
 export const SELECT_RING = "#c4a878";
 export const CARRY_DOT = "#c4a050";
 

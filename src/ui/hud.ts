@@ -206,6 +206,7 @@ export function refreshInspectorLive(selection: Selection, world: World): void {
   setText("live-v-art", String(r.professions.artisan));
   setText("live-v-baker", String(r.professions.baker));
   setText("live-v-farmer", String(r.professions.farmer));
+  setText("live-v-gravedigger", String(r.professions.gravedigger));
   setText("live-v-eld", String(r.professions.elder));
   setText("live-v-ch", String(r.professions.child));
   setText("live-v-day", `${r.day} · ${r.phase}`);
@@ -418,6 +419,7 @@ function renderVillage(r: VillageReport, world: World): string {
     <div class="row"><span>Ремесленники</span><span id="live-v-art">${r.professions.artisan}</span></div>
     <div class="row"><span>Пекари</span><span id="live-v-baker">${r.professions.baker}</span></div>
     <div class="row"><span>Земледельцы</span><span id="live-v-farmer">${r.professions.farmer}</span></div>
+    <div class="row"><span>Могильщики</span><span id="live-v-gravedigger">${r.professions.gravedigger}</span></div>
     <div class="row"><span>Старцы</span><span id="live-v-eld">${r.professions.elder}</span></div>
     <div class="row"><span>Дети</span><span id="live-v-ch">${r.professions.child}</span></div>
 

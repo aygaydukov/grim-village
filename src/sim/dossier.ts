@@ -248,7 +248,7 @@ export function collectVillageReport(world: World): VillageReport {
   else if (stabilityNote) outlook = stabilityNote;
   else outlook = "Деревня дышит ровно. Пока ровно.";
 
-  const jobsLine = `Роли: сборщики ${professions.gatherer}, батраки ${professions.laborer}, сторожа ${professions.keeper}, ремесленники ${professions.artisan}, пекари ${professions.baker}, земледельцы ${professions.farmer}, старцы ${professions.elder}, дети ${professions.child}.`;
+  const jobsLine = `Роли: сборщики ${professions.gatherer}, батраки ${professions.laborer}, сторожа ${professions.keeper}, ремесленники ${professions.artisan}, пекари ${professions.baker}, земледельцы ${professions.farmer}, могильщики ${professions.gravedigger}, старцы ${professions.elder}, дети ${professions.child}.`;
   const starosta = starostaName(world);
 
   const chronicle = [

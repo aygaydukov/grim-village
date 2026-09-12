@@ -17,7 +17,8 @@ function agentsInHousehold(world: World, agent: Agent): Agent[] {
 
 /** Индивидуальные исключения: голод, еда в руках, дежурные */
 function wouldQuarantineIndividually(agent: Agent): boolean {
-  if (agent.profession === "elder" || agent.profession === "keeper") return false;
+  if (agent.profession === "elder" || agent.profession === "keeper" || agent.profession === "gravedigger")
+    return false;
   if (agent.carriedFood > 0) return false;
   const eatAt = agent.pregnant > 0 ? 52 : 62;
   if (agent.hunger > eatAt - 4) return false;
@@ -36,7 +37,8 @@ export function householdUnderQuarantine(world: World, agent: Agent): boolean {
 /** Карантин: семья целиком в больную избу, кроме голода и дежурных */
 export function shouldEpidemicQuarantine(world: World, agent: Agent): boolean {
   if (!isEpidemicActive(world)) return false;
-  if (agent.profession === "elder" || agent.profession === "keeper") return false;
+  if (agent.profession === "elder" || agent.profession === "keeper" || agent.profession === "gravedigger")
+    return false;
   if (!householdUnderQuarantine(world, agent)) return false;
   return wouldQuarantineIndividually(agent);
 }

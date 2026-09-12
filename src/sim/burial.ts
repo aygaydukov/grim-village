@@ -107,8 +107,16 @@ function pickBurialCarrier(world: World): Agent | null {
     return true;
   });
 
+  const gravediggers = candidates.filter((a) => a.profession === "gravedigger");
+  if (gravediggers.length > 0) {
+    return gravediggers.sort((a, b) => b.energy - a.energy)[0] ?? null;
+  }
+
   const elders = candidates.filter((a) => a.profession === "elder" || a.age >= 65);
-  return elders.sort((a, b) => b.age - a.age)[0] ?? null;
+  const elder = elders.sort((a, b) => b.age - a.age)[0];
+  if (elder) return elder;
+
+  return candidates.sort((a, b) => b.energy - a.energy)[0] ?? null;
 }
 
 function clearActiveBurial(world: World): void {
@@ -165,8 +173,14 @@ function getBurialBody(world: World): Agent | null {
   return body;
 }
 
+function burialCarrierLabel(carrier: Agent): string {
+  if (carrier.profession === "gravedigger") return "могильщик";
+  if (carrier.profession === "elder") return "старец";
+  return "батрак";
+}
+
 function completeBurial(world: World, body: Agent, carrier: Agent): void {
-  recordBurial(world, fullName(body), carrier.profession === "elder" ? "старец" : "батрак");
+  recordBurial(world, fullName(body), burialCarrierLabel(carrier));
   world.burialCount += 1;
   world.agents = world.agents.filter((a) => a.id !== body.id);
   clearActiveBurial(world);

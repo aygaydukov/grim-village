@@ -44,7 +44,8 @@ src/
 ## Профессии и задачи
 
 Модуль `src/sim/jobs.ts`:
-- профессии: child / gatherer / laborer / keeper / elder
+- профессии: child / gatherer / laborer / keeper / artisan / baker / farmer / **gravedigger** / elder
+- `burial.ts` + `gravedigger.ts` — кладбище, перенос тел; могильщик в приоритете над старцами
 - задачи: idle, patrol, returnHome, gather, deposit, eat, rest, social, play, **build**
 - состояния: …, **seekBuild**, **build**
 - leash: агент не уходит далеко от дома (или амбара для сборщика/сторожа)

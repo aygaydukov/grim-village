@@ -82,6 +82,7 @@ function pickEmigrantFamily(world: World): Agent[] | null {
       a.profession !== "keeper" &&
       a.profession !== "artisan" &&
       a.profession !== "baker" &&
+      a.profession !== "gravedigger" &&
       a.profession !== "elder" &&
       a.pregnant <= 0 &&
       a.hunger > 45,

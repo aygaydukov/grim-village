@@ -37,4 +37,26 @@ describe("похороны", () => {
     assert.ok(!world.agents.some((a) => a.id === victim.id), "тело должно быть похоронено");
     assert.ok(world.burialCount >= 1);
   });
+
+  it("могильщик получает приоритет над старцем при похоронах", () => {
+    const world = initWorld(undefined, 9092);
+    const victim = world.agents[0]!;
+    const digger = world.agents.find((a) => a.alive && a.id !== victim.id)!;
+    digger.profession = "gravedigger";
+    digger.age = 40;
+    digger.energy = 90;
+    digger.hunger = 20;
+    const elder = world.agents.find((a) => a.alive && a.id !== victim.id && a.id !== digger.id)!;
+    elder.age = 70;
+    elder.profession = "elder";
+    elder.energy = 90;
+    elder.hunger = 20;
+
+    killAgent(world, victim, "тест");
+    ensureGraveyard(world);
+    world.stats.day += BURIAL_WAIT_DAYS;
+    tickDailyBurials(world);
+
+    assert.equal(world.activeBurialCarrierId, digger.id, "носильщик — могильщик");
+  });
 });
